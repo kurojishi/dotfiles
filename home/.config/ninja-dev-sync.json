@@ -1,0 +1,73 @@
+{
+  "Version": 3,
+  "DefaultHost": "fraber.aka.corp.amazon.com",
+  "DefaultWorkspaceRoot": "/home/fraber/workspace",
+  "LocalWorkspaceRoot": "",
+  "ShouldRespectUserSshConfig": false,
+  "RsyncFlags": [],
+  "WatchFlags": [],
+  "Exclude": [
+    "/.ninja-dev-sync-target",
+    "build",
+    ".DS_Store",
+    "runpy",
+    ".localized",
+    ".classpath",
+    ".project",
+    ".settings",
+    "eclipse-bin",
+    ".idea",
+    "out",
+    "*.iml",
+    "*.iws",
+    "test-runtime",
+    "junit*",
+    "tags*",
+    "dist",
+    "node_modules",
+    "package-lock.json",
+    "Cargo.lock"
+  ],
+  "Workspaces": [
+    {
+      "LocalSync": "/home/ANT.AMAZON.COM/fraber/workspaces/NWOutpostsHealthchecksWorkers/src",
+      "RemoteHost": "fraber.aka.corp.amazon.com",
+      "RemoteSync": "/home/fraber/workspace/NWOutpostsHealthchecksWorkers/src",
+      "LocalPkgInfo": "/home/ANT.AMAZON.COM/fraber/workspaces/NWOutpostsHealthchecksWorkers/packageInfo",
+      "RemotePkgInfo": "/home/fraber/workspace/NWOutpostsHealthchecksWorkers/packageInfo",
+      "Exclude": []
+    },
+    {
+      "LocalSync": "/home/ANT.AMAZON.COM/fraber/workspaces/NWOutpostsDemiAgent/src",
+      "RemoteHost": "fraber.aka.corp.amazon.com",
+      "RemoteSync": "/home/fraber/workspace/NWOutpostsDemiAgent/src",
+      "LocalPkgInfo": "/home/ANT.AMAZON.COM/fraber/workspaces/NWOutpostsDemiAgent/packageInfo",
+      "RemotePkgInfo": "/home/fraber/workspace/NWOutpostsDemiAgent/packageInfo",
+      "Exclude": []
+    },
+    {
+      "LocalSync": "/home/ANT.AMAZON.COM/fraber/workspaces/test_5900302778/src",
+      "RemoteHost": "fraber.aka.corp.amazon.com",
+      "RemoteSync": "/home/fraber/workspace/test_5900302778/src",
+      "LocalPkgInfo": "/home/ANT.AMAZON.COM/fraber/workspaces/test_5900302778/packageInfo",
+      "RemotePkgInfo": "/home/fraber/workspace/test_5900302778/packageInfo",
+      "Exclude": []
+    },
+    {
+      "LocalSync": "/home/ANT.AMAZON.COM/fraber/workspaces/test_5900302778/src",
+      "RemoteHost": "fraber.aka.corp.amazon.com",
+      "RemoteSync": "/home/fraber/workspace/test_5900302778/src",
+      "LocalPkgInfo": "/home/ANT.AMAZON.COM/fraber/workspaces/test_5900302778/packageInfo",
+      "RemotePkgInfo": "/home/fraber/workspace/test_5900302778/packageInfo",
+      "Exclude": []
+    },
+    {
+      "LocalSync": "/home/ANT.AMAZON.COM/fraber/workspaces/test_5900302778/src",
+      "RemoteHost": "fraber.aka.corp.amazon.com",
+      "RemoteSync": "/home/fraber/workspace/test_5900302778/src",
+      "LocalPkgInfo": "/home/ANT.AMAZON.COM/fraber/workspaces/test_5900302778/packageInfo",
+      "RemotePkgInfo": "/home/fraber/workspace/test_5900302778/packageInfo",
+      "Exclude": []
+    }
+  ]
+}

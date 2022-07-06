@@ -1,0 +1,26 @@
+# This is Git's per-user configuration file.
+[user]
+# Please adapt and uncomment the following lines:
+	name = Francesco Berni
+	email = kurojishi@kurojishi.me
+[color]
+	ui = auto
+[core]
+    pager = delta --plus-color="#012800" --minus-color="#340001" --theme='Monokai Extended'
+	excludesfile = ~/.gitignore_global
+	editor = vim
+[push]
+	default = simple
+[alias]
+	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+[merge]
+    tool = vimdiff
+[mergetool]
+    prompt = true
+[mergetool "vimdiff"]
+    cmd = vim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+[difftool]
+    prompt = false
+[diff]
+    tool = vimdiff
+    diffFilter = delta --color-only

@@ -1,0 +1,15 @@
+[Unit]
+Description=Borg User Backup
+ 
+[Service]
+Type=simple
+Nice=19
+IOSchedulingClass=2
+IOSchedulingPriority=7
+ExecStartPre=/usr/bin/borg break-lock /media/fraber/wd_black/borg_backups
+ExecStart=/home/ANT.AMAZON.COM/fraber/bin/borgbackup
+User=fraber
+
+[Install]
+WantedBy=graphical.target
+

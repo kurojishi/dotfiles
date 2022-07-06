@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+set -eu
+
+# This script is intended to be run as the xautolock locker and notifier.
+# It requires i3lock, and dunst is optional.
+
+# Copy or link this script as /usr/bin/slock to let xfce4-session run it.
+if [ "$(basename "$0")" = "slock" ]; then
+  cmd=lock
+else
+  cmd=${1:-lock}
+fi
+
+# Print the given message with a timestamp.
+info() { printf '%s\t%s\n' "$(date)" "$*"; }
+
+log() {
+  if [ -n "${LOCK_LOG:-}" ]; then
+    info >>"$LOCK_LOG" "$@"
+  else
+    info "$@"
+  fi
+}
+
+locked() { pkill -0 --euid "$(id -u)" --exact i3lock; }
+
+lock() {
+  dunst stop
+  CURRENT=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+  ${HOME}/.bin/i3cpu battery
+  ${HOME}/.bin/i3lock-multimonitor -i ${HOME}/Pictures/millenium_falcon.png -a -n
+  dunst resume
+  ${HOME}/.bin/i3cpu ${CURRENT}
+}
+
+# Control the dunst daemon, if it is running.
+dunst() {
+  pkill -0 --exact dunst || return 0
+
+  case ${1:-} in
+  stop)
+    log "Stopping notifications and locking screen."
+    pkill -USR1 --euid "$(id -u)" --exact dunst
+    ;;
+  resume)
+    log "...Resuming notifications."
+    pkill -USR2 --euid "$(id -u)" --exact dunst
+    ;;
+  *)
+    echo "dunst argument required: stop or resume"
+    return 1
+    ;;
+  esac
+}
+
+acpi_status() {
+  if grep -q enabled /proc/acpi/wakeup; then
+    notify-send -u critical -a "Suspend" "Acpi wakeup enabled. Run acpi_wakeup_disable"
+    return 1
+  else
+    return 0
+  fi
+}
+
+case "$cmd" in
+notify-lock)
+  # Notification should not be issued while locked even if dunst is paused.
+  locked && exit 0
+
+  log "Sending screen lock notification."
+  notify-send -u normal -a i3exit -- "Screen Lock" "Locking in 10 seconds"
+  ;;
+notify-suspend)
+  # Notification should not be issued while locked even if dunst is paused.
+  locked && exit 0
+
+  log "Sending suspend notification."
+  notify-send -u normal -a i3exit -- "System Suspend" "Suspending system in 10 seconds"
+  ;;
+lock)
+  log "Locking screen."
+  locked || lock
+  ;;
+lock-auto)
+  log "Locking screen."
+  locked || ${HOME}/.bin/i3lock-multimonitor -i ${HOME}/Pictures/millenium_falcon.png -a -n &
+  ;;
+logout)
+  log "Logging out."
+  i3-msg exit
+  ;;
+suspend)
+  lock &
+  log "Suspending system."
+  systemctl suspend
+  ;;
+suspend-auto)
+  if grep -q "0" /sys/class/power_supply/AC/online; then
+    locked || ${HOME}/.bin/i3lock-multimonitor -i ${HOME}/Pictures/millenium_falcon.png -a -n &
+    log "Suspending system."
+    systemctl suspend -i
+  fi
+  ;;
+hibernate)
+  locked || ${HOME}/.bin/i3lock-multimonitor -i ${HOME}/Pictures/millenium_falcon.png -a -n &
+  log "Hibernating system."
+  systemctl hibernate -i
+  ;;
+reboot)
+  log "Rebooting system."
+  systemctl reboot -i
+  ;;
+shutdown)
+  log "Shutting down system."
+  systemctl poweroff -i
+  ;;
+debug)
+  log "$@"
+  ;;
+*)
+  echo "Usage: $0 lock|lock-auto|logout|suspend|suspend-auto|hibernate|reboot|shutdown"
+  exit 2
+  ;;
+esac
+
+exit 0

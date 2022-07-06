@@ -1,0 +1,120 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+	echo "usage: $0 laptop|home|work|duplicate|popup [output]"
+	exit 1
+fi
+
+mode=${1}
+output=${2:-HDMI-1}
+
+i3_msg_dispatcher() {
+	arr=${1}
+	for cmd in "${arr[@]}"; do
+		i3-msg "${cmd}"
+		sleep 0.2
+	done
+}
+
+display_off() {
+	xrandr --output VIRTUAL1 --off
+	xrandr --output DP-1 --off
+	xrandr --output DP-2-2 --off
+	xrandr --output DP-2-1 --off
+	xrandr --output HDMI-1 --off
+	xrandr --output HDMI-2 --off
+}
+xrandr --auto
+
+case "$mode" in
+laptop)
+	display_off
+	xrandr --output eDP-1 --auto --primary
+	;;
+work)
+	display_off
+	xrandr --output eDP-1 --mode 1920x1080 --primary
+	xrandr --output DP-2-8 --mode 2560x1440 --right-of eDP-1
+	xrandr --output DP-2-1-8 --mode 2560x1440 --right-of DP-2-8 --rotate left
+	sleep 1
+	declare -a arr=(
+		"workspace 1:slack, move workspace to output DP2-1"
+		"workspace 2:irc, move workspace to output DP2-2"
+		"workspace 3:www1, move workspace to output eDP1"
+		"workspace 4:terminal, move workspace to output eDP1"
+		"workspace 5:terminal, move workspace to output eDP1"
+		"workspace 6:terminal, move workspace to output DP2-2"
+		"workspace 7:chrome, move workspace to output DP2-1"
+		"workspace 8:mail, move workspace to output DP2-2"
+		"workspace 9:www2, move workspace to output DP2-1"
+		"workspace 10:telegram, move workspace to output DP2-1"
+		"workspace 11:var2, move workspace to output DP2-2"
+		"workspace 12:var3, move workspace to output DP2-1"
+		"workspace 13:var4, move workspace to output DP2-2"
+	)
+	;;
+work-wide)
+	display_off
+	xrandr --output eDP-1 --mode 1920x1080 --primary
+	xrandr --output HDMI-1 --mode 3440x1440 --right-of eDP-1
+	sleep 1
+	declare -a arr=(
+		"workspace 1:slack, move workspace to output DP2-1"
+		"workspace 2:irc, move workspace to output DP2-2"
+		"workspace 3:www1, move workspace to output eDP1"
+		"workspace 4:terminal, move workspace to output eDP1"
+		"workspace 5:terminal, move workspace to output eDP1"
+		"workspace 6:terminal, move workspace to output DP2-2"
+		"workspace 7:chrome, move workspace to output DP2-1"
+		"workspace 8:mail, move workspace to output DP2-2"
+		"workspace 9:www2, move workspace to output DP2-1"
+		"workspace 10:telegram, move workspace to output DP2-1"
+		"workspace 11:var2, move workspace to output DP2-2"
+		"workspace 12:var3, move workspace to output DP2-1"
+		"workspace 13:var4, move workspace to output DP2-2"
+	)
+	;;
+home)
+	display_off
+	xrandr --output eDP-1 --mode 1920x1080 --primary
+	xrandr --output DP-2-1 --mode 1920x1080 --right-of eDP-1
+	sleep 1
+	declare -a arr=(
+		"workspace 1:slack, move workspace to output DP2-1"
+		"workspace 2:irc, move workspace to output DP2-2"
+		"workspace 3:www1, move workspace to output eDP1"
+		"workspace 4:terminal, move workspace to output eDP1"
+		"workspace 5:terminal, move workspace to output eDP1"
+		"workspace 6:terminal, move workspace to output DP2-2"
+		"workspace 7:chrome, move workspace to output DP2-1"
+		"workspace 8:mail, move workspace to output DP2-2"
+		"workspace 9:www2, move workspace to output DP2-1"
+		"workspace 10:telegram, move workspace to output DP2-1"
+		"workspace 11:var2, move workspace to output DP2-2"
+		"workspace 12:var3, move workspace to output DP2-1"
+		"workspace 13:var4, move workspace to output DP2-2"
+	)
+	#  i3_msg_dispatcher "${arr[@]}"
+	;;
+duplicate)
+	display_off
+	if [ "${output}" == "all" ]; then
+		xrandr --output DP1 --mode 1920x1080
+		xrandr --output DP2 --mode 1920x1080
+		xrandr --output HDMI1 --mode 1920x1080
+		xrandr --output HDMI2 --mode 1920x1080
+	else
+		xrandr --output "${output}" --mode 1920x1080
+	fi
+	xrandr --output eDP1 --auto
+	;;
+popup)
+	choice=$(zenity --list --title="Monitor configuration" --column="Monitor configuration list" "laptop" "home" "work" "duplicate" "duplicate all")
+	if [ ! -z "${choice}" ]; then
+		i3monitor "${choice}"
+	fi
+	;;
+esac
+
+nitrogen --restore
+i3-msg "restart"

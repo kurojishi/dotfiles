@@ -1,0 +1,1 @@
+{"internal.default_certificate_authority":"/usr/local/amazon/var/acme/ca/amazon-root-ca.pem","internal.last_modified":1516208812,"amend.enabled":"true","internal.is_first_run":"false","version_set.use_tip_revision":"true","issues.prompt":"true","issues.manage_issue_lifecycle":"true"}

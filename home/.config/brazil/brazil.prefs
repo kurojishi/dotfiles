@@ -1,0 +1,20 @@
+[packagecache]
+
+fileNameCaseConflictResolution = SKIP
+useBrazilCdn = true
+disableEdgeCache = true
+[cli "bin"]
+
+
+
+perl56 = /usr/bin/perl
+perl58 = /usr/bin/perl
+perl510 = /usr/bin/perl
+
+
+
+
+
+
+[environment]
+noTargetPlatformTransform = true

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in {0..7}; do
+  chown root:video /sys/devices/system/cpu/cpu${i}/cpufreq/scaling_governor
+  chmod 664 /sys/devices/system/cpu/cpu${i}/cpufreq/scaling_governor
+done

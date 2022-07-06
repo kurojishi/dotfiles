@@ -1,0 +1,20 @@
+version: "1.0"
+properties:
+  serverversion:
+    lastchecktimestamp: 1504715566
+    version: 0.1.325.0
+  images:
+    lastupdatetimestamps:
+      59a048fd541849a6fd32ea3307119ad1: 1565869293
+      10546c45ebacf115a3caff7bc43f0a16: 1618563764
+      1bc2117d97acf115a3cb024b1b5abb4d: 1621008301
+      71a2290f0d7d1f8803f786bc97ce4f57: 1618563759
+      66323d7bf17d1f8803f783ec51a4c614: 1621008294
+      rde-base: 1504786439
+      rde-endpoint: 1504786621
+    awsregion: eu-west-1
+  cli:
+    completionscriptpaths:
+      zsh: ~/.zsh/completion/_rde
+  midway:
+    cookiehash: eadd43d9a03f8e67f465e0f3e724b0b757da3e10
