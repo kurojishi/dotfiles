@@ -23,7 +23,6 @@ M.config = function()
         },
     }
     lvim.builtin.nvimtree.setup.view.width = 40
-    lvim.builtin.nvimtree.setup.view.auto_resize = true
     lvim.builtin.nvimtree.setup.actions.open_file.resize_window = true
     lvim.builtin.nvimtree.icons = kind.nvim_tree_icons
     lvim.builtin.nvimtree.on_config_done = function(_)

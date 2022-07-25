@@ -13,14 +13,17 @@ CASE_SENSITIVE="true"
 # Comment this out to disable weekly auto-update checks
 DISABLE_AUTO_UPDATE="true"
 
+# rbenv
+export RBENV_ROOT=$HOME/.rbenv
+
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git gitignore git-prompt git-extras pyenv python gnu-utils rsync virtualenv history-substring-search golang pip pass pylint man cargo rust extract rbenv) 
+plugins=(git gitignore git-prompt git-extras pyenv python gnu-utils rsync virtualenv history-substring-search golang pip pass pylint man rust extract rbenv) 
 
 source $ZSH/oh-my-zsh.sh
-export LOCALE_ARCHIVE_2_11="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
-export LOCALE_ARCHIVE_2_27="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
+#export LOCALE_ARCHIVE_2_11="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
+#export LOCALE_ARCHIVE_2_27="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
 export LOCALE_ARCHIVE="/usr/bin/locale"
-source /home/ANT.AMAZON.COM/fraber/.nix-profile/etc/profile.d/nix.sh
+#source $HOME/.nix-profile/etc/profile.d/nix.sh
 
 # Disable auto update
 export DISABLE_AUTO_UPDATE="true"
@@ -57,11 +60,6 @@ autoload -U bashcompinit && bashcompinit
 # Rust
 source $HOME/.cargo/env
 
-# rbenv
-export RBENV_ROOT=$HOME/.rbenv
-
-export PYENV_ROOT=$HOME/.pyenv
-
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
 
@@ -70,11 +68,10 @@ export TERM=xterm-256color
 export MANPAGER="/usr/bin/most -s"
 export VISUAL=nvim
 export EDITOR=nvim
-export GOPATH="/home/ANT.AMAZON.COM/fraber/go"
+export GOPATH="$HOME/go"
 
-export PATH=/opt/darktable/bin:$HOME/.toolbox/bin:$HOME/bin:$GOPATH/bin:/usr/local/go/bin:$HOME/.runtimes/NodeJS/15.x/bin:$HOME/.rbenv/bin:$HOME/.lua-language-server/bin:$HOME/.aarch64-linyx-musl-cross/bin:$PATH
-EDA_AUTO=$(mktemp -d)
-eda completions zsh > $EDA_AUTO/_eda
-fpath=($EDA_AUTO $fpath)
-source <(gopass completion bash)
+export PATH=/opt/darktable/bin:$HOME/bin:$GOPATH/bin:/usr/local/go/bin:$HOME/.local/bin:$HOME/.rbenv/bin:$HOME/.lua-language-server/bin:$HOME/.local/kitty.app/bin:$PATH
+#source <(gopass completion bash)
 eval "$(rbenv init - zsh)"
+export PATH="$HOME/.nodenv/bin:$PATH"
+eval "$(nodenv init - zsh)"

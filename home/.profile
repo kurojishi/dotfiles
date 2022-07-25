@@ -26,7 +26,7 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-if [ -e /home/ANT.AMAZON.COM/fraber/.nix-profile/etc/profile.d/nix.sh ]; then . /home/ANT.AMAZON.COM/fraber/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+if [ -e /home/kurojishi/.nix-profile/etc/profile.d/nix.sh ]; then . /home/kurojishi/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
