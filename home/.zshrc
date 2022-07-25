@@ -71,7 +71,7 @@ export EDITOR=nvim
 export GOPATH="$HOME/go"
 
 export PATH=/opt/darktable/bin:$HOME/bin:$GOPATH/bin:/usr/local/go/bin:$HOME/.local/bin:$HOME/.rbenv/bin:$HOME/.lua-language-server/bin:$HOME/.local/kitty.app/bin:$PATH
-#source <(gopass completion bash)
+source <(gopass completion bash)
 eval "$(rbenv init - zsh)"
 export PATH="$HOME/.nodenv/bin:$PATH"
 eval "$(nodenv init - zsh)"
