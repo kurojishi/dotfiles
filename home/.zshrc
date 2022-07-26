@@ -17,11 +17,11 @@ DISABLE_AUTO_UPDATE="true"
 export RBENV_ROOT=$HOME/.rbenv
 
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git gitignore git-prompt git-extras pyenv python gnu-utils rsync virtualenv history-substring-search golang pip pass pylint man rust extract rbenv) 
+plugins=(git gitignore git-prompt git-extras python gnu-utils rsync virtualenv history-substring-search golang pip pass pylint man rust extract rbenv) 
 
 source $ZSH/oh-my-zsh.sh
-#export LOCALE_ARCHIVE_2_11="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
-#export LOCALE_ARCHIVE_2_27="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
+export LOCALE_ARCHIVE_2_11="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
+export LOCALE_ARCHIVE_2_27="$(nix-build --no-out-link "<nixpkgs>" -A glibcLocales)/lib/locale/locale-archive"
 export LOCALE_ARCHIVE="/usr/bin/locale"
 #source $HOME/.nix-profile/etc/profile.d/nix.sh
 
@@ -71,7 +71,9 @@ export EDITOR=nvim
 export GOPATH="$HOME/go"
 
 export PATH=/opt/darktable/bin:$HOME/bin:$GOPATH/bin:/usr/local/go/bin:$HOME/.local/bin:$HOME/.rbenv/bin:$HOME/.lua-language-server/bin:$HOME/.local/kitty.app/bin:$PATH
+export PATH="$HOME/.nodenv/bin:$PATH"
+export PATH="$HOME/.pyenv/bin:$PATH"
 source <(gopass completion bash)
 eval "$(rbenv init - zsh)"
-export PATH="$HOME/.nodenv/bin:$PATH"
+eval "$(pyenv init - zsh)"
 eval "$(nodenv init - zsh)"

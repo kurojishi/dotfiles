@@ -33,3 +33,6 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 . "$HOME/.cargo/env"
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true"
+export KITTY_CONFIG_DIRECTORY=$HOME/.config/kitty/
+
+
