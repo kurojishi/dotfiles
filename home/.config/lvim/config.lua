@@ -1,7 +1,7 @@
 -- General
 lvim.log.level = "warn"
 lvim.format_on_save = true
-lvim.colorscheme = "spacedark"
+lvim.colorscheme = "tokyonight"
 lvim.line_wrap_cursor_movement = false
 lvim.termguicolors = true
 lvim.transparent_window = false
