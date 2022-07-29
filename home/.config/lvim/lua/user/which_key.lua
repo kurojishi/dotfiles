@@ -104,6 +104,8 @@ M.config = function()
         " Command Palette",
     }
     lvim.builtin.which_key.mappings[";"] = { "<cmd>Alpha<CR>", "舘Dashboard" }
+    -- LSP Virtual lines toggle
+    lvim.builtin.which_key.mappings["V"] = { "<cmd>lua require('lsp_lines').toggle()<cr>", "Toggle LSP Lines" }
     -- Mappings
     lvim.builtin.which_key.on_config_done = function(wk)
         local v_keys = {

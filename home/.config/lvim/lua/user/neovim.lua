@@ -112,6 +112,11 @@ M.config = function()
     -- Disable statusline in dashboard
     vim.g.dashboard_disable_statusline = 1
     vim.g.gitblame_enabled = 0
+
+    -- virtual lines
+    vim.diagnostic.config({
+        virtual_text = false,
+    })
 end
 
 return M
