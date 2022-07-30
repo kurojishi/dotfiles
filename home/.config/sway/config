@@ -1,8 +1,4 @@
-# Default config for sway
-#
-# Copy this to ~/.config/sway/config and edit it to your liking.
-#
-# Read `man 5 sway` for a complete reference.
+# vim:ft=swayconfig
 
 ### Variables
 #
@@ -62,6 +58,11 @@ exec swayidle -w \
 #
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
+
+input "2821:6582:Asus_Keyboard" {
+        xkb_layout us
+        xkb_options ctrl:nocaps
+    }
 
 ### Key bindings
 #
@@ -235,4 +236,3 @@ include /etc/sway/config.d/*
 exec --no-startup-id "pulseaudio --start &"
 exec --no-startup-id "gnome-keyring-daemon --start"
 exec --no-startup-id "nm-applet &"
-exec --no-startup-id "dunst &"

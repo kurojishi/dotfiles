@@ -47,6 +47,9 @@ require("user.autocmd").config()
 -- Lsp
 require("user.lsp").config()
 
+-- theme
+require("user.theme").tokyonight()
+
 -- Debugging
 -- require("user.dap").config()
 

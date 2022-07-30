@@ -199,6 +199,8 @@ M.config = function()
         },
         -- i3 syntax
         { "mboughaba/i3config.vim" },
+        -- sway syntax
+        { "terminalnode/sway-vim-syntax" },
         -- Tagbar on the left
         {
             "preservim/tagbar",
