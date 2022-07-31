@@ -209,11 +209,10 @@ bindsym $mod+r mode "resize"
     bindsym XF86AudioLowerVolume exec "$psst pactl set-sink-volume @DEFAULT_SINK@ -5% && pactl set-sink-mute @DEFAULT_SINK@ 0 $update"
     bindsym XF86AudioRaiseVolume exec "$psst pactl set-sink-volume @DEFAULT_SINK@ +5% && pactl set-sink-mute @DEFAULT_SINK@ 0 $update"
     bindsym XF86AudioMicMute exec "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
-    #bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
-    #bindsym XF86AudioPrev exec --no-startup-id playerctl previous
-    #bindsym XF86AudioNext exec --no-startup-id playerctl next
     bindsym XF86KbdBrightnessDown exec --no-startup-id "asusctl -p"
     bindsym XF86KbdBrightnessUp exec --no-startup-id "asusctl -n"
+    bindsym XF86MonBrightnessDown exec --no-startup-id "sudo light -U 10"
+    bindsym XF86MonBrightnessUp exec --no-startup-id "sudo light -A 10"
 
 
 
@@ -230,6 +229,9 @@ bar {
 }
 
 include /etc/sway/config.d/*
+
+assign [app_id="firefox"] workspace number 3
+assign [app_id="telegram-desktop_telegram-desktop"] workspace number 10
 
 # Autostart
 

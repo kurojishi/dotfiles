@@ -24,7 +24,7 @@
     # dynamic width from 0 to 300
     # width = (0, 300)
     # constant width of 300
-    width = 450
+    width = 150
 
     # The maximum height of a single notification, excluding the frame.
     height = 100
@@ -39,7 +39,7 @@
     scale = 0
 
     # Maximum number of notification (0 means no limit)
-    notification_limit = 0
+    notification_limit = 3
 
     ### Progress bar ###
 
