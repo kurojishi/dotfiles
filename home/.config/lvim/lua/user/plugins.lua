@@ -179,16 +179,6 @@ M.config = function()
                 }
             end,
         },
-        -- Spelling
-        {
-            "lewis6991/spellsitter.nvim",
-            config = function()
-                require("spellsitter").setup {
-                    hl = "SpellBad",
-                    captures = { "comment" },
-                }
-            end,
-        },
         -- Github management
         {
             "pwntester/octo.nvim",

@@ -664,8 +664,6 @@ M.config = function()
     M.config_bashls()
     -- Configure prosemd
     M.config_prosemd()
-    -- Initialize grammar-guard
-    -- require("grammar-guard").init()
 
     -- Mappings
     M.normal_buffer_mappings()
