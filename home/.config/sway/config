@@ -17,7 +17,7 @@ set $term "/home/kurojishi/.local/kitty.app/bin/kitty --detach"
 # Your preferred application launcher
 # Note: pass the final command to swaymsg so that the resulting window can be opened
 # on the original workspace that the command was run on.
-set $menu dmenu_path | wofi --show drun| xargs swaymsg exec --
+set $menu dmenu_path | rofi -show drun| xargs swaymsg exec --
 
 include /etc/sway/config-vars.d/*
 
@@ -238,3 +238,7 @@ assign [app_id="telegram-desktop_telegram-desktop"] workspace number 10
 exec --no-startup-id "pulseaudio --start &"
 exec --no-startup-id "gnome-keyring-daemon --start"
 exec --no-startup-id "nm-applet &"
+exec --no-startup-id "fcitx5 -dr &"
+exec --no-startup-id "telegram-desktop &"
+exec --no-startup-id "firefox &"
+

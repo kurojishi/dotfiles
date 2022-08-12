@@ -10,20 +10,20 @@
 
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
-    # include .bashrc if it exists
-    if [ -f "$HOME/.bashrc" ]; then
-	. "$HOME/.bashrc"
-    fi
+	# include .bashrc if it exists
+	if [ -f "$HOME/.bashrc" ]; then
+		. "$HOME/.bashrc"
+	fi
 fi
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
+if [ -d "$HOME/bin" ]; then
+	PATH="$HOME/bin:$PATH"
 fi
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
+if [ -d "$HOME/.local/bin" ]; then
+	PATH="$HOME/.local/bin:$PATH"
 fi
 
 if [ -e /home/kurojishi/.nix-profile/etc/profile.d/nix.sh ]; then . /home/kurojishi/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
@@ -35,4 +35,7 @@ eval "$(pyenv init --path)"
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true"
 export KITTY_CONFIG_DIRECTORY=$HOME/.config/kitty/
 
-
+XMODIFIERS=@im=fcitx
+QT_IM_MODULE=fcitx
+GTK_IM_MODULE=fcitx
+GLFW_IM_MODULE=ibus
