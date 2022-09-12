@@ -14,11 +14,12 @@
         "all-outputs": true,
         "format": "{name}: {icon}",
         "format-icons": {
-            "1": ":slack",
+            "1": ":slack",
             "2": ":tapiri",
             "3": ":www",
             "4": ":term",
             "5": ":term",
+            "8": ":calls",
             "9": ":www2",
             "10": ":telegram",
             "urgent": "",

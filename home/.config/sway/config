@@ -241,6 +241,7 @@ bar {
 include /etc/sway/config.d/*
 
 assign [app_id="firefox"] workspace number 3
+assign [app_id="zoom"] workspace number 8
 assign [app_id="telegram-desktop_telegram-desktop"] workspace number 10
 
 # Autostart
