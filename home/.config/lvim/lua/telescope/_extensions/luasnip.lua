@@ -51,10 +51,10 @@ local filter_description = function(name, description)
     return result
 end
 
-local get_docstring = function(snippets, ft, context)
+local get_docstring = function(luasnip, ft, context)
     local docstring = {}
     if context then
-        local snips_for_ft = snippets[ft]
+        local snips_for_ft = luasnip.get_snippets(ft)
         if snips_for_ft then
             for _, snippet in pairs(snips_for_ft) do
                 if context.name == snippet.name and context.trigger == snippet.trigger then
@@ -112,59 +112,64 @@ local luasnip_fn = function(opts)
         }
     end
 
-    pickers.new(opts, {
-        prompt_title = "LuaSnip",
-        finder = finders.new_table {
+    pickers
+        .new(opts, {
+            prompt_title = "LuaSnip",
+            finder = finders.new_table {
 
-            results = objs,
-            entry_maker = function(entry)
-                return {
-                    value = entry,
-                    display = make_display,
+                results = objs,
+                entry_maker = function(entry)
+                    return {
+                        value = entry,
+                        display = make_display,
 
-                    ordinal = entry.ft .. " " .. filter_null(entry.context.trigger) .. " " .. filter_null(
-                        entry.context.name
-                    ) .. " " .. filter_description(entry.context.name, entry.context.description),
+                        ordinal = entry.ft .. " " .. filter_null(entry.context.trigger) .. " " .. filter_null(
+                            entry.context.name
+                        ) .. " " .. filter_description(
+                            entry.context.name,
+                            entry.context.description
+                        ),
 
-                    preview_command = function(pvw_entry, bufnr)
-                        local snippet = get_docstring(luasnip.snippets, entry.ft, entry.context)
-                        vim.api.nvim_buf_set_option(bufnr, "filetype", entry.ft)
-                        if type(snippet) ~= "table" then
-                            local lines = {}
-                            for s in snippet:gmatch "[^\r\n]+" do
-                                table.insert(lines, s)
+                        preview_command = function(_, bufnr)
+                            local snippet = get_docstring(luasnip, entry.ft, entry.context)
+                            vim.api.nvim_buf_set_option(bufnr, "filetype", entry.ft)
+                            if type(snippet) ~= "table" then
+                                local lines = {}
+                                for s in snippet:gmatch "[^\r\n]+" do
+                                    table.insert(lines, s)
+                                end
+                                snippet = lines
                             end
-                            snippet = lines
-                        end
-                        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
-                    end,
-                }
-            end,
-        },
+                            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
+                        end,
+                    }
+                end,
+            },
 
-        previewer = previewers.display_content.new(opts),
-        sorter = conf.generic_sorter(opts),
-        attach_mappings = function()
-            actions.select_default:replace(function(prompt_bufnr)
-                local selection = action_state.get_selected_entry()
-                actions.close(prompt_bufnr)
-                vim.api.nvim_put({ selection.value.context.trigger }, "", true, true)
-                if luasnip.expandable() then
-                    vim.cmd "startinsert"
-                    luasnip.expand()
-                    vim.cmd "stopinsert"
-                else
-                    print(
-                        "Snippet '"
-                            .. selection.value.context.name
-                            .. "'"
-                            .. "was selected, but LuaSnip.expandable() returned false"
-                    )
-                end
-            end)
-            return true
-        end,
-    }):find()
+            previewer = previewers.display_content.new(opts),
+            sorter = conf.generic_sorter(opts),
+            attach_mappings = function()
+                actions.select_default:replace(function(prompt_bufnr)
+                    local selection = action_state.get_selected_entry()
+                    actions.close(prompt_bufnr)
+                    vim.api.nvim_put({ selection.value.context.trigger }, "", true, true)
+                    if luasnip.expandable() then
+                        vim.cmd "startinsert"
+                        luasnip.expand()
+                        vim.cmd "stopinsert"
+                    else
+                        print(
+                            "Snippet '"
+                                .. selection.value.context.name
+                                .. "'"
+                                .. "was selected, but LuaSnip.expandable() returned false"
+                        )
+                    end
+                end)
+                return true
+            end,
+        })
+        :find()
 end -- end custom function
 
 return telescope.register_extension { exports = { luasnip = luasnip_fn } }

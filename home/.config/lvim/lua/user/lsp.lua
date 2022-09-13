@@ -593,7 +593,7 @@ M.config = function()
         "yamlls",
         "taplo",
     })
-    lvim.lsp.automatic_servers_installation = true
+    lvim.lsp.installer.setup.automatic_servers_installation = true
     lvim.lsp.document_highlight = true
     lvim.lsp.code_lens_refresh = true
 

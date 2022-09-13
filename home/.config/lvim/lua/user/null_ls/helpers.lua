@@ -44,11 +44,11 @@ M.make_code_action = function(opts)
                         },
                     }, params)
 
-                    if save_on_return then
-                        vim.schedule(function()
-                            vim.cmd(params.bufnr .. "bufdo! silent keepjumps noautocmd update")
-                        end)
-                    end
+                    --if save_on_return then
+                    --    vim.schedule(function()
+                    --        vim.cmd(params.bufnr .. "bufdo! silent keepjumps noautocmd update")
+                    --    end)
+                    --end
                 end
 
                 -- function to invoke cli

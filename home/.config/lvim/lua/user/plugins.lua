@@ -116,7 +116,7 @@ M.config = function()
         },
         -- Lsp Typescript
         {
-            "jose-elias-alvarez/nvim-lsp-ts-utils",
+            "jose-elias-alvarez/typescript.nvim",
             ft = {
                 "javascript",
                 "javascriptreact",
@@ -126,7 +126,10 @@ M.config = function()
                 "typescript.tsx",
             },
             opt = true,
-            event = "BufReadPre",
+            event = { "BufReadPre", "BufNew" },
+            config = function()
+                require("user.null_ls.typescript").config()
+            end,
             before = "williamboman/nvim-lsp-installer",
         },
         -- Python coverage highlight
