@@ -11,7 +11,7 @@
     // Modules configuration
     "sway/workspaces": {
         "disable-scroll": true,
-        "all-outputs": true,
+        "all-outputs": false,
         "format": "{name}: {icon}",
         "format-icons": {
             "1": ":slack",
@@ -83,12 +83,10 @@
             "critical": 10
         },
         "format": "{capacity}% {icon}",
-        "format-charging": "{capacity}% ",
-        "format-plugged": "{capacity}% ",
+        "format-charging": "{capacity}% ",
+        "format-plugged": "{capacity}% ",
         "format-alt": "{time} {icon}",
-        // "format-good": "", // An empty format will hide the module
-        // "format-full": "",
-        "format-icons": ["", "", "", "", ""]
+        "format-icons": ["", "", "", "", ""]
     },
     "battery#bat2": {
         "bat": "BAT2"
