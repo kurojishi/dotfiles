@@ -1,29 +1,34 @@
 -- Formatting
 local formatters = require "lvim.lsp.null-ls.formatters"
-formatters.setup {}
+formatters.setup {
+    {
+        exe = "uncrustify",
+        -- args = {},
+        filetypes = { "java" },
+    },
+}
 
 -- Linting
 local linters = require "lvim.lsp.null-ls.linters"
 linters.setup {}
 
--- Lsp server override
-local status_ok, jdtls = pcall(require, "jdtls")
-if not status_ok then
-    return
-end
+-- Lsp config
+require("user.lsp.java").config()
 
-local workspace_path = os.getenv "HOME" .. "/workspace/"
-local JAVA_LS_EXECUTABLE = os.getenv "HOME" .. "/.local/share/lunarvim/lvim/utils/bin/jdtls"
-
-jdtls.start_or_attach {
-    on_attach = require("lvim.lsp").common_on_attach,
-    cmd = { JAVA_LS_EXECUTABLE, workspace_path .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t") },
+-- Additional mappings
+local icons = require("user.icons").icons
+local which_key = require "which-key"
+which_key.register {
+    ["f"] = {
+        T = {
+            name = icons.nuclear .. " JdtLs Tools",
+            o = { "<Cmd>lua require('jdtls').organize_imports()<CR>", "Organize Imports" },
+            v = { "<Cmd>lua require('jdtls').extract_variable()<CR>", "Extract Variable" },
+            c = { "<Cmd>lua require('jdtls').extract_constant()<CR>", "Extract Constant" },
+            m = { "<Cmd>lua require('jdtls').extract_method(true)<CR>", "Extract Method" },
+            t = { "<Cmd>lua require('jdtls').test_nearest_method()<CR>", "Test Method" },
+            T = { "<Cmd>lua require('jdtls').test_class()<CR>", "Test Class" },
+            u = { "<Cmd>JdtUpdateConfig<CR>", "Update Config" },
+        },
+    },
 }
-
-vim.api.nvim_set_keymap("n", "<leader>la", ":lua require('jdtls').code_action()<CR>", { noremap = true, silent = true })
-
-vim.cmd "command! -buffer JdtCompile lua require('jdtls').compile()"
-vim.cmd "command! -buffer JdtUpdateConfig lua require('jdtls').update_project_config()"
--- vim.cmd "command! -buffer JdtJol lua require('jdtls').jol()"
-vim.cmd "command! -buffer JdtBytecode lua require('jdtls').javap()"
--- vim.cmd "command! -buffer JdtJshell lua require('jdtls').jshell()"

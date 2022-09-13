@@ -9,7 +9,10 @@ M.config = function()
                 require("user/theme").tokyonight()
             end,
         },
-        { "folke/lsp-colors.nvim" },
+        {
+            "folke/lsp-colors.nvim",
+            event = "BufRead",
+        },
         { "lunarvim/colorschemes" },
         -- Markdown preview
         {
@@ -130,7 +133,6 @@ M.config = function()
             config = function()
                 require("user.null_ls.typescript").config()
             end,
-            before = "williamboman/nvim-lsp-installer",
         },
         -- Python coverage highlight
         { "mgedmin/coverage-highlight.vim" },
@@ -420,7 +422,7 @@ M.config = function()
             config = function()
                 require("lsp_lines").setup()
             end,
-        }
+        },
     }
 end
 

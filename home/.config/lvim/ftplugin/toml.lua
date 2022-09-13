@@ -12,31 +12,27 @@ formatters.setup {
 local linters = require "lvim.lsp.null-ls.linters"
 linters.setup {}
 
-local opts = {}
-local servers = require "nvim-lsp-installer.servers"
-local server_available, requested_server = servers.get_server "taplo"
-if server_available then
-    opts.cmd_env = requested_server:get_default_options().cmd_env
-end
-
-require("lvim.lsp.manager").setup("taplo", opts)
-
 if vim.fn.expand "%:t" == "Cargo.toml" then
     -- Cargo tools mappings
-    lvim.lsp.buffer_mappings.normal_mode["gT"] = {
-        name = "☢ Cargo Tools",
-        t = { "<cmd>lua require('crates').toggle()<cr>", "Toggle crates info" },
-        r = { "<cmd>lua require('crates').reload()<cr>", "Reload crates info" },
-        v = { "<cmd>lua require('crates').show_versions_popup()<cr>", "Show versions popup" },
-        f = { "<cmd>lua require('crates').show_features_popup()<cr>", "Show features popup" },
-        u = { "<cmd>lua require('crates').update_crate()<cr>", "Update crate" },
-        a = { "<cmd>lua require('crates').update_all_crates()<cr>", "Update all crates" },
-        U = { "<cmd>lua require('crates').upgrade_crate()<cr>", "Update crate" },
-        A = { "<cmd>lua require('crates').upgrade_all_crates()<cr>", "Update all crates" },
-    }
-    lvim.lsp.buffer_mappings.visual_mode["gT"] = {
-        name = "☢ Cargo Tools",
-        u = { "<cmd>lua require('crates').update_crates()<cr>", "Update selected crates" },
-        U = { "<cmd>lua require('crates').upgrade_crates()<cr>", "Update selected crates" },
+    local which_key = require "which-key"
+    local icons = require("user.icons").icons
+    which_key.register {
+        ["f"] = {
+            T = {
+                name = icons.nuclear .. " Cargo Tools",
+                t = { "<cmd>lua require('crates').toggle()<cr>", "Toggle crates info" },
+                r = { "<cmd>lua require('crates').reload()<cr>", "Reload crates info" },
+                v = { "<cmd>lua require('crates').show_versions_popup()<cr>", "Show versions popup" },
+                f = { "<cmd>lua require('crates').show_features_popup()<cr>", "Show features popup" },
+                u = { "<cmd>lua require('crates').update_crate()<cr>", "Update crate" },
+                a = { "<cmd>lua require('crates').update_all_crates()<cr>", "Update all crates" },
+                U = { "<cmd>lua require('crates').upgrade_crate()<cr>", "Upgrade crate" },
+                A = { "<cmd>lua require('crates').upgrade_all_crates()<cr>", "Upgrade all crates" },
+                h = { "<cmd>lua require('crates').open_homepage()<cr>", "Open crate homepage" },
+                R = { "<cmd>lua require('crates').open_repository()<cr>", "Open crate repository" },
+                d = { "<cmd>lua require('crates').open_documentation()<cr>", "Open crate documentation" },
+                c = { "<cmd>lua require('crates').open_crates_io()<cr>", "Open crates.io" },
+            },
+        },
     }
 end

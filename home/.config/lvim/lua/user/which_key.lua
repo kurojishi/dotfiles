@@ -98,11 +98,6 @@ M.config = function()
     lvim.builtin.which_key.mappings["Q"] = { "<cmd>quit<cr>", " Quit" }
     -- Goyo
     lvim.builtin.which_key.mappings["G"] = { "<cmd>Goyo 90%x90%<cr>", "Start Goyo" }
-    -- Command palette
-    lvim.builtin.which_key.mappings["C"] = {
-        "<cmd>lua require('user.telescope').command_palette()<cr>",
-        " Command Palette",
-    }
     lvim.builtin.which_key.mappings[";"] = { "<cmd>Alpha<CR>", "舘Dashboard" }
     -- LSP Virtual lines toggle
     lvim.builtin.which_key.mappings["V"] = { "<cmd>lua require('lsp_lines').toggle()<cr>", "Toggle LSP Lines" }
