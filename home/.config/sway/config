@@ -221,7 +221,7 @@ bindsym $mod+r mode "resize"
     bindsym XF86Launch3 exec --no-startup-id "asusctl"
     # Fans
     bindsym XF86Launch4 exec --no-startup-id "asusctl"
-
+    bindsym XF86TouchpadToggle exec --no-startup-id "swaylock -f -c 000000"
 
 
 #

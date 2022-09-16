@@ -29,3 +29,4 @@ alias infh=get_host_detail
 alias brazil_mypy='brazil-test-exec mypy'
 alias brazil_flake8='brazil-test-exec flake8'
 alias vim-packer-sync="rm -f /home/ANT.AMAZON.COM/fraber/.config/lvim/plugin/packer_compiled.lua && vim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
+alias cat='bat'

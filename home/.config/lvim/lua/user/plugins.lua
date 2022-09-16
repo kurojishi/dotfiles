@@ -54,6 +54,7 @@ M.config = function()
                 }
             end,
         },
+        -- Git
         {
             "tpope/vim-fugitive",
             cmd = {
@@ -73,7 +74,20 @@ M.config = function()
             },
             ft = { "fugitive" },
         },
-        -- Lsp signature
+        -- Github
+        {
+            "pwntester/octo.nvim",
+            requires = {
+                "nvim-lua/plenary.nvim",
+                "nvim-telescope/telescope.nvim",
+                "kyazdani42/nvim-web-devicons",
+            },
+            config = function()
+                require("user.octo").config()
+            end,
+            after = { "which-key.nvim" },
+            event = "BufRead",
+        },
         -- Lsp signature
         {
             "ray-x/lsp_signature.nvim",
@@ -145,13 +159,13 @@ M.config = function()
             ft = "markdown",
         },
         -- Screenshots
-        {
-            "JMcKiern/vim-shoot",
-            run = "./install.py geckodriver",
-            config = function()
-                vim.api.nvim_set_var("shoot_zoom_factor", 1)
-            end,
-        },
+        -- {
+        --     "JMcKiern/vim-shoot",
+        --     run = "./install.py geckodriver",
+        --     config = function()
+        --         vim.api.nvim_set_var("shoot_zoom_factor", 1)
+        --     end,
+        -- },
         -- Smithy
         { "jasdel/vim-smithy" },
         -- Multi-edit support
@@ -184,16 +198,6 @@ M.config = function()
                 }
             end,
         },
-        -- Github management
-        {
-            "pwntester/octo.nvim",
-            config = function()
-                require("octo").setup()
-            end,
-            event = "BufRead",
-        },
-        -- i3 syntax
-        { "mboughaba/i3config.vim" },
         -- sway syntax
         { "terminalnode/sway-vim-syntax" },
         -- Tagbar on the left
@@ -277,7 +281,7 @@ M.config = function()
                 }
                 require("symbols-outline").setup(opts)
             end,
-            -- cmd = "SymbolsOutline",
+            cmd = "SymbolsOutline",
             event = "BufReadPost",
         },
         -- Qbf
@@ -325,8 +329,6 @@ M.config = function()
             end,
             event = "BufRead",
         },
-        -- Zoxide
-        { "nanotee/zoxide.vim" },
         {
             "abzcoding/filetype.nvim",
             branch = "fix/qf-syntax",
@@ -336,11 +338,14 @@ M.config = function()
                         literal = {
                             ["kitty.conf"] = "kitty",
                             [".gitignore"] = "conf",
+                            ["waybar/config"] = "conf",
                         },
                     },
                 }
             end,
         },
+        -- Zoxide
+        { "nanotee/zoxide.vim" },
         -- Telescope zoxide
         {
             "jvgrootveld/telescope-zoxide",
