@@ -427,6 +427,7 @@ M.config = function()
             config = function()
                 require("lsp_lines").setup()
             end,
+            event = "BufRead",
         },
     }
 end

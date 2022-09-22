@@ -33,6 +33,7 @@ zstyle :compinstall filename '~/.zshrc'
 zstyle ':completion:*' accept-exact '*(N)'
 zstyle ':completion:*:*:vi(m|):*' ignored-patterns '*.o|*.pyc|*.test|*.lo' 
 zstyle ':completion:*:*:git:*' ignored-patterns '*.o' 
+fpath+=~/.zfunc
 autoload -Uz compinit
 
 # caching
@@ -77,3 +78,4 @@ source <(gopass completion bash)
 eval "$(rbenv init - zsh)"
 eval "$(pyenv init - zsh)"
 eval "$(nodenv init - zsh)"
+export BAT_PAGER=""

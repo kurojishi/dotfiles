@@ -59,11 +59,6 @@ M.n_keys = function()
             f = { "<cmd>lua require('neogen').generate({ type = 'func'})<CR>", "Function Documentation" },
             t = { "<cmd>lua require('neogen').generate({ type = 'type'})<CR>", "Type Documentation" },
         },
-        -- Diagnostics
-        ["gl"] = {
-            "<cmd>lua require('lvim.lsp.handlers').show_line_diagnostics()<CR>",
-            "Show line diagnostics",
-        },
         -- Replace
         ["gX"] = {
             name = " Replace",
