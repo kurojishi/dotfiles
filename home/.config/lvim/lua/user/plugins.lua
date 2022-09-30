@@ -31,8 +31,7 @@ M.config = function()
         },
         -- Better diff view
         {
-            "sindrets/diffview.nvim",
-            config = function()
+            "sindrets/diffview.nvim", config = function()
                 require("diffview").setup()
             end,
             event = "BufRead",
@@ -429,6 +428,7 @@ M.config = function()
             end,
             event = "BufRead",
         },
+        {'editorconfig/editorconfig-vim'}
     }
 end
 

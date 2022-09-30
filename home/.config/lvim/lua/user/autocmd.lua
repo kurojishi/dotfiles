@@ -13,13 +13,6 @@ M.config = function()
         command = "lua require('user.codelens').show_line_sign()",
     })
 
-    -- Terminal
-    vim.api.nvim_create_autocmd("TermOpen", {
-        group = "_lvim_user",
-        pattern = "term://*",
-        command = "lua require('user.keys').set_terminal_keymaps()",
-    })
-
     -- Smithy filetype
     vim.api.nvim_create_autocmd("BufRead,BufNewFile", {
         group = "_lvim_user",
