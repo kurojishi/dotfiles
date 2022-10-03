@@ -273,7 +273,7 @@ function M.config()
     lvim.builtin.telescope.on_config_done = function(telescope)
         telescope.load_extension "luasnip"
         telescope.load_extension "ui-select"
-        telescope.load_extension "file_create"
+        -- telescope.load_extension "file_create"
         telescope.load_extension "zoxide"
         telescope.load_extension "repo"
         if lvim.builtin.file_browser.active then

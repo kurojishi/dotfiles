@@ -95,18 +95,16 @@ M.config = function()
             end,
             event = { "BufRead", "BufNew" },
         },
-        -- Lsp progress lualine
-        {
-            "arkav/lualine-lsp-progress",
-            disable = lvim.builtin.fidget.active,
-        },
         -- Lsp progreess in fidget
         {
             "j-hui/fidget.nvim",
             config = function()
                 require("user.fidget").config()
             end,
-            disable = not lvim.builtin.fidget.active,
+        },
+        -- Lsp progress lualine
+        {
+            "arkav/lualine-lsp-progress",
         },
         -- Lsp goto preview
         {
@@ -176,16 +174,6 @@ M.config = function()
                 require("colorizer").setup()
             end,
         },
-        -- Debugging UI
-        {
-            "rcarriga/nvim-dap-ui",
-            config = function()
-                require("dapui").setup()
-            end,
-            ft = { "python", "rust", "rs", "go", "c" },
-            requires = { "mfussenegger/nvim-dap" },
-            disable = not lvim.builtin.dap.active,
-        },
         -- Peek line number
         {
             "nacro90/numb.nvim",
@@ -204,25 +192,6 @@ M.config = function()
             "preservim/tagbar",
             cmd = "TagbarToggle",
             config = function() end,
-        },
-        {
-            "folke/persistence.nvim",
-            event = "VimEnter",
-            module = "persistence",
-            config = function()
-                require("persistence").setup {
-                    dir = vim.fn.expand(vim.fn.stdpath "config" .. "/session/"),
-                    options = { "buffers", "curdir", "tabpages", "winsize" },
-                }
-            end,
-        },
-        -- TODO comments
-        {
-            "folke/todo-comments.nvim",
-            requires = "nvim-lua/plenary.nvim",
-            config = function()
-                require("todo-comments").setup {}
-            end,
         },
         -- Symbol outline
         {
@@ -287,44 +256,7 @@ M.config = function()
         {
             "kevinhwang91/nvim-bqf",
             config = function()
-                require("bqf").setup {
-                    auto_resize_height = true,
-                    func_map = {
-                        tab = "st",
-                        split = "sv",
-                        vsplit = "sg",
-
-                        stoggleup = "K",
-                        stoggledown = "J",
-                        stogglevm = "<Space>",
-
-                        ptoggleitem = "p",
-                        ptoggleauto = "P",
-                        ptogglemode = "zp",
-
-                        pscrollup = "<C-b>",
-                        pscrolldown = "<C-f>",
-
-                        prevfile = "gk",
-                        nextfile = "gj",
-
-                        prevhist = "<S-Tab>",
-                        nexthist = "<Tab>",
-                    },
-                    preview = {
-                        auto_preview = true,
-                        should_preview_cb = function(bufnr)
-                            local ret = true
-                            local filename = vim.api.nvim_buf_get_name(bufnr)
-                            local fsize = vim.fn.getfsize(filename)
-                            -- file size greater than 10k can't be previewed automatically
-                            if fsize > 100 * 1024 then
-                                ret = false
-                            end
-                            return ret
-                        end,
-                    },
-                }
+                require("user.bqf").config()
             end,
             event = "BufRead",
         },
@@ -379,17 +311,6 @@ M.config = function()
             -- event = "BufRead",
             disable = not lvim.builtin.sidebar.active,
         },
-        {
-            "kosayoda/nvim-lightbulb",
-            config = function()
-                vim.fn.sign_define(
-                    "LightBulbSign",
-                    { text = require("user.lsp").icons.code_action, texthl = "DiagnosticInfo" }
-                )
-            end,
-            event = "BufRead",
-            ft = { "rust", "go", "python" },
-        },
         -- Renamer
         {
             -- "filipdutescu/renamer.nvim",
@@ -428,7 +349,160 @@ M.config = function()
             end,
             event = "BufRead",
         },
-        {'editorconfig/editorconfig-vim'}
+        {'editorconfig/editorconfig-vim'},
+        {
+            "nvim-neo-tree/neo-tree.nvim",
+            branch = "v2.x",
+            requires = { "MunifTanjim/nui.nvim" },
+            config = function()
+                require("user.neotree").config()
+            end,
+            disable = lvim.builtin.tree_provider ~= "neo-tree",
+        },
+        -- Vista
+        -- TODO Doesn't work
+        {
+            "liuchengxu/vista.vim",
+            setup = function()
+                require("user.vista").config()
+            end,
+            event = "BufRead",
+        },
+        -- Refactoring
+        {
+            "ThePrimeagen/refactoring.nvim",
+            ft = { "typescript", "javascript", "lua", "c", "cpp", "go", "python", "java", "rust", "kotlin" },
+            event = "BufRead",
+            config = function()
+                require("user.refactoring").config()
+            end,
+        },
+        -- Legendary
+        {
+            "mrjones2014/legendary.nvim",
+            config = function()
+                require("user.legendary").config()
+            end,
+        },
+        -- Scrollbar
+        {
+            "petertriho/nvim-scrollbar",
+            config = function()
+                require("user.scrollbar").config()
+                -- Register current position handler.
+                -- require("user.scrollbar").register_current_position_handler()
+            end,
+            after = { "nvim-hlslens" },
+        },
+        ------------------------------------------------------------------------------
+        -- Miscellaneous
+        ------------------------------------------------------------------------------
+        -- Screenshots
+        {
+            "segeljakt/vim-silicon",
+            config = function()
+                require("user.silicon").config()
+            end,
+        },
+        -- Debugging UI
+        {
+            "rcarriga/nvim-dap-ui",
+            config = function()
+                require("user.dapui").config()
+            end,
+            ft = { "python", "rust", "go", "c" },
+            event = "BufReadPost",
+            requires = { "mfussenegger/nvim-dap" },
+            disable = not lvim.builtin.dap.active,
+        },
+        -- TODO comments
+        {
+            "folke/todo-comments.nvim",
+            requires = "nvim-lua/plenary.nvim",
+            config = function()
+                require("user.todo_comments").config()
+            end,
+            event = "BufRead",
+        },
+        -- Window picker
+        {
+            "s1n7ax/nvim-window-picker",
+            tag = "1.*",
+            config = function()
+                require("window-picker").setup {
+                    autoselect_one = true,
+                    include_current = false,
+                    filter_rules = {
+                        -- filter using buffer options
+                        bo = {
+                            -- if the file type is one of following, the window will be ignored
+                            filetype = { "neo-tree", "neo-tree-popup", "notify", "quickfix" },
+
+                            -- if the buffer type is one of following, the window will be ignored
+                            buftype = { "terminal" },
+                        },
+                    },
+                    other_win_hl_color = "#e35e4f",
+                }
+            end,
+        },
+        {
+            "kristijanhusak/orgmode.nvim",
+            ft = { "org" },
+            config = function()
+                require("user.orgmode").setup()
+            end,
+        },
+        --------------------------------------------------------------
+        -- Spelling and grammar
+        ------------------------------------------------------------------------------
+        -- Spelling
+        {
+            "lewis6991/spellsitter.nvim",
+            config = function()
+                require("spellsitter").setup {
+                    hl = "SpellBad",
+                    captures = { "comment" },
+                }
+            end,
+            fd = { "markdown", "text", "rst" },
+        },
+        -- Grammarous
+        {
+            "rhysd/vim-grammarous",
+            cmd = "GrammarousCheck",
+        },
+        -- Grammar guard
+        {
+            "brymer-meneses/grammar-guard.nvim",
+            filetype = { "latex", "tex", "bib", "markdown", "rst", "text" },
+            requires = { "neovim/nvim-lspconfig" },
+        },
+        -- Session manager
+        {
+            "crisidev/persisted.nvim",
+            config = function()
+                require("persisted").setup {
+                    use_git_branch = true,
+                    autosave = true,
+                    autoload = false,
+                    after_source = function()
+                        -- Reload the LSP servers
+                        vim.lsp.stop_client(vim.lsp.get_active_clients())
+                    end,
+                    telescope = {
+                        before_source = function()
+                            -- Close all open buffers
+                            -- Thanks to https://github.com/avently
+                            vim.api.nvim_input "<ESC>:%bd<CR>"
+                        end,
+                        after_source = function(session)
+                            print("Loaded session " .. session.name)
+                        end,
+                    },
+                }
+            end,
+        },
     }
 end
 

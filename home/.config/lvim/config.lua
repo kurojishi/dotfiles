@@ -9,13 +9,16 @@ lvim.debug = false
 lvim.leader = ","
 
 -- Vimscript if needed
-vim.cmd "source ~/.config/lvim/user.pre.vim"
+vim.cmd "source ~/.config/lvim/vimscript/user.pre.vim"
 
 -- Builtin
 require("user.builtin").config()
 
 -- Builtin
 require("user.neovim").config()
+
+-- Cmp
+require("user.cmp").config()
 
 -- Additional Plugins
 require("user.plugins").config()
@@ -26,9 +29,6 @@ require("user.treesitter").config()
 -- Telescope
 require("user.telescope").config()
 
--- Command palette
-require("user.cpmenu").config()
-
 -- Barbar
 require("user.bufferline").config()
 
@@ -37,9 +37,6 @@ require("user.lualine").config()
 
 -- Keys
 require("user.keys").config()
-
--- Which key
-require("user.which_key").config()
 
 -- Autocommands
 require("user.autocmd").config()
@@ -51,7 +48,7 @@ require("user.lsp").config()
 require("user.theme").tokyonight()
 
 -- Debugging
--- require("user.dap").config()
+require("user.dap").config()
 
 -- Vimscript if needed
-vim.cmd "source ~/.config/lvim/user.post.vim"
+vim.cmd "source ~/.config/lvim/vimscript/user.post.vim"

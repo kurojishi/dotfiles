@@ -1,32 +1,6 @@
 local M = {}
-local kind = require "user.lsp"
-
-local function diff_source()
-    local gitsigns = vim.b.gitsigns_status_dict
-    if gitsigns then
-        return {
-            added = gitsigns.added,
-            modified = gitsigns.changed,
-            removed = gitsigns.removed,
-        }
-    end
-end
-
-local function testing()
-    if vim.g.testing_status == "running" then
-        return " "
-    end
-    if vim.g.testing_status == "fail" then
-        return ""
-    end
-    if vim.g.testing_status == "pass" then
-        return " "
-    end
-    return nil
-end
-local function using_session()
-    return (vim.g.using_persistence ~= nil)
-end
+local icons = require("user.icons").icons
+local file_icons = require("user.icons").file_icons
 
 local mode = function()
     local mod = vim.fn.mode()
@@ -80,7 +54,7 @@ local function get_file_icon()
     local f_name, f_extension = get_file_info()
     icon = devicons.get_icon(f_name, f_extension)
     if icon == nil then
-        icon = kind.icons.question
+        icon = icons.question
     end
     return icon
 end
@@ -96,12 +70,25 @@ local function get_file_icon_color()
     end
 
     local icon = get_file_icon():match "%S+"
-    for k, _ in pairs(kind.file_icons) do
-        if vim.fn.index(kind.file_icons[k], icon) ~= -1 then
+    for k, _ in pairs(file_icons) do
+        if vim.fn.index(file_icons[k], icon) ~= -1 then
             return file_icon_colors[k]
         end
     end
 end
+
+M.numbers = {
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+}
 
 M.config = function()
     local theme = require "user.theme"
@@ -154,16 +141,11 @@ M.config = function()
             -- Disable sections and component separators
             component_separators = { left = "", right = "" },
             section_separators = { left = "", right = "" },
-            theme = {
-                -- We are going to use lualine_c an lualine_x as left and
-                -- right section. Both are highlighted by c theme .  So we
-                -- are just setting default looks o statusline
-                normal = { c = { fg = colors.fg, bg = colors.bg } },
-                inactive = { c = { fg = colors.fg, bg = colors.bg_alt } },
-            },
+            theme = "auto",
             disabled_filetypes = {
                 "dashboard",
                 "NvimTree",
+                "neo-tree",
                 "Outline",
                 "alpha",
                 "vista",
@@ -208,12 +190,16 @@ M.config = function()
                 {
                     "filename",
                     cond = conditions.buffer_not_empty,
-                    color = { fg = colors.blue, gui = "bold" },
+                    color = { fg = colors.blue, gui = "bold", bg = colors.bg },
                 },
             },
             lualine_x = {},
         },
     }
+
+    if lvim.builtin.global_statusline then
+        config.options.disabled_filetypes = { "alpha" }
+    end
 
     -- Inserts a component in lualine_c at left section
     local function ins_left(component)
@@ -225,6 +211,7 @@ M.config = function()
         table.insert(config.sections.lualine_x, component)
     end
 
+    -- Mode icon
     ins_left {
         function()
             return mode()
@@ -234,82 +221,88 @@ M.config = function()
         end,
         padding = { left = 1, right = 0 },
     }
+
+    -- Branch
     ins_left {
         "b:gitsigns_head",
         icon = " ",
         cond = conditions.check_git_workspace,
-        color = { fg = colors.blue },
+        color = { fg = colors.blue, bg = colors.bg },
         padding = 0,
     }
 
-    ins_left {
-        function()
-            local utils = require "lvim.core.lualine.utils"
-            local filename = vim.fn.expand "%"
-            local kube_env = os.getenv "KUBECONFIG"
-            local kube_filename = "kubectl-edit"
-            if (vim.bo.filetype == "yaml") and (string.sub(filename, 1, kube_filename:len()) == kube_filename) then
-                return string.format("⎈  (%s)", utils.env_cleanup(kube_env))
-            end
-            return ""
-        end,
-        color = { fg = colors.cyan },
-        cond = conditions.hide_in_width,
-    }
-
+    -- File icons
     ins_left {
         function()
             vim.api.nvim_command("hi! LualineFileIconColor guifg=" .. get_file_icon_color() .. " guibg=" .. colors.bg)
             local fname = vim.fn.expand "%:p"
             if string.find(fname, "term://") ~= nil then
-                return kind.icons.term
+                return icons.term
             end
             local winnr = vim.api.nvim_win_get_number(vim.api.nvim_get_current_win())
             if winnr > 10 then
                 winnr = 10
             end
-            local win = kind.numbers[winnr]
+            local win = M.numbers[winnr]
             return win .. " " .. get_file_icon()
         end,
         padding = { left = 2, right = 0 },
-        cond = conditions.buffer_not_empty,
+        cond = function()
+            return conditions.buffer_not_empty() and conditions.hide_small()
+        end,
         color = "LualineFileIconColor",
         gui = "bold",
     }
 
+    -- File name
     ins_left {
         function()
             local fname = vim.fn.expand "%:p"
-            local ftype = vim.fn.expand "%:e"
+            local ftype = vim.bo.filetype
             local cwd = vim.api.nvim_call_function("getcwd", {})
-            if
-                string.find(fname, "term") ~= nil
-                and string.find(fname, "lazygit;#toggleterm") ~= nil
-                and (vim.fn.has "linux" == 1 or vim.fn.has "mac" == 1)
-            then
-                local git_repo_cmd = io.popen 'git remote get-url origin | tr -d "\n"'
-                local git_repo = git_repo_cmd:read "*a"
-                git_repo_cmd:close()
-                local git_branch_cmd = io.popen 'git branch --show-current | tr -d "\n"'
-                local git_branch = git_branch_cmd:read "*a"
-                git_branch_cmd:close()
-                return git_repo .. "~" .. git_branch
+            if (vim.fn.has "linux" == 1) or (vim.fn.has "mac" == 1) then
+                if string.find(fname, "zsh;#toggleterm") ~= nil then
+                    return icons.term .. " " .. cwd
+                elseif string.find(fname, "lazygit;#toggleterm") ~= nil then
+                    local git_repo_cmd = io.popen 'git remote get-url origin | tr -d "\n"'
+                    local git_repo = git_repo_cmd:read "*a"
+                    git_repo_cmd:close()
+                    local git_branch_cmd = io.popen 'git branch --show-current | tr -d "\n"'
+                    local git_branch = git_branch_cmd:read "*a"
+                    git_branch_cmd:close()
+                    return icons.term .. " " .. git_repo .. "~" .. git_branch
+                elseif #ftype < 1 and string.find(fname, "term") ~= nil then
+                    return icons.term
+                end
             end
             local show_name = vim.fn.expand "%:t"
-            if #cwd > 0 and #ftype > 0 then
-                show_name = fname:sub(#cwd + 2)
+            local modified = ""
+            if vim.bo.modified then
+                modified = "  "
             end
-            return show_name .. "%{&readonly?'  ':''}" .. "%{&modified?'  ':''}"
+            return show_name .. modified
         end,
-        cond = conditions.buffer_not_empty,
+        cond = function()
+            return conditions.buffer_not_empty() and conditions.hide_small()
+        end,
         padding = { left = 1, right = 1 },
-        color = { fg = colors.fg, gui = "bold" },
+        color = { fg = colors.fg, gui = "bold", bg = colors.bg },
     }
 
+    -- Diff icons
     ins_left {
         "diff",
-        source = diff_source,
-        symbols = { added = kind.icons.added, modified = kind.icons.modified, removed = kind.icons.removed },
+        source = function()
+            local gitsigns = vim.b.gitsigns_status_dict
+            if gitsigns then
+                return {
+                    added = gitsigns.added,
+                    modified = gitsigns.changed,
+                    removed = gitsigns.removed,
+                }
+            end
+        end,
+        symbols = { added = icons.added, modified = icons.modified, removed = icons.removed },
         diff_color = {
             added = { fg = colors.git.add, bg = colors.bg },
             modified = { fg = colors.git.change, bg = colors.bg },
@@ -319,33 +312,7 @@ M.config = function()
         cond = nil,
     }
 
-    if not lvim.builtin.fidget.active then
-        ins_left {
-            "lsp_progress",
-            colors = {
-                percentage = colors.cyan,
-                title = colors.cyan,
-                message = colors.cyan,
-                spinner = colors.cyan,
-                lsp_client_name = colors.magenta,
-                use = true,
-            },
-            separators = {
-                component = " ",
-                progress = " | ",
-                percentage = { pre = "", post = "%% " },
-                title = { pre = "", post = ": " },
-                lsp_client_name = { pre = "[", post = "]" },
-                spinner = { pre = "", post = "" },
-                message = { commenced = "In Progress", completed = "Completed", pre = "(", post = ")" },
-            },
-            display_components = { "lsp_client_name", "spinner", { "title", "percentage", "message" } },
-            timer = { progress_enddelay = 500, spinner = 1000, lsp_client_name_enddelay = 1000 },
-            spinner_symbols = { "🌑 ", "🌒 ", "🌓 ", "🌔 ", "🌕 ", "🌖 ", "🌗 ", "🌘 " },
-            cond = conditions.hide_small,
-        }
-    end
-
+    -- Python env
     ins_left {
         function()
             local utils = require "lvim.core.lualine.utils"
@@ -366,96 +333,124 @@ M.config = function()
         cond = conditions.hide_in_width,
     }
 
-    ins_left {
-        provider = function()
-            return testing()
-        end,
-        enabled = function()
-            return testing() ~= nil
-        end,
-        hl = {
-            fg = colors.fg,
-        },
-        left_sep = " ",
-        right_sep = {
-            str = " |",
-            hl = { fg = colors.fg },
-        },
-    }
-
-    ins_left {
-        provider = function()
-            if vim.g.using_persistence then
-                return "  |"
-            elseif vim.g.using_persistence == false then
-                return "  |"
-            end
-        end,
-        enabled = function()
-            return using_session()
-        end,
-        hl = {
-            fg = colors.fg,
-        },
-    }
-
     -- Insert mid section. You can make any number of sections in neovim :)
     -- for lualine it's any number greater then 2
     ins_left {
         function()
-            return "%="
+            return icons.circle_right
         end,
+        padding = { left = 0, right = 0 },
+        color = { fg = colors.bg },
+        cond = nil,
     }
 
+    ins_right {
+        function()
+            return icons.circle_left
+        end,
+        padding = { left = 0, right = 0 },
+        color = { fg = colors.bg },
+        cond = nil,
+    }
+
+    -- Right section.
     ins_right {
         function()
             if not vim.bo.readonly or not vim.bo.modifiable then
                 return ""
             end
-            return "" -- """
+            return icons.lock -- """
         end,
         color = { fg = colors.red },
     }
 
+    -- Diagnostics
     ins_right {
         "diagnostics",
         sources = { "nvim_diagnostic" },
-        symbols = { error = kind.icons.error, warn = kind.icons.warn, info = kind.icons.info, hint = kind.icons.hint },
+        symbols = { error = icons.error, warn = icons.warn, info = icons.info, hint = icons.hint },
         cond = conditions.hide_in_width,
+        color = { fg = colors.fg, bg = colors.bg },
     }
 
+    -- Copilot icon
     ins_right {
         function()
-            if next(vim.treesitter.highlighter.active) then
-                return "  "
+            if require("user.copilot").enabled() then
+                return " " .. icons.copilot .. " "
+            else
+                return ""
+            end
+        end,
+        padding = 0,
+        color = { fg = colors.red, bg = colors.bg },
+    }
+
+    -- Null-ls icon
+    ins_right {
+        function()
+            local buf_clients = vim.lsp.get_active_clients { bufnr = vim.api.nvim_get_current_buf() }
+            if next(buf_clients) == nil then
+                return ""
+            end
+            for _, client in pairs(buf_clients) do
+                if client.name == "null-ls" then
+                    return " " .. icons.code_lens_action .. " "
+                end
             end
             return ""
         end,
         padding = 0,
-        color = { fg = colors.green },
+        color = { fg = colors.blue, bg = colors.bg },
         cond = conditions.hide_in_width,
     }
 
+    -- Session availability
+    ins_right {
+        function()
+            if vim.g.persisting then
+                return icons.presence_on
+            elseif vim.g.persisting == false then
+                return icons.presence_off
+            end
+        end,
+        cond = function()
+            return vim.g.persisting ~= nil
+        end,
+        color = { fg = colors.green, bg = colors.bg },
+    }
+
+    -- Treesitter icon
+    ins_right {
+        function()
+            if next(vim.treesitter.highlighter.active) then
+                return " " .. icons.treesitter .. " "
+            end
+            return ""
+        end,
+        padding = 0,
+        color = { fg = colors.green, bg = colors.bg },
+        cond = conditions.hide_in_width,
+    }
+
+    -- Lsp providers
     ins_right {
         function(msg)
-            msg = msg or kind.icons.ls_inactive
-            local buf_clients = vim.lsp.buf_get_clients()
+            msg = msg or icons.ls_inactive
+            local buf_clients = vim.lsp.get_active_clients { bufnr = vim.api.nvim_get_current_buf() }
             if next(buf_clients) == nil then
                 if type(msg) == "boolean" or #msg == 0 then
-                    return kind.icons.ls_inactive
+                    return icons.ls_inactive
                 end
                 return msg
             end
             local buf_ft = vim.bo.filetype
             local buf_client_names = {}
-            local trim_width = 120
-            if lvim.builtin.global_statusline then
-                trim_width = 100
-            end
+            local trim_width = 100
             local trim = vim.fn.winwidth(0) < trim_width
 
             for _, client in pairs(buf_clients) do
-                if client.name ~= "null-ls" then
+                if not (client.name == "copilot" or client.name == "null-ls") then
                     local _added_client = client.name
                     if trim then
                         _added_client = string.sub(client.name, 1, 4)
@@ -488,18 +483,20 @@ M.config = function()
             end
             vim.list_extend(buf_client_names, supported_linters)
 
-            return kind.icons.ls_active .. table.concat(buf_client_names, ", ")
+            return icons.ls_active .. table.concat(buf_client_names, ", ")
         end,
-        color = { fg = colors.fg },
+        color = { fg = colors.fg, bg = colors.bg },
         cond = conditions.hide_in_width,
     }
 
+    -- File location
     ins_right {
         "location",
         padding = 0,
-        color = { fg = colors.orange },
+        color = { fg = colors.orange, bg = colors.bg },
     }
 
+    -- File size
     ins_right {
         function()
             local function format_file_size(file)
@@ -515,6 +512,7 @@ M.config = function()
                 end
                 return string.format("%.1f%s", size, sufixes[i])
             end
+
             local file = vim.fn.expand "%:p"
             if string.len(file) == 0 then
                 return ""
@@ -522,16 +520,19 @@ M.config = function()
             return format_file_size(file)
         end,
         cond = conditions.buffer_not_empty,
+        color = { fg = colors.fg, bg = colors.bg },
     }
 
+    -- File format
     ins_right {
         "fileformat",
         fmt = string.upper,
         icons_enabled = true,
-        color = { fg = colors.green, gui = "bold" },
+        color = { fg = colors.green, gui = "bold", bg = colors.bg },
         cond = conditions.hide_in_width,
     }
 
+    -- File position
     ins_right {
         function()
             local current_line = vim.fn.line "."

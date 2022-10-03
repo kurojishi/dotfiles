@@ -256,7 +256,8 @@ M.config = function()
                 C = {
                     "<cmd>Octo review commit<cr>",
                     "Pick a specific commit to review",
-                },
+
+                }
             },
         },
     }

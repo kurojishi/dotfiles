@@ -13,6 +13,13 @@ M.config = function()
         command = "lua require('user.codelens').show_line_sign()",
     })
 
+    -- Terminal
+    vim.api.nvim_create_autocmd("TermOpen", {
+        group = "_lvim_user",
+        pattern = "term://*",
+        command = "lua require('user.keys').terminal_keys()",
+    })
+
     -- Smithy filetype
     vim.api.nvim_create_autocmd("BufRead,BufNewFile", {
         group = "_lvim_user",
@@ -20,7 +27,14 @@ M.config = function()
         command = "setfiletype smithy",
     })
 
+    -- Disable colorcolumn
+    vim.api.nvim_create_autocmd("BufEnter", {
+        group = "_lvim_user",
+        pattern = "*",
+        command = "set colorcolumn=",
+    })
 
+    -- Disable undo for certain files
     vim.api.nvim_create_autocmd("BufWritePre", {
         group = "_lvim_user",
         pattern = { "/tmp/*", "COMMIT_EDITMSG", "MERGE_MSG", "*.tmp", "*.bak" },
@@ -29,10 +43,30 @@ M.config = function()
         end,
     })
 
-    vim.api.nvim_create_autocmd("BufWritePost,BufEnter", {
+    -- Allow hlslense in scrollbar
+    vim.api.nvim_create_autocmd("CmdlineLeave", {
         group = "_lvim_user",
         pattern = "*",
-        command = "set nofoldenable foldmethod=manual foldlevelstart=99",
+        command = "lua ok, sb = pcall(require, 'scrollbar.handlers.search'); if ok then sb.handler.hide() end",
+    })
+
+    -- Faster yank
+    vim.api.nvim_create_autocmd("TextYankPost", {
+        group = "_general_settings",
+        pattern = "*",
+        desc = "Highlight text on yank",
+        callback = function()
+            require("vim.highlight").on_yank { higroup = "Search", timeout = 200 }
+        end,
+    })
+
+    -- Orgmode triggers
+    vim.api.nvim_create_autocmd("Filetype", {
+        group = "_lvim_user",
+        pattern = { "org" },
+        callback = function()
+            lvim.builtin.which_key.setup.triggers = { "<leader>", "<space>", "g", "f", "z", "]", "[" }
+        end,
     })
 end
 
