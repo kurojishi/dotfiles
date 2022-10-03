@@ -50,6 +50,13 @@ M.config = function()
         command = "lua ok, sb = pcall(require, 'scrollbar.handlers.search'); if ok then sb.handler.hide() end",
     })
 
+    -- Start metals
+    vim.api.nvim_create_autocmd("Filetype", {
+        group = "_lvim_user",
+        pattern = { "scala", "sbt" },
+        callback = require("user.lsp.scala").start,
+    })
+
     -- Faster yank
     vim.api.nvim_create_autocmd("TextYankPost", {
         group = "_general_settings",

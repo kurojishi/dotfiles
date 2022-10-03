@@ -100,16 +100,6 @@ M.which_keys_normal = function()
         b = { "<cmd>BlamerToggle<cr>", "Toggle inline git blame" },
         B = { "<cmd>Git blame<cr>", "Open git blame" },
         g = { "<cmd>lua require('lvim.core.terminal')._exec_toggle({cmd='lazygit'})<cr>", "LazyGit" },
-        l = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').copy_to_clipboard})<cr>",
-            "Copy line",
-            silent = false,
-        },
-        L = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
-            "Open line in browser",
-            silent = true,
-        },
         s = { "<cmd>lua require('user.telescope').git_status()<cr>", "Repository status" },
         f = { "<cmd>lua require('user.telescope').git_files()<cr>", "Repository files" },
     }
@@ -193,20 +183,6 @@ end
 
 M.which_keys_visual = function()
     local icons = require("user.icons").icons
-
-    lvim.builtin.which_key.vmappings["g"] = {
-        name = " Git",
-        l = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').copy_to_clipboard})<cr>",
-            "Copy line",
-            silent = false,
-        },
-        L = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
-            "Open line in browser",
-            silent = true,
-        },
-    }
     -- String search
     lvim.builtin.which_key.vmappings["s"] = {
         "<cmd>lua require('user.telescope').find_string_visual()<cr>",
@@ -218,15 +194,13 @@ end
 M.normal_keys = function()
     lvim.keys.normal_mode = {
         -- Buffers
-        --["<F1>"] = "<cmd>BufferLineCyclePrev<cr>",
-        -- ["<F2>"] = "<cmd>BufferLineCycleNext<cr>",
-        ["<F2>"] = "<cmd>TagbarToggle<cr>",
+        ["<F1>"] = "<cmd>BufferLineCyclePrev<cr>",
+        ["<F2>"] = "<cmd>BufferLineCycleNext<cr>",
         ["<A-S-Left>"] = "<cmd>BufferLineMovePrev<cr>",
         ["<A-S-Right>"] = "<cmd>BufferLineMoveNext<cr>",
         -- Toggle tree
-        ["<F1>"] = "<cmd>NeoTreeRevealToggle<cr>",
+        ["<F3>"] = "<cmd>NeoTreeRevealToggle<cr>",
         -- ["<S-F3>"] = "<cmd>NvimTreeRefresh<cr>",
-        ["<F4>"] = "<cmd>SidebarNvimToggle<cr>",
         -- Toggle sidebar
         ["<F5>"] = "<cmd>MouseToggle<cr>",
         -- Yank current path
@@ -267,6 +241,22 @@ M.normal_keys = function()
     if lvim.builtin.sidebar.active then
         lvim.keys.normal_mode["<F4>"] = "<cmd>SidebarNvimToggle<cr>"
     end
+end
+
+local Terminal = require("toggleterm.terminal").Terminal
+
+M.float_terminal_toggle = function(cmd)
+    local term = Terminal:new {
+        cmd = cmd,
+        hidden = true,
+        direction = "float",
+        on_open = function(_)
+            vim.cmd "startinsert!"
+        end,
+        on_close = function(_) end,
+        count = 99,
+    }
+    term:toggle()
 end
 
 -- INSERT MODE

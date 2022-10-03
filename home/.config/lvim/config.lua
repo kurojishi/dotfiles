@@ -1,12 +1,14 @@
 -- General
+vim.opt.guifont = "FiraCode Nerd Font:h10"
 lvim.log.level = "warn"
 lvim.format_on_save = false
-lvim.colorscheme = "tokyonight-night"
+lvim.colorscheme = "tokyonight"
 lvim.line_wrap_cursor_movement = false
 lvim.termguicolors = true
 lvim.transparent_window = false
 lvim.debug = false
 lvim.leader = ","
+lvim.transparent_window = false
 
 -- Vimscript if needed
 vim.cmd "source ~/.config/lvim/vimscript/user.pre.vim"
@@ -14,7 +16,7 @@ vim.cmd "source ~/.config/lvim/vimscript/user.pre.vim"
 -- Builtin
 require("user.builtin").config()
 
--- Builtin
+-- Neovim
 require("user.neovim").config()
 
 -- Cmp
@@ -29,11 +31,14 @@ require("user.treesitter").config()
 -- Telescope
 require("user.telescope").config()
 
--- Barbar
+-- Bufferline
 require("user.bufferline").config()
 
 -- Status line
 require("user.lualine").config()
+
+-- Terminal
+require("user.terminal").config()
 
 -- Keys
 require("user.keys").config()
@@ -44,11 +49,11 @@ require("user.autocmd").config()
 -- Lsp
 require("user.lsp").config()
 
--- theme
-require("user.theme").tokyonight()
-
 -- Debugging
 require("user.dap").config()
+
+-- Copilot
+require("user.copilot").config()
 
 -- Vimscript if needed
 vim.cmd "source ~/.config/lvim/vimscript/user.post.vim"

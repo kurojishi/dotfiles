@@ -91,12 +91,12 @@ M.config = function()
     require("user.null_ls").config()
 
     -- Configure Lsp providers
-    -- require("user.lsp.python").config()
-    -- require("user.lsp.go").config()
-    -- require("user.lsp.yaml").config()
-    -- require("user.lsp.toml").config()
-    -- require("user.lsp.smithy").config()
-    -- require("user.lsp.markdown").config()
+    require("user.lsp.python").config()
+    require("user.lsp.go").config()
+    require("user.lsp.yaml").config()
+    require("user.lsp.toml").config()
+    require("user.lsp.smithy").config()
+    require("user.lsp.markdown").config()
 
     -- Mappings
     require("user.lsp.keys").config()

@@ -1,81 +1,11 @@
 local M = {}
 
-M.tokyonight = function()
-    vim.g.tokyonight_sidebars = {
-        "qf",
-        "vista_kind",
-        "terminal",
-        "packer",
-        "spectre_panel",
-        "NeogitStatus",
-        "help",
-    }
-    vim.g.tokyonight_cterm_colors = false
-    vim.g.tokyonight_terminal_colors = true
-    vim.g.tokyonight_italic_comments = false
-    vim.g.tokyonight_italic_keywords = true
-    vim.g.tokyonight_italic_functions = false
-    vim.g.tokyonight_italic_variables = false
-    vim.g.tokyonight_transparent = false
-    vim.g.tokyonight_hide_inactive_statusline = true
-    vim.g.tokyonight_dark_sidebar = true
-    vim.g.tokyonight_dark_float = true
-    vim.g.tokyonight_dim_inactive = true
-    vim.g.tokyonight_global_status = true
-    vim.g.tokyonight_colors = {
-        git = { change = "#6183bb", add = "#449dab", delete = "#f7768e", conflict = "#bb7a61" },
-    }
-end
-
-M.catppuccin = function()
-    local catppuccin = require "catppuccin"
-    catppuccin.setup {
-        transparent_background = lvim.transparent_window,
-        term_colors = false,
-        styles = {
-            comments = "NONE",
-            keywords = "italic",
-        },
-        integrations = {
-            lsp_trouble = true,
-            nvimtree = {
-                transparent_panel = lvim.transparent_window,
-            },
-            which_key = true,
-            lightspeed = lvim.builtin.motion_provider == "lightspeed",
-            hop = lvim.builtin.motion_provider == "hop",
-        },
-    }
-end
-
-M.kanagawa = function()
-    local kanagawa = require "kanagawa"
-    kanagawa.setup {
-        undercurl = true, -- enable undercurls
-        commentStyle = {},
-        functionStyle = {},
-        keywordStyle = { italic = true },
-        statementStyle = { italic = true },
-        typeStyle = {},
-        variablebuiltinStyle = { italic = true },
-        specialReturn = true, -- special highlight for the return keyword
-        specialException = true, -- special highlight for exception handling keywords
-        dimInactive = lvim.builtin.global_statusline, -- dim inactive window `:h hl-NormalNC`
-        globalStatus = lvim.builtin.global_statusline, -- adjust window separators highlight for laststatus=3
-        transparent = lvim.transparent_window,
-        colors = { sumiInk1b = "#1b1b23" },
-        overrides = {
-            diffRemoved = { fg = "#E46876" },
-        },
-    }
-end
-
 M.colors = {
     tokyonight_colors = {
         none = "NONE",
         bg_dark = "#1f2335",
-        bg_alt = "#1f2335",
-        bg = "#1a1b26",
+        bg_alt = "#1a1b26",
+        bg = "#24283b",
         bg_br = "#292e42",
         terminal_black = "#414868",
         fg = "#c0caf5",
@@ -106,59 +36,6 @@ M.colors = {
         -- git = { change = "#6183bb", add = "#449dab", delete = "#914c54", conflict = "#bb7a61" },
         git = { change = "#6183bb", add = "#449dab", delete = "#f7768e", conflict = "#bb7a61" },
         gitSigns = { add = "#164846", change = "#394b70", delete = "#823c41" },
-    },
-
-    catppuccin_colors = {
-        rosewater = "#F5E0DC",
-        flamingo = "#F2CDCD",
-        violet = "#DDB6F2",
-        pink = "#F5C2E7",
-        red = "#F28FAD",
-        maroon = "#E8A2AF",
-        orange = "#F8BD96",
-        yellow = "#FAE3B0",
-        green = "#ABE9B3",
-        blue = "#96CDFB",
-        cyan = "#89DCEB",
-        teal = "#B5E8E0",
-        lavender = "#C9CBFF",
-        white = "#D9E0EE",
-        gray2 = "#C3BAC6",
-        gray1 = "#988BA2",
-        gray0 = "#6E6C7E",
-        black4 = "#575268",
-        bg_br = "#302D41",
-        bg = "#1A1826",
-        bg_alt = "#1E1E2E",
-        fg = "#D9E0EE",
-        black = "#1A1826",
-        git = {
-            add = "#ABE9B3",
-            change = "#96CDFB",
-            delete = "#F28FAD",
-            conflict = "#FAE3B0",
-        },
-    },
-
-    kanagawa_colors = {
-        bg = "#16161D",
-        bg_alt = "#1F1F28",
-        bg_br = "#363646",
-        fg = "#DCD7BA",
-        red = "#E46876",
-        orange = "#FFA066",
-        yellow = "#DCA561",
-        blue = "#7FB4CA",
-        cyan = "#658594",
-        violet = "#957FB8",
-        magenta = "#938AA9",
-        green = "#76946A",
-        git = {
-            add = "#76946A",
-            conflict = "#252535",
-            delete = "#C34043",
-            change = "#DCA561",
-        },
     },
 }
 
@@ -201,6 +78,18 @@ M.telescope_theme = function()
         vim.cmd("hi " .. group .. " guifg=" .. fg .. " guibg=" .. bg)
     end
 
+    local current_colors = M.colors.tokyonight_colors
+    set_fg_bg("diffAdded", current_colors.git.add, "NONE")
+    set_fg_bg("diffRemoved", current_colors.git.delete, "NONE")
+    set_fg_bg("diffChanged", current_colors.git.change, "NONE")
+    set_fg_bg("WinSeparator", current_colors.bg_alt, current_colors.bg_alt)
+    set_fg_bg("SignColumn", current_colors.bg, "NONE")
+    set_fg_bg("SignColumnSB", current_colors.bg, "NONE")
+    set_fg_bg("NormalFloat", current_colors.fg, "#181924")
+    set_fg_bg("Cursor", current_colors.bg, current_colors.fg)
+    set_fg_bg("NormalNC", current_colors.fg_dark, "#1c1d28")
+    set_fg_bg("Normal", current_colors.fg, "#1f2335")
+    set_fg_bg("CursorLineNr",current_colors.orange, "bold")
     local colors = M.hi_colors()
     -- set_fg_bg("WinSeparator", colors.bg, "None")
     set_fg_bg("NormalFloat", colors.fg, colors.bg)

@@ -1,8 +1,10 @@
 local M = {}
--- local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
 local themes = require "telescope.themes"
 local builtin = require "telescope.builtin"
+local actions = require "telescope.actions"
+local utils = require "telescope.utils"
+
 
 M.file_ignore_patterns = {
     "vendor/*",
@@ -11,10 +13,6 @@ M.file_ignore_patterns = {
     "%.sqlite3",
     "%.ipynb",
     "node_modules/*",
-    "%.jpg",
-    "%.jpeg",
-    "%.png",
-    "%.svg",
     "%.otf",
     "%.ttf",
     ".git/",
@@ -27,16 +25,12 @@ M.file_ignore_patterns = {
     "__pycache__/",
     "build/",
     "env/",
-    "gradle/",
-    "node_modules/",
     "target/",
-    ".cargo/",
     "%.pdb",
     "%.dll",
     "%.class",
     "%.exe",
     "%.cache",
-    "%.ico",
     "%.pdf",
     "%.dylib",
     "%.jar",
@@ -45,130 +39,165 @@ M.file_ignore_patterns = {
     "smalljre_*/*",
 }
 
+function M._multiopen(prompt_bufnr, open_cmd)
+    local picker = action_state.get_current_picker(prompt_bufnr)
+    local num_selections = table.getn(picker:get_multi_selection())
+    local border_contents = picker.prompt_border.contents[1]
+    if not (
+        string.find(border_contents, "Find Files")
+            or string.find(border_contents, "Git Files")
+            or string.find(border_contents, "Sessions")
+        )
+    then
+        actions.select_default(prompt_bufnr)
+        return
+    end
+    if num_selections > 1 then
+        vim.cmd "bw!"
+        for _, entry in ipairs(picker:get_multi_selection()) do
+            vim.cmd(string.format("%s %s", open_cmd, entry.value))
+        end
+        vim.cmd "stopinsert"
+    else
+        if open_cmd == "vsplit" then
+            actions.file_vsplit(prompt_bufnr)
+        elseif open_cmd == "split" then
+            actions.file_split(prompt_bufnr)
+        elseif open_cmd == "tabe" then
+            actions.file_tab(prompt_bufnr)
+        else
+            actions.file_edit(prompt_bufnr)
+        end
+    end
+end
+
+function M.multi_selection_open_vsplit(prompt_bufnr)
+    M._multiopen(prompt_bufnr, "vsplit")
+end
+
+function M.multi_selection_open_split(prompt_bufnr)
+    M._multiopen(prompt_bufnr, "split")
+end
+
+function M.multi_selection_open_tab(prompt_bufnr)
+    M._multiopen(prompt_bufnr, "tabe")
+end
+
+function M.multi_selection_open(prompt_bufnr)
+    M._multiopen(prompt_bufnr, "edit")
+end
+
+M.get_theme = function(opts)
+    if not opts then
+        opts = {}
+    end
+    opts["layout_config"] = M.layout_config()
+    opts["sorting_strategy"] = "descending"
+    return themes.get_ivy(opts)
+end
+
+function M.layout_config()
+    return {
+        width = 0.9,
+        height = 0.4,
+        preview_cutoff = 150,
+        prompt_position = "bottom",
+        horizontal = {
+            preview_width = function(_, cols, _)
+                return math.floor(cols * 0.6)
+            end,
+        },
+        vertical = {
+            width = 0.9,
+            height = 0.4,
+            preview_height = 0.5,
+        },
+        flex = {
+            horizontal = {
+                preview_width = 0.1,
+            },
+        },
+    }
+end
+
 -- another file string search
-function M.find_string()
+M.find_string = function()
     local opts = {
         hidden = true,
     }
-    builtin.live_grep(opts)
+    builtin.live_grep(M.get_theme(opts))
 end
 
+-- another file string search
+M.find_identifier = function()
+    local opts = {
+        hidden = true,
+    }
+    builtin.grep_string(M.get_theme(opts))
+end
 -- find files
-function M.find_files()
+M.find_files = function()
     local opts = {
         hidden = true,
     }
-    builtin.find_files(opts)
+    builtin.find_files(M.get_theme(opts))
 end
 
 -- find only recent files
-function M.recent_files()
+M.recent_files = function()
     local opts = {
         hidden = true,
     }
-    builtin.oldfiles(opts)
+    builtin.oldfiles(M.get_theme(opts))
 end
 
--- find only recent files
-function M.projects()
-    require("telescope").extensions.repo.list {}
+M.diagnostics = function()
+    builtin.diagnostics(M.get_theme())
 end
 
-function M.zoxide()
-    require("telescope").extensions.zoxide.list {}
+-- Extensions
+M.file_browser = function()
+    require("telescope").extensions.file_browser.file_browser(M.get_theme())
 end
 
--- show code actions in a fancy floating window
-function M.code_actions()
-    local opts = {
-        winblend = 0,
-        layout_config = {
-            prompt_position = "bottom",
-            width = 80,
-            height = 12,
-        },
-        borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-        previewer = false,
-        shorten_path = false,
-    }
-    builtin.lsp_code_actions(themes.get_dropdown(opts))
+M.projects = function()
+    require("telescope").extensions.repo.list(M.get_theme())
 end
 
-function M.codelens_actions()
-    local opts = {
-        winblend = 0,
-        layout_config = {
-            prompt_position = "bottom",
-            width = 80,
-            height = 12,
-        },
-        borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-        previewer = false,
-        shorten_path = false,
-    }
-    builtin.lsp_codelens_actions(themes.get_dropdown(opts))
+M.zoxide = function()
+    require("telescope").extensions.zoxide.list(M.get_theme())
+end
+
+M.persisted = function()
+    require("telescope").extensions.persisted.persisted(M.get_theme())
 end
 
 -- show refrences to this using language server
-function M.lsp_references()
-    builtin.lsp_references()
+M.lsp_references = function()
+    builtin.lsp_references(M.get_theme())
 end
 
 -- show implementations of the current thingy using language server
-function M.lsp_implementations()
-    builtin.lsp_implementations()
+M.lsp_implementations = function()
+    builtin.lsp_implementations(M.get_theme())
 end
 
 -- find files in the upper directory
-function M.find_updir()
+M.find_updir = function()
     local up_dir = vim.fn.getcwd():gsub("(.*)/.*$", "%1")
     local opts = {
         cwd = up_dir,
     }
 
-    builtin.find_files(opts)
+    builtin.find_files(M.get_theme(opts))
 end
 
-function M.installed_plugins()
-    builtin.find_files {
-        cwd = join_paths(os.getenv "LUNARVIM_RUNTIME_DIR", "site", "pack", "packer"),
-    }
+M.git_status = function()
+    builtin.git_status(M.get_theme())
 end
 
-function M.curbuf()
-    local opts = themes.get_dropdown {
-        winblend = 10,
-        previewer = false,
-        shorten_path = false,
-        layout_config = {
-            width = 0.45,
-            prompt_position = "bottom",
-        },
-    }
-    builtin.current_buffer_fuzzy_find(opts)
-end
-
-function M.git_status()
-    local opts = themes.get_dropdown {
-        winblend = 10,
-        previewer = false,
-        shorten_path = false,
-        layout_config = {
-            width = 0.45,
-            prompt_position = "bottom",
-        },
-    }
-
-    -- Can change the git icons using this.
-    -- opts.git_icons = {
-    --   changed = "M"
-    -- }
-
-    builtin.git_status(opts)
-end
-
-function M.search_only_certain_files()
-    builtin.find_files {
+M.search_only_certain_files = function()
+    local opts = {
         find_command = {
             "rg",
             "--files",
@@ -176,109 +205,188 @@ function M.search_only_certain_files()
             vim.fn.input "Type: ",
         },
     }
+    builtin.find_files(M.get_theme(opts))
 end
 
-function M.builtin()
+M.builtin = function()
     builtin.builtin()
 end
 
-function M.git_files()
+M.git_files = function()
     local path = vim.fn.expand "%:h"
     if path == "" then
         path = nil
     end
 
-    local width = 0.45
-    if path and string.find(path, "sourcegraph.*sourcegraph", 1, false) then
-        width = 0.6
-    end
-
-    local opts = themes.get_dropdown {
-        winblend = 5,
-        previewer = false,
-        shorten_path = false,
+    local opts = {
         cwd = path,
-        layout_config = {
-            width = width,
-            prompt_position = "bottom",
+        file_ignore_patterns = {
+            "^[.]vale/",
         },
     }
 
-    opts.file_ignore_patterns = {
-        "^[.]vale/",
-    }
-    builtin.git_files(opts)
+    builtin.git_files(M.get_theme(opts))
 end
 
-function M.grep_string_visual()
+M.find_string_visual = function()
     local visual_selection = function()
         local save_previous = vim.fn.getreg "a"
         vim.api.nvim_command 'silent! normal! "ay'
         local selection = vim.fn.trim(vim.fn.getreg "a")
         vim.fn.setreg("a", save_previous)
-        return vim.fn.substitute(selection, [[\n]], [[\\n]], "g")
+        local ret = vim.fn.substitute(selection, [[\n]], [[\\n]], "g")
+        return ret
     end
-    builtin.live_grep {
-        default_text = visual_selection(),
-    }
+    local opts = M.get_theme()
+    opts["default_text"] = visual_selection()
+    builtin.live_grep(opts)
 end
 
-function M.buffers()
-    builtin.buffers()
+M.buffers = function()
+    builtin.buffers(M.get_theme())
 end
 
-function M.config()
+M.resume = function()
+    builtin.resume(M.get_theme())
+end
+
+M.spell_suggest = function()
+    builtin.spell_suggest(M.get_theme())
+end
+
+M.table_lenght = function(table)
+    local count = 0
+    for _ in pairs(table) do
+        count = count + 1
+    end
+    return count
+end
+
+M.subrange = function(table, first, last)
+    local sub = {}
+    for i = first, last do
+        sub[#sub + 1] = table[i]
+    end
+    return sub
+end
+
+M.path_display = function()
+    return function(opts, path)
+        local os_sep = utils.get_separator()
+        local split_path = vim.split(path, os_sep)
+        local path_count = M.table_lenght(split_path)
+        if path_count == nil then
+            return path
+        end
+        local start = path_count - lvim.builtin.telescope.max_path_length
+        if start > 0 then
+            local short_path = M.subrange(split_path, start, path_count)
+            return string.format("%s", table.concat(short_path, os_sep))
+        else
+            return string.format("%s", path)
+        end
+    end
+end
+
+function M.find_project_files(opts)
+    opts = opts or {}
+    if opts.cwd then
+        opts.cwd = vim.fn.expand(opts.cwd)
+    else
+        opts.cwd = vim.loop.cwd()
+    end
+
+    local _, ret = utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" }, opts.cwd)
+    if ret ~= 0 then
+        local in_worktree =
+        utils.get_os_command_output({ "git", "rev-parse", "--is-inside-work-tree" }, opts.cwd)
+        local in_bare = utils.get_os_command_output({ "git", "rev-parse", "--is-bare-repository" }, opts.cwd)
+        if in_worktree[1] ~= "true" and in_bare[1] ~= "true" then
+            builtin.find_files(M.get_theme(opts))
+            return
+        end
+    end
+    builtin.git_files(M.get_theme(opts))
+end
+
+M.config = function()
     -- Telescope
-    lvim.builtin.telescope.defaults.path_display = { shorten = 10 }
-    lvim.builtin.telescope.defaults.prompt_prefix = "  "
+    local icons = require("user.icons").icons
+    lvim.builtin.telescope.defaults.dynamic_preview_title = true
+    lvim.builtin.telescope.defaults.layout_config = M.layout_config()
+    lvim.builtin.telescope.defaults.path_display = M.path_display()
+    lvim.builtin.telescope.defaults.prompt_prefix = icons.term .. " "
     lvim.builtin.telescope.defaults.borderchars = {
         prompt = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-        results = { "─", "▐", "─", "│", "╭", "▐", "▐", "╰" },
-        -- results = {' ', '▐', '▄', '▌', '▌', '▐', '▟', '▙' };
-        preview = { " ", "│", " ", "▌", "▌", "╮", "╯", "▌" },
+        results = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+        preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
     }
-    lvim.builtin.telescope.defaults.selection_caret = "  "
-    lvim.builtin.telescope.defaults.cache_picker = { num_pickers = 3 }
+    lvim.builtin.telescope.defaults.selection_caret = icons.right
+    lvim.builtin.telescope.defaults.cache_picker = { num_pickers = 5 }
     lvim.builtin.telescope.defaults.layout_strategy = "horizontal"
     lvim.builtin.telescope.defaults.color_devicons = true
-    lvim.builtin.telescope.defaults.use_less = true
-    local actions = require "telescope.actions"
     lvim.builtin.telescope.defaults.mappings = {
         i = {
-            ["<esc><esc>"] = actions.close,
+            ["<esc>"] = actions.close,
             ["<c-c>"] = actions.close,
             ["<c-y>"] = actions.which_key,
             ["<tab>"] = actions.toggle_selection + actions.move_selection_next,
             ["<s-tab>"] = actions.toggle_selection + actions.move_selection_previous,
-            ["<c-j>"] = actions.move_selection_next,
-            ["<c-k>"] = actions.move_selection_previous,
             ["<c-n>"] = actions.cycle_history_next,
             ["<c-p>"] = actions.cycle_history_prev,
+            ["<c-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
+            ["<cr>"] = M.multi_selection_open,
+            ["<c-v>"] = M.multi_selection_open_vsplit,
+            ["<c-s>"] = M.multi_selection_open_split,
+            ["<c-t>"] = M.multi_selection_open_tab,
         },
         n = {
             ["<esc>"] = actions.close,
             ["<c-c>"] = actions.close,
+            ["<c-y>"] = actions.which_key,
             ["<tab>"] = actions.toggle_selection + actions.move_selection_next,
             ["<s-tab>"] = actions.toggle_selection + actions.move_selection_previous,
-            ["<c-j>"] = actions.move_selection_next,
-            ["<c-k>"] = actions.move_selection_previous,
             ["<c-n>"] = actions.cycle_history_next,
             ["<c-p>"] = actions.cycle_history_prev,
             ["<c-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
+            ["<cr>"] = M.multi_selection_open,
+            ["<c-v>"] = M.multi_selection_open_vsplit,
+            ["<c-s>"] = M.multi_selection_open_split,
+            ["<c-t>"] = M.multi_selection_open_tab,
         },
     }
 
     lvim.builtin.telescope.defaults.file_ignore_patterns = M.file_ignore_patterns
 
+    local telescope_actions = require "telescope.actions.set"
+    lvim.builtin.telescope.pickers.git_files = {
+        hidden = true,
+        show_untracked = true,
+        layout_strategy = "horizontal",
+    }
+    lvim.builtin.telescope.pickers.live_grep = {
+        only_sort_text = true,
+        layout_strategy = "horizontal",
+    }
+    lvim.builtin.telescope.pickers.find_files = {
+        layout_strategy = "horizontal",
+        attach_mappings = function(_)
+            telescope_actions.select:enhance {
+                post = function()
+                    vim.cmd ":normal! zx"
+                end,
+            }
+            return true
+        end,
+        find_command = { "fd", "--type=file", "--hidden" },
+    }
+
     lvim.builtin.telescope.on_config_done = function(telescope)
         telescope.load_extension "luasnip"
-        telescope.load_extension "ui-select"
-        -- telescope.load_extension "file_create"
         telescope.load_extension "zoxide"
         telescope.load_extension "repo"
-        if lvim.builtin.file_browser.active then
-            telescope.load_extension "file_browser"
-        end
+        telescope.load_extension "file_browser"
+        telescope.load_extension "persisted"
     end
 end
 

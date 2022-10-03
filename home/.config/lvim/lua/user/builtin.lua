@@ -27,6 +27,7 @@ M.config = function()
     -- Winbar provider
     lvim.builtin.winbar_provider = "navic"
 
+
     -- Nvimtree
     lvim.builtin.nvimtree.active = lvim.builtin.tree_provider == "nvimtree"
     lvim.builtin.nvimtree.side = "left"
