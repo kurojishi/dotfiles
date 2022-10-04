@@ -12,6 +12,10 @@ M.config = function()
                 require("user.colorizer").config()
             end,
         },
+        {
+            'kosayoda/nvim-lightbulb',
+            requires = 'antoinemadec/FixCursorHold.nvim',
+        },
         ------------------------------------------------------------------------------
         -- Git and VCS.
         ------------------------------------------------------------------------------
@@ -435,8 +439,39 @@ M.config = function()
                 require("user.refactoring").config()
             end,
         },
+        -- Filetypes overrides
+        {
+            "abzcoding/filetype.nvim",
+            branch = "fix/qf-syntax",
+            config = function()
+                require("filetype").setup {
+                    overrides = {
+                        literal = {
+                            ["kitty.conf"] = "kitty",
+                            [".gitignore"] = "conf",
+                            ["waybar/config"] = "conf",
+                        },
+                    },
+                }
+            end,
+        },
         -- i3 syntax
         { "mboughaba/i3config.vim" },
+        -- sway syntax
+        { "terminalnode/sway-vim-syntax" },
+        -- Kitty sintax highlighting
+        {
+            "fladson/vim-kitty",
+            ft = { "kitty" },
+        },
+        -- VimTex
+        {
+            "lervag/vimtex",
+            ft = { "tex", "dvi", "pdf" },
+            config = function()
+                vim.cmd "call vimtex#init()"
+            end,
+        },
         -- Visual multi
         {
             "mg979/vim-visual-multi",
