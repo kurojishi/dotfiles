@@ -193,20 +193,20 @@ end
 -- NORMAL MODE
 M.normal_keys = function()
     lvim.keys.normal_mode = {
-        -- Buffers
         ["<F1>"] = "<cmd>BufferLineCyclePrev<cr>",
         ["<F2>"] = "<cmd>BufferLineCycleNext<cr>",
+        -- Buffers
         ["<A-S-Left>"] = "<cmd>BufferLineMovePrev<cr>",
         ["<A-S-Right>"] = "<cmd>BufferLineMoveNext<cr>",
         -- Toggle tree
         ["<F3>"] = "<cmd>NeoTreeRevealToggle<cr>",
+        ["<F4>"] = "<cmd>Vista!!<cr>",
         -- ["<S-F3>"] = "<cmd>NvimTreeRefresh<cr>",
         -- Toggle sidebar
         ["<F5>"] = "<cmd>MouseToggle<cr>",
         -- Yank current path
         ["<F6>"] = '<cmd>let @+ = expand("%:p")<cr>',
         -- Symbols vista
-        ["<F10>"] = "<cmd>Vista!!<cr>",
         -- Toggle numbers
         ["<F11>"] = "<cmd>NoNuMode<cr>",
         ["<F12>"] = "<cmd>NuModeToggle<cr>",
@@ -267,6 +267,9 @@ M.insert_keys = function()
         ["<F2>"] = "<esc><cmd>BufferLineCycleNext<cr>",
         ["<A-S-Left>"] = "<cmd>BufferLineMovePrev<cr>",
         ["<A-S-Right>"] = "<cmd>BufferLineMoveNext<cr>",
+        -- Toggle tree
+        ["<F3>"] = "<cmd>NeoTreeRevealToggle<cr>",
+        ["<F4>"] = "<cmd>Vista!!<cr>",
         -- Toggle mouse
         ["<F5>"] = "<esc><cmd>MouseToggle<cr>",
         -- Yank current path

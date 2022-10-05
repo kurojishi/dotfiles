@@ -2,7 +2,7 @@
 vim.opt.guifont = "FiraCode Nerd Font:h10"
 lvim.log.level = "warn"
 lvim.format_on_save = false
-lvim.colorscheme = "tokyonight"
+lvim.colorscheme = "tokyonight-storm"
 lvim.line_wrap_cursor_movement = false
 lvim.termguicolors = true
 lvim.transparent_window = false
