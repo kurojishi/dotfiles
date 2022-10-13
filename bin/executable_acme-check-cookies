@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+import io
+import json
+import socket
+from datetime import datetime
+from pathlib import Path
+from uuid import uuid4
+import argparse
+from base64 import urlsafe_b64decode
+from binascii import hexlify
+from sys import stderr
+MIDWAY_AEA_COOKIE = "amazon_enterprise_access"
+MIDWAY_AEA_DURATION = 4 * 60 * 60  # 4 hours
+ACME_STATE = Path("/usr/local/amazon/var/acme/run/acme.ipc.daemon")
+def parse_args(args=None):
+    p = argparse.ArgumentParser(
+        description="""
+Tool to fetch an ACME JWT token (this is what AEA-enabled websites use for authentication)
+directly from the local ACME daemon, and explain its contents.
+Requires unexpired Midway cookie and running ACME daemon.
+Check `acme --compliance-status -vvv` if you get posture errors.
+"""
+    )
+    args = p.parse_args(args)
+    return p, args
+def get_jwt_token(timestamp: datetime, duration: int) -> str:
+    acme = json.load(ACME_STATE.open("rt"))
+    request = {
+        "action": "GetJWT",
+        "request_uuid": str(uuid4()),
+        "auth_token": None,
+        "secure": False,
+        "options": {"duration": duration},
+        "date": timestamp.strftime("%Y-%m-%d %H:%M:%S.%f"),
+    }
+    body = json.dumps(request).encode()
+    with socket.create_connection((acme["address"], acme["port"])) as sk:
+        sk.send(b"%d|%b" % (len(body), body))
+        header, _, body = sk.recv(128).partition(b"|")
+        expected = int(header, 10)
+        rbody = io.BytesIO()
+        rbody.write(body)
+        while rbody.tell() < expected:
+            rbody.write(sk.recv(expected - rbody.tell()))
+    # TODO: Better error handling
+    response = json.loads(rbody.getvalue())
+    return response["data"]["jwt"]  # type: ignore[no-any-return]
+def main(args=None):
+    p, args = parse_args(args)
+    print("Getting JWT token from ACME daemon...", file=stderr)
+    t = get_jwt_token(datetime.now(), MIDWAY_AEA_DURATION)
+    # token consists of 3 unpadded, URL-safe base64 encoded chunks separated by '.'
+    bits = [urlsafe_b64decode(chunk + "=" * (-len(chunk) % 4)) for chunk in t.split(".")]
+    print("Intro:\n======\n\n" + json.dumps(json.loads(bits[0]), indent="  "))
+    print("\nDetails:\n========\n\n" + json.dumps(json.loads(bits[1]), indent="  "))
+    print("\nSignature:\n========\n\n" + hexlify(bits[2]).decode())
+if __name__ == "__main__":
+    main()

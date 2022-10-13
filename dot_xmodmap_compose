@@ -1,0 +1,3 @@
+remove Lock = Caps_Lock
+keysym Multi_Key = Caps_Lock
+remove Lock = Caps_Lock
