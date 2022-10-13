@@ -35,6 +35,11 @@ pip install cookiecutter
 pip install setuptools
 pip install vint
 
+# Nix Packages
+nix-env -i nixos.glab
+nix-env -i bat
+nix-env -i nixpkgs.glow
+
 # reload font cache
 fc-cache -f
 
