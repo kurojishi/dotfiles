@@ -14,6 +14,6 @@ fi
 
 export PATH="$PATH:/usr/local/bin"
 
-/usr/local/bin/gopass-jsonapi listen
+/usr/bin/gopass-jsonapi listen
 
 exit $?
