@@ -37,12 +37,11 @@ npm install -g markdownlint-cli
 fc-cache -f
 
 # nix
-if [[ ! -f /nix ]]; then
+if [[ ! -d /nix ]]; then
     sh <(curl -L https://nixos.org/nix/install) --daemon
 fi
 
 # Nix Packages
-nix-env -i nixos.glab
 nix-env -i bat
 nix-env -i nixpkgs.glow
 

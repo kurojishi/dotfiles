@@ -27,7 +27,8 @@ export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init - bash)"
 
 for version in 3.10.5 3.9.9 3.8.9; do
-    if [[ ! -f $HOME/.pyenv/versions/$version ]]; then
+    echo "Check if $HOME/.pyenv/version/$version exists"
+    if [[ ! -d $HOME/.pyenv/versions/$version ]]; then
         pyenv install $version
     fi
 done
@@ -41,8 +42,8 @@ eval "$(nodenv init - bash)"
 node_versions="16.15.0"
 
 for version in $node_versions; do
-    if [[ ! -f $HOME/.pyenv/versions/$version ]]; then
-        nodeenv install 3.10.5
+    if [[ ! -d $HOME/.nodenv/versions/$version ]]; then
+        nodeenv install $version
     fi
 done
 nodenv global $node_versions
