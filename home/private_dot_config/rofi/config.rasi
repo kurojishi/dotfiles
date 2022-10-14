@@ -1,0 +1,15 @@
+configuration {
+	font:							"FiraCode Nerd Font 10";
+    show-icons:                     true;
+	icon-theme: 					"candy-icons";
+    display-drun: 					"";
+    drun-display-format:            "{icon} {name}";
+    disable-history:                false;
+    fullscreen:                     false;
+	hide-scrollbar: 				true;
+	sidebar-mode: 					false;
+    matching:                       "fuzzy";
+    modi:                           "run,window,drun";
+}
+
+@theme "/home/kurojishi/.local/share/rofi/themes/simple-tokyonight-fork.rasi"
