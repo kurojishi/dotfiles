@@ -9,6 +9,7 @@
 ["src/Waybar"]
     type = "git-repo"
     url = "https://github.com/Alexays/Waybar"
+    args = "-b 0.9.13"
     refreshPeriod = "168h"
 [".oh-my-zsh"]
     type = "archive"
@@ -32,7 +33,7 @@
     refreshPeriod = "168h"
 ["debs/gopass.deb"]
     type = "file"
-    url = "https://github.com/gopasspw/gopass/releases/latest/download/gopass_1.11.0_linux_amd64.deb"
+    url = "https://github.com/gopasspw/gopass/releases/latest/download/gopass_1.14.9_linux_amd64.deb"
     refreshPeriod = "168h"
 ["debs/gopass-jsonapi.deb"]
     type = "file"

@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Install golang
-rm -rf /usr/local/go
-tar -C /usr/local -xzf ~/installers/golang.tar.gz
-
-sudo apt install -y ./debs/*.deb
-
 #Golang tools
 go install github.com/go-delve/delve/cmd/dlv@latest
 go install mvdan.cc/sh/v3/cmd/shfmt@latest
+
+source $HOME/.cargo/env
 
 # install rust tools
 cargo install stylua
@@ -18,11 +14,6 @@ cargo install --git https://github.com/neovide/neovide
 cargo install prosemd-lsp
 cargo install rusty-tags
 
-# python version
-pyenv install 3.10.5
-pyenv install 3.9.9
-pyenv install 3.8.9
-pyenv global 3.10.5 3.9.9 3.8.9
 # python tools
 pip install bandit
 pip install coverage
@@ -37,11 +28,31 @@ pip install cookiecutter
 pip install setuptools
 pip install vint
 
+
+# npm install
+npm install -g @fsouza/prettierd
+npm install -g markdownlint-cli
+
+# reload font cache
+fc-cache -f
+
+# nix
+if [[ ! -f /nix ]]; then
+    sh <(curl -L https://nixos.org/nix/install) --daemon
+fi
+
 # Nix Packages
 nix-env -i nixos.glab
 nix-env -i bat
 nix-env -i nixpkgs.glow
 
-# reload font cache
-fc-cache -f
+sudo update-alternatives --install /usr/bin/lvim vim /home/kurojishi/.local/bin/lvim 1
+sudo update-alternatives --install /usr/bin/vim vim /home/kurojishi/.local/bin/lvim 1
+sudo update-alternatives --config vim
 
+
+rm -f $HOME/.config/lvim/plugin/packer_compiled.lua
+vim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+
+gopass-jsonapi configure
