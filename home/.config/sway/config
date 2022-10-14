@@ -238,6 +238,19 @@ bar {
 
 include /etc/sway/config.d/*
 
+# Windows specific rules
+for_window [app_id="(pavucontrol|psensor)"] floating enable
+for_window [app_id="firefox" title="Pushbullet"] floating enable
+for_window [app_id="firefox" title="Firefox — Sharing Indicator"] floating enable
+for_window [app_id="firefox" title="Picture-in-Picture"] floating enable
+for_window [app_id="firefox" title="Pushbullet – Mozilla Firefox"] floating enable
+for_window [app_id="firefox" title="About Mozilla Firefox"] floating enable
+
+# Run screensharing data
+exec systemctl --user import-environment XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment WAYLAND_DISPLAY
+
+assign [app_id="slack"] workspace number 1
 assign [app_id="firefox"] workspace number 3
 assign [app_id="zoom"] workspace number 8
 assign [app_id="telegram-desktop_telegram-desktop"] workspace number 10
@@ -250,4 +263,5 @@ exec --no-startup-id "nm-applet &"
 exec --no-startup-id "fcitx5 -dr &"
 exec --no-startup-id "telegram-desktop &"
 exec --no-startup-id "firefox &"
+exec --no-startup-id "slack --enable-features=WebRTCPipeWireCapturer %U &"
 

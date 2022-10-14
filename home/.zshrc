@@ -57,6 +57,7 @@ set COMPLETE_ALIASES
 compdef sshrc=ssh
 autoload -U compinit && compinit -i
 autoload -U bashcompinit && bashcompinit
+source <(chezmoi completion zsh)
 
 # Rust
 source $HOME/.cargo/env
