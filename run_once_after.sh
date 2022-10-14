@@ -4,6 +4,8 @@
 rm -rf /usr/local/go
 tar -C /usr/local -xzf ~/installers/golang.tar.gz
 
+sudo apt install -y ./debs/*.deb
+
 #Golang tools
 go install github.com/go-delve/delve/cmd/dlv@latest
 go install mvdan.cc/sh/v3/cmd/shfmt@latest
