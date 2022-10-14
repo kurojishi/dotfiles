@@ -31,14 +31,6 @@
     type = "file"
     url = "https://zoom.us/client/5.12.2.4816/zoom_amd64.deb"
     refreshPeriod = "168h"
-["debs/gopass.deb"]
-    type = "file"
-    url = "https://github.com/gopasspw/gopass/releases/latest/download/gopass_1.14.9_linux_amd64.deb"
-    refreshPeriod = "168h"
-["debs/gopass-jsonapi.deb"]
-    type = "file"
-    url = "https://github.com/gopasspw/gopass-jsonapi/releases/download/v1.14.9/gopass-jsonapi_1.14.9_linux_amd64.deb"
-    refreshPeriod = "168h"
 ["debs/git-delta.deb"]
     type = "file"
     url = "https://github.com/dandavison/delta/releases/download/0.14.0/git-delta_0.14.0_amd64.deb"
