@@ -48,10 +48,3 @@ nix-env -i nixpkgs.glow
 sudo update-alternatives --install /usr/bin/lvim vim /home/kurojishi/.local/bin/lvim 1
 sudo update-alternatives --install /usr/bin/vim vim /home/kurojishi/.local/bin/lvim 1
 sudo update-alternatives --config vim
-
-
-rm -f $HOME/.config/lvim/plugin/packer_compiled.lua
-vim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
-
-
-gopass-jsonapi configure

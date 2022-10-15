@@ -11,29 +11,29 @@
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
 	# include .bashrc if it exists
-	if [ -f "$HOME/.bashrc" ]; then
-		. "$HOME/.bashrc"
+	if [ -f "{{ .chezmoi.homeDir }}/.bashrc" ]; then
+		. "{{ .chezmoi.homeDir }}/.bashrc"
 	fi
 fi
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ]; then
-	PATH="$HOME/bin:$PATH"
+if [ -d "{{ .chezmoi.homeDir }}/bin" ]; then
+	PATH="{{ .chezmoi.homeDir }}/bin:$PATH"
 fi
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ]; then
-	PATH="$HOME/.local/bin:$PATH"
+if [ -d "{{ .chezmoi.homeDir }}/.local/bin" ]; then
+	PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
 fi
 
-if [ -e /home/kurojishi/.nix-profile/etc/profile.d/nix.sh ]; then . /home/kurojishi/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+if [ -e {{ .chezmoi.homeDir }}/.nix-profile/etc/profile.d/nix.sh ]; then . {{ .chezmoi.homeDir }}/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
-export PYENV_ROOT="$HOME/.pyenv"
+export PYENV_ROOT="{{ .chezmoi.homeDir }}/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
-. "$HOME/.cargo/env"
+. "{{ .chezmoi.homeDir }}/.cargo/env"
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true"
-export KITTY_CONFIG_DIRECTORY=$HOME/.config/kitty/
+export KITTY_CONFIG_DIRECTORY={{ .chezmoi.homeDir }}/.config/kitty/
 
 XMODIFIERS=@im=fcitx
 QT_IM_MODULE=fcitx
