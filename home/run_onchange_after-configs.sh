@@ -5,4 +5,3 @@ vim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
 
 gopass-jsonapi configure
-

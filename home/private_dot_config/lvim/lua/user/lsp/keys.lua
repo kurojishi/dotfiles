@@ -170,22 +170,6 @@ M.lsp_normal_keys = function()
             },
         },
     }
-    -- Copilot
-    if lvim.builtin.copilot.active then
-        wk.register {
-            ["f"] = {
-                C = {
-                    name = icons.copilot .. " Copilot",
-                    e = { "<cmd>lua require('user.copilot').enable()<cr>", "Enable" },
-                    d = { "<cmd>lua require('user.copilot').disable()<cr>", "Disable" },
-                    s = { "<cmd>lua require('user.copilot').status()<cr>", "Status" },
-                    h = { "<cmd>lua require('user.copilot').help()<cr>", "Help" },
-                    r = { "<cmd>lua require('user.copilot').restart()<cr>", "Restart" },
-                    l = { "<cmd>lua require('user.copilot').logs()<cr>", "Logs" },
-                },
-            },
-        }
-    end
 end
 
 M.lsp_visual_keys = function()

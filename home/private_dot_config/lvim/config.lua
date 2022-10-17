@@ -52,8 +52,5 @@ require("user.lsp").config()
 -- Debugging
 require("user.dap").config()
 
--- Copilot
-require("user.copilot").config()
-
 -- Vimscript if needed
 vim.cmd "source ~/.config/lvim/vimscript/user.post.vim"

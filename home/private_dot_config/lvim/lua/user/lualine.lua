@@ -373,19 +373,6 @@ M.config = function()
         color = { fg = colors.fg, bg = colors.bg },
     }
 
-    -- Copilot icon
-    ins_right {
-        function()
-            if require("user.copilot").enabled() then
-                return " " .. icons.copilot .. " "
-            else
-                return ""
-            end
-        end,
-        padding = 0,
-        color = { fg = colors.red, bg = colors.bg },
-    }
-
     -- Null-ls icon
     ins_right {
         function()
@@ -450,7 +437,7 @@ M.config = function()
             local trim = vim.fn.winwidth(0) < trim_width
 
             for _, client in pairs(buf_clients) do
-                if not (client.name == "copilot" or client.name == "null-ls") then
+                if not (client.name == "null-ls") then
                     local _added_client = client.name
                     if trim then
                         _added_client = string.sub(client.name, 1, 4)
