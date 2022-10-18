@@ -51,11 +51,3 @@ for version in $node_versions; do
     fi
 done
 nodenv global $node_versions
-
-# install rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-source "$HOME/.cargo/env"
-
-# install lvim
-LV_BRANCH=rolling bash <(curl -s https://raw.githubusercontent.com/lunarvim/lunarvim/master/utils/installer/install.sh)
