@@ -54,7 +54,6 @@ M.icons = {
     folder = "",
     package = "",
     spelling = " ",
-    copilot = "",
     attention = "",
     Function = "",
     zen = "",
@@ -164,5 +163,11 @@ M.define_dap_signs = function()
         { text = "", texthl = "DapLogPoint", linehl = "DapLogPoint", numhl = "DapLogPoint" }
     )
 end
+
+M.mason = {
+  package_pending = " ",
+  package_installed = " ",
+  package_uninstalled = " ",
+}
 
 return M

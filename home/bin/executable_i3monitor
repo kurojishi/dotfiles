@@ -11,7 +11,7 @@ output=${2:-HDMI-1}
 case "$mode" in
 laptop)
 	swaymsg output DP-3 disable
-	swaymsg output eDP-2 pos 0 0 res 1920x1080 enable
+	swaymsg output eDP-2 pos 0 0 res 1920x1200 enable
 	;;
 home)
 	swaymsg output DP-3 pos 1920 0 res 1920x1080 enable

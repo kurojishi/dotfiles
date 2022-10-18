@@ -10,7 +10,7 @@ M.config = function()
     if not status_ok then
         return
     end
-    local semgrep_rule_folder = os.getenv "HOME" .. "/.config/semgrep/semgrep-rules/"
+    local semgrep_rule_folder = vim.env.HOME .. "/.config/semgrep/semgrep-rules/"
     local use_semgrep = false
     if vim.fn.filereadable(semgrep_rule_folder .. "template.yaml") then
         use_semgrep = true
@@ -20,7 +20,7 @@ M.config = function()
     local custom_md_dictionary = require "user.null_ls.dictionary"
 
     local sources = {
-        nls.builtins.formatting.prettier,
+        -- nls.builtins.formatting.prettier,
         nls.builtins.formatting.prettierd.with {
             condition = function(utils)
                 return not utils.root_has_file { ".eslintrc", ".eslintrc.js" }
@@ -77,17 +77,12 @@ M.config = function()
         nls.builtins.diagnostics.markdownlint.with {
             filetypes = { "markdown" },
         },
-        nls.builtins.diagnostics.vale.with {
-            filetypes = { "markdown" },
-        },
+        -- nls.builtins.diagnostics.vale.with {
+        --     filetypes = { "markdown" },
+        -- },
         nls.builtins.diagnostics.revive.with {
             condition = function(utils)
                 return utils.root_has_file "revive.toml"
-            end,
-        },
-        nls.builtins.diagnostics.golangci_lint.with {
-            condition = function(utils)
-                return utils.root_has_file ".golangci.yml"
             end,
         },
         nls.builtins.code_actions.shellcheck,

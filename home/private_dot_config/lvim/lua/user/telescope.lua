@@ -5,7 +5,6 @@ local builtin = require "telescope.builtin"
 local actions = require "telescope.actions"
 local utils = require "telescope.utils"
 
-
 M.file_ignore_patterns = {
     "vendor/*",
     "%.lock",
@@ -101,11 +100,10 @@ function M.layout_config()
         width = 0.9,
         height = 0.4,
         preview_cutoff = 150,
+        preview_width = 0.4,
         prompt_position = "bottom",
         horizontal = {
-            preview_width = function(_, cols, _)
-                return math.floor(cols * 0.6)
-            end,
+            preview_width = 0.4
         },
         vertical = {
             width = 0.9,
@@ -114,7 +112,7 @@ function M.layout_config()
         },
         flex = {
             horizontal = {
-                preview_width = 0.1,
+                preview_width = 0.4,
             },
         },
     }
@@ -160,6 +158,10 @@ M.file_browser = function()
     require("telescope").extensions.file_browser.file_browser(M.get_theme())
 end
 
+M.noice = function()
+    require("telescope").extensions.noice.noice(M.get_theme())
+end
+
 M.projects = function()
     require("telescope").extensions.repo.list(M.get_theme())
 end
@@ -170,6 +172,10 @@ end
 
 M.persisted = function()
     require("telescope").extensions.persisted.persisted(M.get_theme())
+end
+
+M.neoclip = function()
+    require("telescope").extensions.neoclip.neoclip(M.get_theme())
 end
 
 -- show refrences to this using language server
@@ -288,7 +294,7 @@ M.path_display = function()
     end
 end
 
-function M.find_project_files(opts)
+M.find_project_files = function(opts)
     opts = opts or {}
     if opts.cwd then
         opts.cwd = vim.fn.expand(opts.cwd)
@@ -298,8 +304,7 @@ function M.find_project_files(opts)
 
     local _, ret = utils.get_os_command_output({ "git", "rev-parse", "--show-toplevel" }, opts.cwd)
     if ret ~= 0 then
-        local in_worktree =
-        utils.get_os_command_output({ "git", "rev-parse", "--is-inside-work-tree" }, opts.cwd)
+        local in_worktree = utils.get_os_command_output({ "git", "rev-parse", "--is-inside-work-tree" }, opts.cwd)
         local in_bare = utils.get_os_command_output({ "git", "rev-parse", "--is-bare-repository" }, opts.cwd)
         if in_worktree[1] ~= "true" and in_bare[1] ~= "true" then
             builtin.find_files(M.get_theme(opts))
@@ -339,6 +344,7 @@ M.config = function()
             ["<c-v>"] = M.multi_selection_open_vsplit,
             ["<c-s>"] = M.multi_selection_open_split,
             ["<c-t>"] = M.multi_selection_open_tab,
+            ["<C-d>"] = require("telescope.actions").delete_buffer,
         },
         n = {
             ["<esc>"] = actions.close,
@@ -353,6 +359,7 @@ M.config = function()
             ["<c-v>"] = M.multi_selection_open_vsplit,
             ["<c-s>"] = M.multi_selection_open_split,
             ["<c-t>"] = M.multi_selection_open_tab,
+            ["dd"] = require("telescope.actions").delete_buffer,
         },
     }
 
@@ -387,6 +394,7 @@ M.config = function()
         telescope.load_extension "repo"
         telescope.load_extension "file_browser"
         telescope.load_extension "persisted"
+        telescope.load_extension "neoclip"
     end
 end
 

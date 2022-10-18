@@ -35,7 +35,7 @@ M.which_keys_normal = function()
     }
 
     -- File browser
-    lvim.builtin.which_key.mappings["C"] = {
+    lvim.builtin.which_key.mappings["E"] = {
         "<cmd>lua require('user.telescope').file_browser()<cr>",
         icons.folder .. " File browser",
     }
@@ -44,6 +44,18 @@ M.which_keys_normal = function()
     lvim.builtin.which_key.mappings["f"] = {
         "<cmd>lua require('user.telescope').find_project_files()<cr>",
         icons.files .. "Find files",
+    }
+
+    -- File browser
+    lvim.builtin.which_key.mappings["C"] = {
+        "<cmd>lua require('user.telescope').neoclip()<cr>",
+        icons.docs .. "Clipboard",
+    }
+
+    -- Noice
+    lvim.builtin.which_key.mappings["N"] = {
+        "<cmd>lua require('user.telescope').noice()<cr>",
+        icons.package .. " Noice",
     }
 
     -- String search
@@ -100,6 +112,11 @@ M.which_keys_normal = function()
         b = { "<cmd>BlamerToggle<cr>", "Toggle inline git blame" },
         B = { "<cmd>Git blame<cr>", "Open git blame" },
         g = { "<cmd>lua require('lvim.core.terminal')._exec_toggle({cmd='lazygit'})<cr>", "LazyGit" },
+        L = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
+            "Open line in browser",
+            silent = true,
+        },
         s = { "<cmd>lua require('user.telescope').git_status()<cr>", "Repository status" },
         f = { "<cmd>lua require('user.telescope').git_files()<cr>", "Repository files" },
     }
@@ -183,6 +200,20 @@ end
 
 M.which_keys_visual = function()
     local icons = require("user.icons").icons
+
+    lvim.builtin.which_key.vmappings["g"] = {
+        name = " Git",
+        l = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').copy_to_clipboard})<cr>",
+            "Copy line",
+            silent = false,
+        },
+        L = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
+            "Open line in browser",
+            silent = true,
+        },
+    }
     -- String search
     lvim.builtin.which_key.vmappings["s"] = {
         "<cmd>lua require('user.telescope').find_string_visual()<cr>",
@@ -193,20 +224,20 @@ end
 -- NORMAL MODE
 M.normal_keys = function()
     lvim.keys.normal_mode = {
+        -- Buffers
         ["<F1>"] = "<cmd>BufferLineCyclePrev<cr>",
         ["<F2>"] = "<cmd>BufferLineCycleNext<cr>",
-        -- Buffers
         ["<A-S-Left>"] = "<cmd>BufferLineMovePrev<cr>",
         ["<A-S-Right>"] = "<cmd>BufferLineMoveNext<cr>",
         -- Toggle tree
         ["<F3>"] = "<cmd>NeoTreeRevealToggle<cr>",
-        ["<F4>"] = "<cmd>Vista!!<cr>",
         -- ["<S-F3>"] = "<cmd>NvimTreeRefresh<cr>",
         -- Toggle sidebar
         ["<F5>"] = "<cmd>MouseToggle<cr>",
         -- Yank current path
         ["<F6>"] = '<cmd>let @+ = expand("%:p")<cr>',
         -- Symbols vista
+        ["<F10>"] = "<cmd>Vista!!<cr>",
         -- Toggle numbers
         ["<F11>"] = "<cmd>NoNuMode<cr>",
         ["<F12>"] = "<cmd>NuModeToggle<cr>",
@@ -267,9 +298,6 @@ M.insert_keys = function()
         ["<F2>"] = "<esc><cmd>BufferLineCycleNext<cr>",
         ["<A-S-Left>"] = "<cmd>BufferLineMovePrev<cr>",
         ["<A-S-Right>"] = "<cmd>BufferLineMoveNext<cr>",
-        -- Toggle tree
-        ["<F3>"] = "<cmd>NeoTreeRevealToggle<cr>",
-        ["<F4>"] = "<cmd>Vista!!<cr>",
         -- Toggle mouse
         ["<F5>"] = "<esc><cmd>MouseToggle<cr>",
         -- Yank current path

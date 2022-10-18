@@ -11,39 +11,7 @@ M.config = function()
             config = function()
                 require("user.colorizer").config()
             end,
-        },
-        {
-            "folke/tokyonight.nvim",
-            conig = function()
-                vim.g.tokyonight_sidebars = {
-                    "qf",
-                    "vista_kind",
-                    "terminal",
-                    "packer",
-                    "spectre_panel",
-                    "NeogitStatus",
-                    "help",
-                }
-                vim.g.tokyonight_cterm_colors = false
-                vim.g.tokyonight_terminal_colors = true
-                vim.g.tokyonight_italic_comments = false
-                vim.g.tokyonight_italic_keywords = true
-                vim.g.tokyonight_italic_functions = false
-                vim.g.tokyonight_italic_variables = false
-                vim.g.tokyonight_transparent = false
-                vim.g.tokyonight_hide_inactive_statusline = true
-                vim.g.tokyonight_dark_sidebar = true
-                vim.g.tokyonight_dark_float = true
-                vim.g.tokyonight_dim_inactive = true
-                vim.g.tokyonight_global_status = true
-                vim.g.tokyonight_colors = {
-                    git = { change = "#6183bb", add = "#449dab", delete = "#f7768e", conflict = "#bb7a61" },
-                }
-            end
-        },
-        {
-            'kosayoda/nvim-lightbulb',
-            requires = 'antoinemadec/FixCursorHold.nvim',
+            event = "BufReadPre",
         },
         ------------------------------------------------------------------------------
         -- Git and VCS.
@@ -202,14 +170,14 @@ M.config = function()
         -- Cmp all the things.
         ------------------------------------------------------------------------------
         -- Cmp for command line
-        { "hrsh7th/cmp-cmdline" },
-        { "dmitmel/cmp-cmdline-history" },
+        {
+            "hrsh7th/cmp-cmdline",
+            disable = not lvim.builtin.cmdline.active,
+        },
         -- Cmp for emojis..
         { "hrsh7th/cmp-emoji" },
         -- Cmp for to calculate maths expressions.
         { "hrsh7th/cmp-calc" },
-        -- Cmp for spelling and dictionary.
-        { "f3fora/cmp-spell" },
         {
             "uga-rosa/cmp-dictionary",
             config = function()
@@ -362,17 +330,6 @@ M.config = function()
                 require("user.silicon").config()
             end,
         },
-        -- Debugging UI
-        {
-            "rcarriga/nvim-dap-ui",
-            config = function()
-                require("user.dapui").config()
-            end,
-            ft = { "python", "rust", "go", "c" },
-            event = "BufReadPost",
-            requires = { "mfussenegger/nvim-dap" },
-            disable = not lvim.builtin.dap.active,
-        },
         -- TODO comments
         {
             "folke/todo-comments.nvim",
@@ -401,16 +358,6 @@ M.config = function()
         },
         -- Zoxide
         { "nanotee/zoxide.vim" },
-        -- Stable window open
-        {
-            "luukvbaal/stabilize.nvim",
-            config = function()
-                require("stabilize").setup {
-                    forcemark = "f",
-                    nested = "QuickFixCmdPost,User LspDiagnosticsChanged",
-                }
-            end,
-        },
         -- Trouble
         { "folke/trouble.nvim" },
         -- Editor config
@@ -443,39 +390,8 @@ M.config = function()
                 require("user.refactoring").config()
             end,
         },
-        -- Filetypes overrides
-        {
-            "abzcoding/filetype.nvim",
-            branch = "fix/qf-syntax",
-            config = function()
-                require("filetype").setup {
-                    overrides = {
-                        literal = {
-                            ["kitty.conf"] = "kitty",
-                            [".gitignore"] = "conf",
-                            ["waybar/config"] = "conf",
-                        },
-                    },
-                }
-            end,
-        },
         -- i3 syntax
         { "mboughaba/i3config.vim" },
-        -- sway syntax
-        { "terminalnode/sway-vim-syntax" },
-        -- Kitty sintax highlighting
-        {
-            "fladson/vim-kitty",
-            ft = { "kitty" },
-        },
-        -- VimTex
-        {
-            "lervag/vimtex",
-            ft = { "tex", "dvi", "pdf" },
-            config = function()
-                vim.cmd "call vimtex#init()"
-            end,
-        },
         -- Visual multi
         {
             "mg979/vim-visual-multi",
@@ -516,10 +432,7 @@ M.config = function()
             "nacro90/numb.nvim",
             event = "BufRead",
             config = function()
-                require("numb").setup {
-                    show_numbers = true, -- Enable 'number' for the window while peeking
-                    show_cursorline = true, -- Enable 'cursorline' for the window while peeking
-                }
+                require("numb").setup()
             end,
         },
         -- Window picker
@@ -566,6 +479,83 @@ M.config = function()
                 require("user.orgmode").setup()
             end,
         },
+        -- Noice
+        { "MunifTanjim/nui.nvim" },
+        {
+            "folke/noice.nvim",
+            event = "VimEnter",
+            config = function()
+                require("user.noice").config()
+            end,
+            requires = {
+                "MunifTanjim/nui.nvim",
+                "rcarriga/nvim-notify",
+            },
+            disable = not lvim.builtin.noice.active,
+        },
+        {
+            "olexsmir/gopher.nvim",
+            config = function()
+                require("gopher").setup {
+                    commands = {
+                        go = "go",
+                        gomodifytags = "gomodifytags",
+                        gotests = "gotests",
+                        impl = "impl",
+                        iferr = "iferr",
+                    },
+                }
+            end,
+            ft = { "go", "gomod" },
+            event = { "BufRead", "BufNew" },
+        },
+        {
+            "leoluz/nvim-dap-go",
+            config = function()
+                require("dap-go").setup()
+            end,
+            ft = { "go", "gomod" },
+            event = { "BufRead", "BufNew" },
+        },
+        {
+            "AckslD/swenv.nvim",
+            ft = "python",
+            event = { "BufRead", "BufNew" },
+        },
+        {
+            "mfussenegger/nvim-dap-python",
+            config = function()
+                local mason_path = vim.fn.glob(vim.fn.stdpath "data" .. "/mason/")
+                require("dap-python").setup(mason_path .. "packages/debugpy/venv/bin/python")
+                require("dap-python").test_runner = "pytest"
+            end,
+            ft = "python",
+            event = { "BufRead", "BufNew" },
+        },
+        {
+            "vuki656/package-info.nvim",
+            config = function()
+                require("package-info").setup()
+            end,
+            opt = true,
+            event = { "BufReadPre", "BufNew" },
+        },
+        {
+            "AckslD/nvim-neoclip.lua",
+            requires = {
+                { "nvim-telescope/telescope.nvim" },
+            },
+            config = function()
+                require("neoclip").setup()
+            end,
+        },
+        -- {
+        --     "lvimuser/lsp-inlayhints.nvim",
+        --     branch = "anticonceal",
+        --     config = function()
+        --         require("lsp-inlayhints").setup()
+        --     end,
+        -- },
     }
 end
 

@@ -1,23 +1,12 @@
 -- General
-vim.opt.guifont = "FiraCode Nerd Font:h10"
-lvim.log.level = "warn"
-lvim.format_on_save = false
-lvim.colorscheme = "tokyonight-storm"
-lvim.line_wrap_cursor_movement = false
-lvim.termguicolors = true
-lvim.transparent_window = false
-lvim.debug = false
-lvim.leader = ","
-lvim.transparent_window = false
-
--- Vimscript if needed
-vim.cmd "source ~/.config/lvim/vimscript/user.pre.vim"
-
--- Builtin
-require("user.builtin").config()
+lvim.colorscheme = "tokyonight"
+lvim.builtin.theme.options.style = "storm"
 
 -- Neovim
 require("user.neovim").config()
+
+-- Builtin
+require("user.builtin").config()
 
 -- Cmp
 require("user.cmp").config()
@@ -51,6 +40,3 @@ require("user.lsp").config()
 
 -- Debugging
 require("user.dap").config()
-
--- Vimscript if needed
-vim.cmd "source ~/.config/lvim/vimscript/user.post.vim"

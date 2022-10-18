@@ -24,7 +24,6 @@ M.config = function()
     -- Vim basic configurations
     -- vim.g.did_load_filetypes = 1
     vim.g.ultest_summary_width = 30
-    vim.opt.cmdheight = 1 -- WARN: =0 is broken on neovim head (https://github.com/neovim/neovim/issues/20243)
     vim.opt.completeopt = { "menu", "menuone", "noselect" }
     vim.opt.diffopt = {
         "internal",
@@ -56,7 +55,7 @@ M.config = function()
     -- Undodir
     vim.opt.undodir = vim.fn.stdpath "cache" .. "/undo"
     -- The font used in graphical neovim applications
-    vim.opt.guifont = "FiraCode Nerd Font:h10"
+    vim.opt.guifont = "MonoLisa Nerd Font:h10"
     -- Display lines as one long line
     vim.opt.wrap = true
     -- We need to see things like -- INSERT --
@@ -69,7 +68,7 @@ M.config = function()
     vim.opt.cmdheight = 1
     -- Searches wrap around the end of the file
     vim.opt.wrapscan = true
-    vim.opt.mousescroll = { "ver:1", "hor:6" }
+    vim.opt.mousescroll = { "ver:3", "hor:6" }
     vim.opt.mousefocus = true
     vim.opt.mousemoveevent = true
     -- Disable autocmd etc for project local vimrc files.
@@ -201,8 +200,81 @@ M.config = function()
     -- Session
     vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal"
 
+    -- Splitkeep
+    vim.o.splitkeep = "screen"
+
     -- Colorcolumn
     vim.cmd [[set colorcolumn=]]
+
+    -- Mouse handling
+    vim.cmd [[
+        function! s:MouseToggleFunc()
+            if !exists('s:old_mouse')
+                let s:old_mouse = 'a'
+            endif
+
+            if &mouse ==? ''
+                let &mouse = s:old_mouse
+                echo 'Mouse is for Vim (' . &mouse . ')'
+            else
+                let s:old_mouse = &mouse
+                let &mouse=''
+                echo 'Mouse is for terminal'
+            endif
+        endfunction
+        command! MouseToggle :call <SID>MouseToggleFunc()
+    ]]
+
+    -- Toggle numbers
+    vim.cmd [[
+        function! s:NuModeToggleFunc()
+            if &number == 1
+                set relativenumber!
+            else
+                set number!
+            endif
+        endfunction
+        command! NuModeToggle :call <SID>NuModeToggleFunc()
+    ]]
+
+    -- No numbers
+    vim.cmd [[
+        function! s:NoNuModeFunc()
+            set norelativenumber
+            set nonumber
+        endfunction
+        command! NoNuMode :call <SID>NoNuModeFunc()
+    ]]
+
+    -- Disable syntax highlighting in big files
+    vim.cmd [[
+        function! DisableSyntaxTreesitter()
+            echo("Big file, disabling syntax, treesitter and folding")
+            if exists(':TSBufDisable')
+                exec 'TSBufDisable autotag'
+                exec 'TSBufDisable highlight'
+            endif
+            set foldmethod=manual
+            syntax clear
+            syntax off
+            filetype off
+            set noundofile
+            set noswapfile
+            set noloadplugins
+            set lazyredraw
+        endfunction
+
+        augroup BigFileDisable
+            autocmd!
+            autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > 1024 * 1024 | exec DisableSyntaxTreesitter() | endif
+        augroup END
+    ]]
+
+    -- Clean search with <esc>
+    vim.cmd [[
+        nnoremap <silent><esc> :noh<CR>
+        nnoremap <esc>[ <esc>[
+    ]]
 end
 
 function _G.qftf(info)

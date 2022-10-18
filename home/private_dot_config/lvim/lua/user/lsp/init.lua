@@ -8,6 +8,13 @@ M.show_documentation = function()
         require("crates").show_popup()
     elseif vim.tbl_contains({ "man" }, filetype) then
         vim.cmd("Man " .. vim.fn.expand "<cword>")
+    elseif filetype == "rust" then
+        local found, rt = pcall(require, "rust-tools")
+        if found then
+            rt.hover_actions.hover_actions()
+        else
+            vim.lsp.buf.hover()
+        end
     else
         vim.lsp.buf.hover()
     end
@@ -16,17 +23,17 @@ end
 M.config = function()
     local icons = require("user.icons").icons
     -- Log level
-    vim.lsp.set_log_level "warn"
+    vim.lsp.set_log_level "error"
 
     -- Installer
-    lvim.lsp.installer.setup.automatic_installation = true
+    lvim.lsp.installer.setup.ensure_installed = true
     lvim.lsp.document_highlight = true
     lvim.lsp.code_lens_refresh = true
 
     -- Disable inline diagnostics
     lvim.lsp.diagnostics.virtual_text = false
     -- LSP lines
-    vim.diagnostic.config({ virtual_lines = false })
+    vim.diagnostic.config { virtual_lines = false }
 
     -- Setup diagnostics icons
     lvim.lsp.diagnostics.signs.values = {
@@ -57,7 +64,7 @@ M.config = function()
         { " ", "FloatBorder" },
         { " ", "FloatBorder" },
     }
-    if os.getenv "KITTY_WINDOW_ID" then
+    if vim.env.KITTY_WINDOW_ID then
         lvim.lsp.float.border = {
             { "🭽", "FloatBorder" },
             { "▔", "FloatBorder" },

@@ -113,3 +113,4 @@ packer_compiled.lua
 .solargraph.yml
 
 package-lock.json 
+*_null-ls_*

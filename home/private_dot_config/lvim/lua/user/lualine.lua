@@ -283,7 +283,7 @@ M.config = function()
             return show_name .. modified
         end,
         cond = function()
-            return conditions.buffer_not_empty() and conditions.hide_small()
+            return conditions.buffer_not_empty()
         end,
         padding = { left = 1, right = 1 },
         color = { fg = colors.fg, gui = "bold", bg = colors.bg },
@@ -317,11 +317,11 @@ M.config = function()
         function()
             local utils = require "lvim.core.lualine.utils"
             if vim.bo.filetype == "python" then
-                local venv = os.getenv "CONDA_DEFAULT_ENV"
+                local venv = vim.env.CONDA_DEFAULT_ENV
                 if venv then
                     return string.format("  (%s)", utils.env_cleanup(venv))
                 end
-                venv = os.getenv "VIRTUAL_ENV"
+                venv = vim.env.VIRTUAL_ENV
                 if venv then
                     return string.format("  (%s)", utils.env_cleanup(venv))
                 end

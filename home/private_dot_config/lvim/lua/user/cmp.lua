@@ -27,7 +27,6 @@ M.kind = {
     Unit = "塞",
     Value = " ",
     Variable = "",
-    Copilot = "",
 }
 
 M.config = function()
@@ -39,9 +38,7 @@ M.config = function()
         { name = "git", group_index = 1 },
         { name = "crates", group_index = 1 },
         { name = "nvim_lsp_signature_help", group_index = 1 },
-        { name = "copilot", group_index = 1 },
         { name = "dictionary", group_index = 1 },
-        { name = "spell", group_index = 1 },
         { name = "calc", group_index = 1 },
         { name = "emoji", group_index = 1 },
         { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 3 },
@@ -58,9 +55,7 @@ M.config = function()
         crates = "(Crates)",
         latex_symbols = "(LaTeX)",
         nvim_lua = "(NvLua)",
-        copilot = "(Copilot)",
         dictionary = "(Dict)",
-        spell = "(Spell)",
     }
     lvim.builtin.cmp.formatting = {
         fields = { "kind", "abbr", "menu" },
@@ -93,7 +88,21 @@ M.config = function()
             sources = {
                 { name = "cmdline", group_index = 1 },
                 { name = "path", group_index = 1 },
-                { name = "cmdline_history", group_index = 2, keyword_length = 5 },
+            },
+            window = {
+                completion = {
+                    border = {
+                        { "╭", "CmpBorder" },
+                        { "─", "CmpBorder" },
+                        { "╮", "CmpBorder" },
+                        { "│", "CmpBorder" },
+                        { "╯", "CmpBorder" },
+                        { "─", "CmpBorder" },
+                        { "╰", "CmpBorder" },
+                        { "│", "CmpBorder" },
+                    },
+                    winhighlight = "Search:None",
+                },
             },
         })
     end
@@ -101,36 +110,32 @@ M.config = function()
         sources = cmp.config.sources({
             { name = "nvim_lsp", group_index = 1 },
             { name = "path", group_index = 1, max_item_count = 5 },
+            { name = "buffer", group_index = 1 },
             { name = "crates", group_index = 1 },
             { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
-        }, {
-            { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 3 },
-        }),
+        }, {}),
     })
     cmp.setup.filetype("gitcommit", {
-        sources = cmp.config.sources({
+        sources = cmp.config.sources {
             { name = "nvim_lsp", group_index = 1 },
             { name = "git", group_index = 1 },
             { name = "path", group_index = 1, max_item_count = 5 },
+            { name = "buffer", group_index = 1 },
             { name = "dictionary", group_index = 1 },
             { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
             { name = "emoji", group_index = 2 },
-        }, {
-            { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 3 },
-        }),
+        },
     })
     cmp.setup.filetype("markdown", {
-        sources = cmp.config.sources({
+        sources = cmp.config.sources {
             { name = "nvim_lsp", group_index = 1 },
             { name = "path", group_index = 1, max_item_count = 5 },
             { name = "dictionary", group_index = 1 },
-            { name = "spell", group_index = 1 },
+            { name = "buffer", group_index = 1 },
             { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
             { name = "calc", group_index = 2 },
             { name = "emoji", group_index = 2 },
-        }, {
-            { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 3 },
-        }),
+        },
     })
 end
 
