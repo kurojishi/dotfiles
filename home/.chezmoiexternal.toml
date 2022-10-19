@@ -39,6 +39,10 @@
     type = "git-repo"
     url = "https://github.com/pyenv/pyenv.git"
     refreshPeriod = "168h"
+[".nodenv"]
+    type = "git-repo"
+    url = "https://github.com/nodenv/nodenv.git"
+    refreshPeriod = "168h"
 ["installers/golang.tar.gz"]
     type = "file"
     url = "https://go.dev/dl/go1.19.2.linux-amd64.tar.gz"

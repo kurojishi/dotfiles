@@ -39,15 +39,14 @@ done
 pyenv global 3.10.5 3.9.9 3.8.9
 
 # node env
-pip install nodeenv
 export PATH="$HOME/.nodenv/bin:$PATH"
-eval "$(nodeenv init - bash)"
+eval "$(nodenv init - bash)"
 
 node_versions="16.15.0"
 
 for version in $node_versions; do
     if [[ ! -d $HOME/.nodenv/versions/$version ]]; then
-        nodeenv install $version
+        nodenv install $version
     fi
 done
-nodeenv global $node_versions
+nodenv global $node_versions
