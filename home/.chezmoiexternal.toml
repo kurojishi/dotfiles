@@ -43,7 +43,7 @@
     type = "git-repo"
     url = "https://github.com/nodenv/nodenv.git"
     refreshPeriod = "168h"
-[".nodenv/plugins"]
+[".nodenv/plugins/node-build"]
     type = "git-repo"
     url = "https://github.com/nodenv/node-build.git"
     refreshPeriod = "168h"
