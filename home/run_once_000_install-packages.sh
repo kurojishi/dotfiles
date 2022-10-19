@@ -40,6 +40,7 @@ pyenv global 3.10.5 3.9.9 3.8.9
 
 # node env
 export PATH="$HOME/.nodenv/bin:$PATH"
+cd ~/.nodenv && src/configure && make -C src
 eval "$(nodenv init - bash)"
 
 node_versions="16.15.0"
