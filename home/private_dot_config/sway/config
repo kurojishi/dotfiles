@@ -207,6 +207,14 @@ bindsym $mod+r mode "resize"
 
 
 #
+# Screenshots
+#
+#all
+bindsym F8 exec grim -t jpeg ~/screenshots/$(date +%Y-%m-%d_%H-%m-%s).jpg
+# region select
+bindsym $mod+F8 exec grim -t jpeg -g "$(slurp)" ~/screenshots/$(date +%Y-%m-%d_%H-%m-%s).jpg
+
+#
 # ROG Zephyrus Media buttons
 #
     bindsym XF86AudioLowerVolume exec "$psst pactl set-sink-volume @DEFAULT_SINK@ -5% && pactl set-sink-mute @DEFAULT_SINK@ 0 $update"
