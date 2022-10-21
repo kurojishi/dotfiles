@@ -11,6 +11,14 @@
     url = "https://github.com/Alexays/Waybar"
     args = "-b 0.9.13"
     refreshPeriod = "168h"
+["src/grim"]
+    type = "git-repo"
+    url = "https://github.com/emersion/grim.git"
+    args = "--depth 1"
+["src/slurp"]
+    type = "git-repo"
+    url = "https://github.com/emersion/slurp.git"
+    args = "--depth 1"
 [".oh-my-zsh"]
     type = "archive"
     url = "https://github.com/ohmyzsh/ohmyzsh/archive/master.tar.gz"
