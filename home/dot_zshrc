@@ -57,7 +57,6 @@ set COMPLETE_ALIASES
 compdef sshrc=ssh
 autoload -U compinit && compinit -i
 autoload -U bashcompinit && bashcompinit
-source <(chezmoi completion zsh)
 
 # Rust
 source $HOME/.cargo/env
@@ -76,6 +75,7 @@ export PATH=/opt/darktable/bin:$HOME/bin:$GOPATH/bin:/usr/local/go/bin:$HOME/.lo
 export PATH="$HOME/.nodenv/bin:$PATH"
 export PATH="$HOME/.pyenv/bin:$PATH"
 source <(gopass completion bash)
+source <(chezmoi completion zsh)
 eval "$(rbenv init - zsh)"
 eval "$(pyenv init - zsh)"
 eval "$(nodenv init - zsh)"
