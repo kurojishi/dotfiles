@@ -43,6 +43,10 @@
     type = "file"
     url = "https://github.com/dandavison/delta/releases/download/0.14.0/git-delta_0.14.0_amd64.deb"
     refreshPeriod = "168h"
+["debs/discord.deb"]
+    type = "file"
+    url = "https://dl.discordapp.net/apps/linux/0.0.21/discord-0.0.21.deb"
+    refreshPeriod = "168h"
 [".pyenv"]
     type = "git-repo"
     url = "https://github.com/pyenv/pyenv.git"
