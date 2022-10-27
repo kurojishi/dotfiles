@@ -8,25 +8,9 @@ alias mv="mv -v"
 alias grepp="grep * --color=auto -H -n -r -e "
 alias grep="grep --color=auto"
 alias brackets="nl -ba $1 | egrep --color=always '[{}]'"
-alias bb=brazil-build
-alias eh=expand-hostclass
 alias glog='git log --pretty=oneline'
 
-alias bbr='brazil-build release'
-alias bre='brazil-runtime-exec'
-alias brc='brazil-recursive-cmd'
-alias bws='brazil workspace'
-alias bvs='brazil versionSet'
-alias bwsuse='bws use --gitMode -p'
-alias bwscreate='bws create -n'
 alias brc=brazil-recursive-cmd
-alias bbr='brc brazil-build'
-alias bball='brc --allPackages'
-alias bbb='brc --allPackages brazil-build'
-alias tx='set -g update-environment "SSH_AUTH_SOCK SSH_ASKPASS WINDOWID SSH_CONNECTION"; tmux setenv SSH_AUTH_SOCK $SSH_AUTH_SOCK'
-alias rc='remote-command'
 alias infh=get_host_detail
-alias brazil_mypy='brazil-test-exec mypy'
-alias brazil_flake8='brazil-test-exec flake8'
-alias vim-packer-sync="rm -f /home/ANT.AMAZON.COM/fraber/.config/lvim/plugin/packer_compiled.lua && vim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
+alias vim-packer-sync="rm -f /home/kurojishi/.config/lvim/plugin/packer_compiled.lua && vim -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
 alias cat='bat --style=plain'

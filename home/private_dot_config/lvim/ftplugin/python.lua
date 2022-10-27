@@ -21,6 +21,10 @@ linters.setup {
         args = { "--max-line-length=120" },
         filetypes = { "python" },
     },
+    {
+        exe = "mypy",
+        filetypes = { "python" },
+    },
 }
 
 -- Additional mappings
