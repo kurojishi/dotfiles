@@ -25,7 +25,7 @@ M.config = function()
         -- Git blame
         {
             "APZelos/blamer.nvim",
-            setup = function()
+            config = function()
                 local icons = require("user.icons").icons
                 vim.g.blamer_enabled = 0
                 vim.g.blamer_prefix = " " .. icons.magic .. " "
@@ -68,6 +68,13 @@ M.config = function()
                 { "nvim-lua/popup.nvim" },
                 { "nvim-lua/plenary.nvim" },
             },
+        },
+        {
+            "nvim-telescope/telescope-frecency.nvim",
+            config = function()
+                print()
+            end,
+            requires = { "kkharji/sqlite.lua" },
         },
         ------------------------------------------------------------------------------
         -- LSP extensions.
@@ -146,7 +153,7 @@ M.config = function()
             end,
             disable = true,
         },
-        -- Crates cmp
+        -- Crates
         {
             "Saecki/crates.nvim",
             event = { "BufRead Cargo.toml" },
@@ -166,14 +173,60 @@ M.config = function()
             requires = { "nvim-lua/plenary.nvim" },
             ft = { "scala", "sbt" },
         },
+        -- Go
+        {
+            "olexsmir/gopher.nvim",
+            config = function()
+                require("gopher").setup {
+                    commands = {
+                        go = "go",
+                        gomodifytags = "gomodifytags",
+                        gotests = "gotests",
+                        impl = "impl",
+                        iferr = "iferr",
+                    },
+                }
+            end,
+            ft = { "go", "gomod" },
+            event = { "BufRead", "BufNew" },
+        },
+        -- Node
+        {
+            "vuki656/package-info.nvim",
+            config = function()
+                require("package-info").setup()
+            end,
+            opt = true,
+            event = { "BufReadPre", "BufNew" },
+        },
+        -- Python venv
+        {
+            "AckslD/swenv.nvim",
+            ft = "python",
+            event = { "BufRead", "BufNew" },
+        },
+        -- Refactoring
+        {
+            "ThePrimeagen/refactoring.nvim",
+            ft = { "typescript", "javascript", "lua", "c", "cpp", "go", "python", "java", "rust", "kotlin" },
+            event = "BufRead",
+            config = function()
+                require("user.refactoring").config()
+            end,
+        },
+        {
+            "smjonas/inc-rename.nvim",
+            config = function()
+                require("inc_rename").setup()
+            end,
+            disable = not lvim.builtin.noice.active,
+        },
         ------------------------------------------------------------------------------
         -- Cmp all the things.
         ------------------------------------------------------------------------------
         -- Cmp for command line
-        {
-            "hrsh7th/cmp-cmdline",
-            disable = not lvim.builtin.cmdline.active,
-        },
+        { "hrsh7th/cmp-cmdline" },
+        { "dmitmel/cmp-cmdline-history" },
         -- Cmp for emojis..
         { "hrsh7th/cmp-emoji" },
         -- Cmp for to calculate maths expressions.
@@ -248,6 +301,9 @@ M.config = function()
             filetype = { "latex", "tex", "bib", "markdown", "rst", "text" },
             requires = { "neovim/nvim-lspconfig" },
         },
+        ------------------------------------------------------------------------------
+        -- Session and position
+        ------------------------------------------------------------------------------
         -- Pick up where you left
         {
             "vladdoster/remember.nvim",
@@ -260,25 +316,7 @@ M.config = function()
         {
             "crisidev/persisted.nvim",
             config = function()
-                require("persisted").setup {
-                    use_git_branch = true,
-                    autosave = true,
-                    autoload = false,
-                    after_source = function()
-                        -- Reload the LSP servers
-                        vim.lsp.stop_client(vim.lsp.get_active_clients())
-                    end,
-                    telescope = {
-                        before_source = function()
-                            -- Close all open buffers
-                            -- Thanks to https://github.com/avently
-                            vim.api.nvim_input "<ESC>:%bd<CR>"
-                        end,
-                        after_source = function(session)
-                            print("Loaded session " .. session.name)
-                        end,
-                    },
-                }
+                require("user.persisted").config()
             end,
         },
         ------------------------------------------------------------------------------
@@ -319,104 +357,10 @@ M.config = function()
             end,
         },
         ------------------------------------------------------------------------------
-        -- Miscellaneous
+        -- Movements
         ------------------------------------------------------------------------------
-        -- Python coverage highlight
-        { "mgedmin/coverage-highlight.vim" },
-        -- Screenshots
-        {
-            "segeljakt/vim-silicon",
-            config = function()
-                require("user.silicon").config()
-            end,
-        },
-        -- TODO comments
-        {
-            "folke/todo-comments.nvim",
-            requires = "nvim-lua/plenary.nvim",
-            config = function()
-                require("user.todo_comments").config()
-            end,
-            event = "BufRead",
-        },
-        -- Qbf
-        {
-            "kevinhwang91/nvim-bqf",
-            config = function()
-                require("user.bqf").config()
-            end,
-            event = "BufRead",
-        },
-        -- Sidebar
-        {
-            "sidebar-nvim/sidebar.nvim",
-            config = function()
-                require("user.sidebar").config()
-            end,
-            -- event = "BufRead",
-            disable = not lvim.builtin.sidebar.active,
-        },
         -- Zoxide
         { "nanotee/zoxide.vim" },
-        -- Trouble
-        { "folke/trouble.nvim" },
-        -- Editor config
-        {
-            "editorconfig/editorconfig-vim",
-            event = "BufRead",
-        },
-        -- Dressing
-        {
-            "stevearc/dressing.nvim",
-            config = function()
-                require("user.dress").config()
-            end,
-            event = "BufWinEnter",
-        },
-        -- Vista
-        {
-            "liuchengxu/vista.vim",
-            setup = function()
-                require("user.vista").config()
-            end,
-            event = "BufReadPost",
-        },
-        -- Refactoring
-        {
-            "ThePrimeagen/refactoring.nvim",
-            ft = { "typescript", "javascript", "lua", "c", "cpp", "go", "python", "java", "rust", "kotlin" },
-            event = "BufRead",
-            config = function()
-                require("user.refactoring").config()
-            end,
-        },
-        -- i3 syntax
-        { "mboughaba/i3config.vim" },
-        -- Visual multi
-        {
-            "mg979/vim-visual-multi",
-            config = function()
-                vim.cmd [[
-                    let g:VM_maps = {}
-                    let g:VM_maps['Find Under'] = '<C-l>'
-                ]]
-            end,
-            branch = "master",
-        },
-        -- Incline
-        {
-            "b0o/incline.nvim",
-            config = function()
-                require("user.incline").config()
-            end,
-        },
-        -- Legendary
-        {
-            "mrjones2014/legendary.nvim",
-            config = function()
-                require("user.legendary").config()
-            end,
-        },
         -- Scrollbar
         {
             "petertriho/nvim-scrollbar",
@@ -457,12 +401,7 @@ M.config = function()
                 }
             end,
         },
-        {
-            "lewis6991/spaceless.nvim",
-            config = function()
-                require("spaceless").setup()
-            end,
-        },
+        -- Neotree
         {
             "nvim-neo-tree/neo-tree.nvim",
             branch = "v2.x",
@@ -472,14 +411,30 @@ M.config = function()
             end,
             disable = lvim.builtin.tree_provider ~= "neo-tree",
         },
+        ------------------------------------------------------------------------------
+        -- Debug
+        ------------------------------------------------------------------------------
         {
-            "kristijanhusak/orgmode.nvim",
-            ft = { "org" },
+            "leoluz/nvim-dap-go",
             config = function()
-                require("user.orgmode").setup()
+                require("dap-go").setup()
             end,
+            ft = { "go", "gomod" },
+            event = { "BufRead", "BufNew" },
         },
+        {
+            "mfussenegger/nvim-dap-python",
+            config = function()
+                local mason_path = vim.fn.glob(vim.fn.stdpath "data" .. "/mason/")
+                require("dap-python").setup(mason_path .. "packages/debugpy/venv/bin/python")
+                require("dap-python").test_runner = "pytest"
+            end,
+            ft = "python",
+            event = { "BufRead", "BufNew" },
+        },
+        ------------------------------------------------------------------------------
         -- Noice
+        ------------------------------------------------------------------------------
         { "MunifTanjim/nui.nvim" },
         {
             "folke/noice.nvim",
@@ -493,61 +448,139 @@ M.config = function()
             },
             disable = not lvim.builtin.noice.active,
         },
+        ------------------------------------------------------------------------------
+        -- Miscellaneous
+        ------------------------------------------------------------------------------
+        -- Screenshots
         {
-            "olexsmir/gopher.nvim",
+            "segeljakt/vim-silicon",
             config = function()
-                require("gopher").setup {
-                    commands = {
-                        go = "go",
-                        gomodifytags = "gomodifytags",
-                        gotests = "gotests",
-                        impl = "impl",
-                        iferr = "iferr",
-                    },
-                }
+                require("user.silicon").config()
             end,
-            ft = { "go", "gomod" },
-            event = { "BufRead", "BufNew" },
         },
+        -- TODO comments
         {
-            "leoluz/nvim-dap-go",
+            "folke/todo-comments.nvim",
+            requires = "nvim-lua/plenary.nvim",
             config = function()
-                require("dap-go").setup()
+                require("user.todo_comments").config()
             end,
-            ft = { "go", "gomod" },
-            event = { "BufRead", "BufNew" },
+            event = "BufRead",
         },
+        -- Qbf
         {
-            "AckslD/swenv.nvim",
-            ft = "python",
-            event = { "BufRead", "BufNew" },
-        },
-        {
-            "mfussenegger/nvim-dap-python",
+            "kevinhwang91/nvim-bqf",
             config = function()
-                local mason_path = vim.fn.glob(vim.fn.stdpath "data" .. "/mason/")
-                require("dap-python").setup(mason_path .. "packages/debugpy/venv/bin/python")
-                require("dap-python").test_runner = "pytest"
+                require("user.bqf").config()
             end,
-            ft = "python",
-            event = { "BufRead", "BufNew" },
+            event = "BufRead",
         },
+        -- Trouble
+        { "folke/trouble.nvim" },
+        -- Dressing
         {
-            "vuki656/package-info.nvim",
+            "stevearc/dressing.nvim",
             config = function()
-                require("package-info").setup()
+                require("user.dress").config()
             end,
-            opt = true,
-            event = { "BufReadPre", "BufNew" },
+            event = "BufWinEnter",
         },
+        -- Vista
+        {
+            "liuchengxu/vista.vim",
+            config = function()
+                require("user.vista").config()
+            end,
+            event = "BufReadPost",
+        },
+        -- i3 syntax
+        { "mboughaba/i3config.vim" },
+        -- Visual multi
+        {
+            "mg979/vim-visual-multi",
+            config = function()
+                vim.cmd [[
+                    let g:VM_maps = {}
+                    let g:VM_maps['Find Under'] = '<C-l>'
+                ]]
+            end,
+            branch = "master",
+        },
+        -- Incline
+        {
+            "b0o/incline.nvim",
+            config = function()
+                require("user.incline").config()
+            end,
+        },
+        -- Cleanup whitespaces
+        {
+            "lewis6991/spaceless.nvim",
+            config = function()
+                require("spaceless").setup()
+            end,
+        },
+        -- Orgmode
+        {
+            "kristijanhusak/orgmode.nvim",
+            ft = { "org" },
+            config = function()
+                require("user.orgmode").setup()
+            end,
+            disable = not lvim.builtin.orgmode.active,
+        },
+        -- Clipboard management
         {
             "AckslD/nvim-neoclip.lua",
             requires = {
                 { "nvim-telescope/telescope.nvim" },
             },
             config = function()
-                require("neoclip").setup()
+                require("neoclip").setup {
+                    on_paste = {
+                        set_reg = true,
+                    },
+                }
             end,
+        },
+        -- Legendary
+        {
+            "mrjones2014/legendary.nvim",
+            config = function()
+                require("user.legendary").config()
+            end,
+            disable = not lvim.builtin.legendary.active,
+        },
+        {
+            "m-demare/hlargs.nvim",
+            config = function()
+                require("hlargs").setup()
+            end,
+            requires = { "nvim-treesitter/nvim-treesitter" },
+            disable = not lvim.builtin.hlargs.active,
+        },
+        {
+            "stevearc/overseer.nvim",
+            config = function()
+                require("user.overseer").config()
+            end,
+            disable = not lvim.builtin.task_runner.active,
+        },
+        {
+            "nvim-neotest/neotest",
+            config = function()
+                require("user.ntest").config()
+            end,
+            requires = {
+                { "nvim-neotest/neotest-go" },
+                { "nvim-neotest/neotest-python" },
+                { "nvim-neotest/neotest-plenary" },
+                { "rouge8/neotest-rust" },
+                { "nvim-lua/plenary.nvim" },
+                { "nvim-treesitter/nvim-treesitter" },
+                { "antoinemadec/FixCursorHold.nvim" },
+            },
+            disable = not lvim.builtin.test_runner.active,
         },
         -- {
         --     "lvimuser/lsp-inlayhints.nvim",
@@ -555,7 +588,7 @@ M.config = function()
         --     config = function()
         --         require("lsp-inlayhints").setup()
         --     end,
-        -- },
+               -- },
     }
 end
 

@@ -21,7 +21,7 @@ M.which_keys_normal = function()
         p = { "<cmd>lua require('user.telescope').projects()<cr>", "Projects" },
         s = { "<cmd>lua require('user.telescope').find_string()<cr>", "Find string" },
         S = { "<cmd>lua require('user.telescope').find_identifier()<cr>", "Find identifier under cursor" },
-        r = { "<cmd>lua require('user.telescope').recent_files()<cr>", "Recent files" },
+        r = { "<cmd>lua require('user.telescope').frecency()<cr>", "Recent files" },
         R = { "<cmd>lua require('user.telescope').raw_grep()<cr>", "Raw grep" },
         z = { "<cmd>lua require('user.telescope').zoxide()<cr>", "Zoxide list" },
     }
@@ -54,8 +54,9 @@ M.which_keys_normal = function()
 
     -- Noice
     lvim.builtin.which_key.mappings["N"] = {
-        "<cmd>lua require('user.telescope').noice()<cr>",
-        icons.package .. " Noice",
+        name = icons.package .. " Noice",
+        N = { "<cmd>:Noice<cr>", "Noice" },
+        t = { "<cmd>lua require('user.telescope').noice()<cr>", "Telescope" },
     }
 
     -- String search
@@ -66,7 +67,7 @@ M.which_keys_normal = function()
 
     -- Recent files
     lvim.builtin.which_key.mappings["r"] = {
-        "<cmd>lua require('user.telescope').recent_files()<cr>",
+        "<cmd>lua require('user.telescope').frecency()<cr>",
         icons.calendar .. "Recent files",
     }
 
@@ -112,11 +113,6 @@ M.which_keys_normal = function()
         b = { "<cmd>BlamerToggle<cr>", "Toggle inline git blame" },
         B = { "<cmd>Git blame<cr>", "Open git blame" },
         g = { "<cmd>lua require('lvim.core.terminal')._exec_toggle({cmd='lazygit'})<cr>", "LazyGit" },
-        L = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
-            "Open line in browser",
-            silent = true,
-        },
         s = { "<cmd>lua require('user.telescope').git_status()<cr>", "Repository status" },
         f = { "<cmd>lua require('user.telescope').git_files()<cr>", "Repository files" },
     }
@@ -181,15 +177,24 @@ M.which_keys_normal = function()
         icons.comment .. " Comment",
     }
 
+    -- Overseer
+    if lvim.builtin.task_runner.active then
+        lvim.builtin.which_key.mappings["O"] = {
+            name = icons.config .. "Overseer",
+            l = { "<cmd>OverseerLoadBundle<CR>", "Load Bundle" },
+            s = { "<cmd>OverseerSaveBundle<CR>", "Save Bundle" },
+            n = { "<cmd>OverseerBuild<CR>", "New Task" },
+            q = { "<cmd>OverseerQuickAction<CR>", "Quick Action" },
+            f = { "<cmd>OverseerTaskAction<CR>", "Task Action" },
+            t = { "<cmd>OverseerToggle<cr>", "Toggle Output" },
+            r = { "<cmd>OverseerRun<cr>", "Run" },
+            R = { "<cmd>OverseerRunCmd<cr>", "Run with Cmd" },
+        }
+    end
+
     -- Names
     lvim.builtin.which_key.mappings["L"]["name"] = icons.moon .. " Lunarvim"
     lvim.builtin.which_key.mappings["p"]["name"] = icons.package .. " Packer"
-
-    -- Legendary
-    lvim.builtin.which_key.mappings["\\"] = {
-        "<cmd>lua require('legendary').find('commands')<cr>",
-        icons.palette .. "Legendary",
-    }
 
     -- Disable
     lvim.builtin.which_key.mappings["h"] = nil
@@ -201,20 +206,6 @@ end
 M.which_keys_visual = function()
     local icons = require("user.icons").icons
 
-    lvim.builtin.which_key.vmappings["g"] = {
-        name = " Git",
-        l = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').copy_to_clipboard})<cr>",
-            "Copy line",
-            silent = false,
-        },
-        L = {
-            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
-            "Open line in browser",
-            silent = true,
-        },
-    }
-    -- String search
     lvim.builtin.which_key.vmappings["s"] = {
         "<cmd>lua require('user.telescope').find_string_visual()<cr>",
         icons.find .. " Find string",
@@ -256,8 +247,6 @@ M.normal_keys = function()
         ["<C-]>"] = "<cmd>lua require('user.terminal').horizontal_terminal_toggle('zsh', 101, 20)<cr>",
         ["<C-g>"] = "<cmd>lua require('user.terminal').float_terminal_toggle('lazygit', 102)<cr>",
         ["<C-B>"] = "<cmd>lua require('user.terminal').horizontal_terminal_toggle('bemol --watch', 103, 10)<cr>",
-        -- Legendary
-        ["<C-P>"] = "<cmd>lua require('legendary').find()<cr>",
     }
 
     -- File explorer
@@ -266,11 +255,6 @@ M.normal_keys = function()
     else
         lvim.keys.normal_mode["<F3>"] = { "<cmd>NvimTreeToggle<cr>" }
         lvim.keys.normal_mode["<S-F3>"] = { "<cmd>NvimTreeRefresh<cr>" }
-    end
-
-    -- Toggle sidebar
-    if lvim.builtin.sidebar.active then
-        lvim.keys.normal_mode["<F4>"] = "<cmd>SidebarNvimToggle<cr>"
     end
 end
 
@@ -328,9 +312,14 @@ M.insert_keys = function()
         lvim.keys.insert_mode["<S-F3>"] = { "<esc><cmd>NvimTreeRefresh<cr>" }
     end
 
-    -- Toggle sidebar
-    if lvim.builtin.sidebar.active then
-        lvim.keys.insert_mode["<F4>"] = "<esc><cmd>SidebarNvimToggle<cr>"
+    if lvim.builtin.noice.active then
+        lvim.keys.insert_mode["<C-s>"] = function()
+            vim.lsp.buf_request(0, "textDocument/signatureHelp", params, function(err, result, ctx)
+                require("noice.lsp").signature(err, result, ctx, {
+                    trigger = true,
+                })
+            end)
+        end
     end
 end
 

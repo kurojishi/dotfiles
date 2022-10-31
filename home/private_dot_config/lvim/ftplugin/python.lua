@@ -21,10 +21,6 @@ linters.setup {
         args = { "--max-line-length=120" },
         filetypes = { "python" },
     },
-    {
-        exe = "mypy",
-        filetypes = { "python" },
-    },
 }
 
 -- Additional mappings
@@ -32,7 +28,7 @@ local icons = require("user.icons").icons
 local which_key = require "which-key"
 which_key.register {
     ["f"] = {
-        T = {
+        B = {
             name = icons.nuclear .. " Python Tools",
             c = { "<cmd>lua require('dap-python').test_class()<cr>", "Test class" },
             m = { "<cmd>lua require('dap-python').test_method()<cr>", "Test method" },

@@ -91,6 +91,7 @@ M.get_theme = function(opts)
         opts = {}
     end
     opts["layout_config"] = M.layout_config()
+    opts["layout_config"]["preview_width"] = 0.4
     opts["sorting_strategy"] = "descending"
     return themes.get_ivy(opts)
 end
@@ -100,10 +101,9 @@ function M.layout_config()
         width = 0.9,
         height = 0.4,
         preview_cutoff = 150,
-        preview_width = 0.4,
         prompt_position = "bottom",
         horizontal = {
-            preview_width = 0.4
+            preview_width = 0.32,
         },
         vertical = {
             width = 0.9,
@@ -159,7 +159,9 @@ M.file_browser = function()
 end
 
 M.noice = function()
-    require("telescope").extensions.noice.noice(M.get_theme())
+    local opts = M.get_theme()
+    opts["previewer"] = false
+    require("telescope").extensions.noice.noice(opts)
 end
 
 M.projects = function()
@@ -176,6 +178,10 @@ end
 
 M.neoclip = function()
     require("telescope").extensions.neoclip.neoclip(M.get_theme())
+end
+
+M.frecency = function()
+    require("telescope").extensions.frecency.frecency(M.get_theme())
 end
 
 -- show refrences to this using language server
@@ -344,7 +350,8 @@ M.config = function()
             ["<c-v>"] = M.multi_selection_open_vsplit,
             ["<c-s>"] = M.multi_selection_open_split,
             ["<c-t>"] = M.multi_selection_open_tab,
-            ["<C-d>"] = require("telescope.actions").delete_buffer,
+            ["<C-d>"] = actions.delete_buffer,
+            ["<C-x>"] = require("telescope.actions.layout").toggle_preview,
         },
         n = {
             ["<esc>"] = actions.close,
@@ -359,6 +366,7 @@ M.config = function()
             ["<c-v>"] = M.multi_selection_open_vsplit,
             ["<c-s>"] = M.multi_selection_open_split,
             ["<c-t>"] = M.multi_selection_open_tab,
+            ["<C-x>"] = require("telescope.actions.layout").toggle_preview,
             ["dd"] = require("telescope.actions").delete_buffer,
         },
     }
@@ -395,6 +403,17 @@ M.config = function()
         telescope.load_extension "file_browser"
         telescope.load_extension "persisted"
         telescope.load_extension "neoclip"
+        telescope.extensions.frecency.settings = {
+            show_scores = true,
+            show_unindexed = true,
+            ignore_patterns = { "*.git/*", "*/tmp/*", "*/target/*" },
+            workspaces = {
+                ["github"] = "/home/matbigoi/github",
+                ["smithy-rs"] = "/home/matbigoi/github/smithy-rs",
+                ["workplace"] = "/home/matbigoi/workplace",
+            },
+        }
+        telescope.load_extension "frecency"
     end
 end
 

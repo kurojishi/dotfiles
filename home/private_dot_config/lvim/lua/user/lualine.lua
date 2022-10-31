@@ -437,7 +437,7 @@ M.config = function()
             local trim = vim.fn.winwidth(0) < trim_width
 
             for _, client in pairs(buf_clients) do
-                if not (client.name == "null-ls") then
+                if not (client.name == "copilot" or client.name == "null-ls") then
                     local _added_client = client.name
                     if trim then
                         _added_client = string.sub(client.name, 1, 4)

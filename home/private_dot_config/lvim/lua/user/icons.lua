@@ -8,7 +8,7 @@ M.icons = {
     debug = " ",
     trace = "✎",
     code_action = "",
-    code_lens_action = "",
+    code_lens_action = " ",
     test = " ",
     docs = " ",
     clock = " ",
@@ -41,6 +41,9 @@ M.icons = {
     buffers = "﩯",
     telescope = "",
     dashboard = "舘",
+    boat = " ",
+    unmute = "",
+    mute = "",
     quit = "",
     replace = "",
     find = "",
@@ -74,7 +77,9 @@ M.icons = {
     collapsed = "",
     circular = "",
     circle_left = "",
-    circle_right = ""
+    circle_right = "",
+    neotest = "ﭧ"
+
 }
 
 M.todo_comments = {
