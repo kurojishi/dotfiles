@@ -1,0 +1,7 @@
+{
+  "new": {
+    "prefix": "logsetup",
+    "body": "log = logging.getLogger(__name__)",
+    "description": "get logger setup"
+  }
+}
