@@ -26,9 +26,6 @@ sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf ~/installers/golang.tar.gz
 
 
-go install github.com/gopasspw/gopass@latest
-go install github.com/gopasspw/gopass-jsonapi@latest
-
 # pyenv and python
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init - bash)"
