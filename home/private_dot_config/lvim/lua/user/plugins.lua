@@ -205,6 +205,8 @@ M.config = function()
             ft = "python",
             event = { "BufRead", "BufNew" },
         },
+        -- Python coverage highlight
+        { "mgedmin/coverage-highlight.vim" },
         -- Refactoring
         {
             "ThePrimeagen/refactoring.nvim",

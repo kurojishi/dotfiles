@@ -258,22 +258,6 @@ M.normal_keys = function()
     end
 end
 
-local Terminal = require("toggleterm.terminal").Terminal
-
-M.float_terminal_toggle = function(cmd)
-    local term = Terminal:new {
-        cmd = cmd,
-        hidden = true,
-        direction = "float",
-        on_open = function(_)
-            vim.cmd "startinsert!"
-        end,
-        on_close = function(_) end,
-        count = 99,
-    }
-    term:toggle()
-end
-
 -- INSERT MODE
 M.insert_keys = function()
     lvim.keys.insert_mode = {
