@@ -11,11 +11,11 @@ output=${2:-HDMI-1}
 case "$mode" in
 laptop)
 	swaymsg output DP-3 disable
-	swaymsg output eDP-2 pos 0 0 res 1920x1200 enable
+	swaymsg output eDP-2 pos 0 0 enable
 	;;
 home)
-	swaymsg output DP-3 pos 1920 0 res 1920x1080 enable
-	swaymsg output eDP-2 pos 0 0 res 1920x1080 enable
+	swaymsg output DP-3 pos 1920 0 enable
+	swaymsg output eDP-2 pos 0 0 enable
 	swaymsg workspace 1 output eDP-2
 	swaymsg workspace 2 output eDP-2
 	swaymsg workspace 3 output DP-3
@@ -26,17 +26,6 @@ home)
 	swaymsg workspace 8 output DP-3
 	swaymsg workspace 9 output eDP-2
 	swaymsg workspace 10 output eDP-2
-	;;
-duplicate)
-	if [ "${output}" == "all" ]; then
-		xrandr --output DP1 --mode 1920x1080
-		xrandr --output DP2 --mode 1920x1080
-		xrandr --output HDMI1 --mode 1920x1080
-		xrandr --output HDMI2 --mode 1920x1080
-	else
-		xrandr --output "${output}" --mode 1920x1080
-	fi
-	xrandr --output eDP1 --auto
 	;;
 popup)
 	choice=$(zenity --list --title="Monitor configuration" --column="Monitor configuration list" "laptop" "home" "work" "duplicate" "duplicate all")
