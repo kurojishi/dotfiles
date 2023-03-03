@@ -202,7 +202,7 @@ M.config = function()
 
     -- Splitkeep
     vim.o.splitkeep = "screen"
-    vim.o.spelllang = "en_us,en_uk,it_it,jp_jp"
+    vim.o.spelllang = "en,it"
 
     -- Colorcolumn
     vim.cmd [[set colorcolumn=]]
