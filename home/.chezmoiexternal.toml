@@ -61,5 +61,5 @@
     refreshPeriod = "168h"
 ["installers/golang.tar.gz"]
     type = "file"
-    url = "https://go.dev/dl/go1.19.2.linux-amd64.tar.gz"
+    url = "https://go.dev/dl/go1.20.3.linux-amd64.tar.gz"
 
