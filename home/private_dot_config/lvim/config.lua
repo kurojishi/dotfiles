@@ -1,6 +1,5 @@
 -- General
 lvim.colorscheme = "tokyonight"
-lvim.builtin.theme.options.style = "storm"
 
 -- Neovim
 require("user.neovim").config()
@@ -33,7 +32,7 @@ require("user.terminal").config()
 require("user.keys").config()
 
 -- Autocommands
-require("user.autocmd").config()
+--require("user.autocmd").config()
 
 -- Lsp
 require("user.lsp").config()
