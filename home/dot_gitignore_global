@@ -114,3 +114,6 @@ packer_compiled.lua
 
 package-lock.json 
 *_null-ls_*
+
+
+*.GOPATH/*
