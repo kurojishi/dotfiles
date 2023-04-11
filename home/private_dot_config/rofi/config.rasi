@@ -12,4 +12,4 @@ configuration {
     modi:                           "run,window,drun";
 }
 
-@theme "/home/kurojishi/.local/share/rofi/themes/simple-tokyonight-fork.rasi"
+@theme "~/.local/share/rofi/themes/simple-tokyonight-fork.rasi"

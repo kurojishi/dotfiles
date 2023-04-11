@@ -31,10 +31,6 @@
     exact = true
     stripComponents = 1
     refreshPeriod = "168h"
-["debs/neovim.deb"]
-    type = "file"
-    url = "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.deb"
-    refreshPeriod = "168h"
 ["debs/zoom.deb"]
     type = "file"
     url = "https://zoom.us/client/5.12.2.4816/zoom_amd64.deb"
