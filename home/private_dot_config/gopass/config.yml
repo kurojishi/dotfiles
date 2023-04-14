@@ -5,6 +5,6 @@ exportkeys: true
 nopager: false
 notifications: true
 parsing: true
-path: /home/kurojishi/.local/share/gopass/stores/root
+path: ~/.local/share/gopass/stores/root
 safecontent: false
 mounts: {}
