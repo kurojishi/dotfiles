@@ -274,6 +274,7 @@ assign [app_id="telegram-desktop_telegram-desktop"] workspace number 10
 
 # Autostart
 
+exec --no-startup-id "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
 exec --no-startup-id "pulseaudio --start &"
 exec --no-startup-id "gnome-keyring-daemon --start"
 exec --no-startup-id "nm-applet &"
