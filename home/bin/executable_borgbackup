@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=/media/kurojishi/wd_black/borg_backups
+export BORG_REPO=/media/$USER/wd_black/borg_backups
 
 # See the section "Passphrase notes" for more infos.
 export BORG_PASSCOMMAND="secret-tool lookup borg-repository repo-name"

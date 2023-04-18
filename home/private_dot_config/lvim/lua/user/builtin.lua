@@ -4,7 +4,7 @@ M.config = function()
     local icons = require("user.icons").icons
 
     lvim.colorscheme = "tokyonight"
-    lvim.builtin.theme.tokyonight.options.style = "storm"
+    lvim.builtin.theme.options.style = "storm"
     lvim.leader = ","
     lvim.format_on_save = false
     lvim.line_wrap_cursor_movement = false
@@ -61,9 +61,9 @@ M.config = function()
     lvim.builtin.task_runner = { active = true }
 
     -- Theme
-    lvim.builtin.theme.tokyonight.options.style = "storm"
-    lvim.builtin.theme.tokyonight.options.styles.comments = {}
-    lvim.builtin.theme.tokyonight.options.dim_inactive = true
+    lvim.builtin.theme.options.style = "storm"
+    lvim.builtin.theme.options.styles.comments = {}
+    lvim.builtin.theme.options.dim_inactive = true
 
     -- Mason
     lvim.builtin.mason.ui.icons = require("user.icons").mason
