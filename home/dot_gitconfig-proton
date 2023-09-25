@@ -1,0 +1,9 @@
+# This is Git's per-user configuration file.
+[user]
+# Please adapt and uncomment the following lines:
+	name = Francesco Berni
+	email = francesco.berni@proton.ch
+    signingkey = 929602CAB59B03BBC6CF1C9D94AC99FCEFC96062
+
+[includeIf "gitdir:~/proton.src/"]
+  path = ~/proton.src/.gitconfig
