@@ -2,28 +2,18 @@ local M = {}
 
 M.which_keys_normal = function()
     local icons = require("user.icons").icons
-    local picker = require "window-picker"
-
-    function _pick_window()
-        local picked_window_id = picker.pick_window {
-            include_current_win = true,
-        } or vim.api.nvim_get_current_win()
-        vim.api.nvim_set_current_win(picked_window_id)
-    end
 
     -- Find
     lvim.builtin.which_key.mappings["F"] = {
         name = icons.telescope .. " Find",
         f = { "<cmd>lua require('user.telescope').find_files()<cr>", "Find files" },
-        p = { "<cmd>lua require('user.telescope').find_project_files()<cr>", "Find files" },
         F = { "<cmd>lua require('user.telescope').search_only_certain_files()<cr>", "File certain filetype" },
         b = { "<cmd>lua require('user.telescope').file_browser()<cr>", "File browser" },
-        p = { "<cmd>lua require('user.telescope').projects()<cr>", "Projects" },
         s = { "<cmd>lua require('user.telescope').find_string()<cr>", "Find string" },
         S = { "<cmd>lua require('user.telescope').find_identifier()<cr>", "Find identifier under cursor" },
-        r = { "<cmd>lua require('user.telescope').frecency()<cr>", "Recent files" },
         R = { "<cmd>lua require('user.telescope').raw_grep()<cr>", "Raw grep" },
         z = { "<cmd>lua require('user.telescope').zoxide()<cr>", "Zoxide list" },
+        r = { "<cmd>lua require('user.telescope').smart_open()<cr>", "Smart open" },
     }
     lvim.builtin.which_key.mappings["T"] = {
         "<cmd>lua require('user.telescope').resume()<cr>",
@@ -65,10 +55,10 @@ M.which_keys_normal = function()
         icons.find .. " Find string",
     }
 
-    -- Recent files
+    -- Smart open
     lvim.builtin.which_key.mappings["r"] = {
-        "<cmd>lua require('user.telescope').frecency()<cr>",
-        icons.calendar .. "Recent files",
+        "<cmd>lua require('user.telescope').smart_open()<cr>",
+        icons.calendar .. "Smart open",
     }
 
     -- Zoxide
@@ -88,9 +78,9 @@ M.which_keys_normal = function()
         name = icons.buffers .. "Buffers",
         b = { "<cmd>lua require('user.telescope').buffers()<cr>", "Show buffers" },
         l = { "<cmd>BufferLinePick<cr>", "Pick buffer" },
-        P = { "<cmd>BufferLineTogglePin<cr>", "Pin/Unpin buffer" },
-        p = { "<cmd>BufferLineCyclePrev<cr>", "Next buffer" },
-        n = { "<cmd>BufferLineCycleNext<cr>", "Prev buffer" },
+        x = { "<cmd>BufferLineTogglePin<cr>", "Pin/Unpin buffer" },
+        p = { "<cmd>BufferLineCyclePrev<cr>", "Prev buffer" },
+        n = { "<cmd>BufferLineCycleNext<cr>", "Next buffer" },
     }
     lvim.builtin.which_key.mappings["b"] = {
         "<cmd>lua require('user.telescope').buffers()<cr>",
@@ -100,7 +90,7 @@ M.which_keys_normal = function()
     -- Sessions
     lvim.builtin.which_key.mappings["S"] = {
         name = icons.session .. "Session",
-        l = { "<cmd>lua require('user.telescope').persisted()<cr>", "List available sessions" },
+        l = { "<cmd>lua require('user.telescope').session()<cr>", "List available sessions" },
         d = { "<cmd>SessionDelete<cr>", "Delete session" },
         L = { "<cmd>SessionLoadLast<cr>", "Restore last session" },
         c = { "<cmd>SessionLoad<cr>", "Restore current dir session" },
@@ -113,6 +103,16 @@ M.which_keys_normal = function()
         b = { "<cmd>BlamerToggle<cr>", "Toggle inline git blame" },
         B = { "<cmd>Git blame<cr>", "Open git blame" },
         g = { "<cmd>lua require('lvim.core.terminal')._exec_toggle({cmd='lazygit'})<cr>", "LazyGit" },
+        l = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').copy_to_clipboard})<cr>",
+            "Copy line",
+            silent = false,
+        },
+        L = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
+            "Open line in browser",
+            silent = true,
+        },
         s = { "<cmd>lua require('user.telescope').git_status()<cr>", "Repository status" },
         f = { "<cmd>lua require('user.telescope').git_files()<cr>", "Repository files" },
     }
@@ -123,20 +123,28 @@ M.which_keys_normal = function()
         f = { "<cmd>lua require('spectre').open_file_search()<cr>", "Current Buffer" },
         p = { "<cmd>lua require('spectre').open()<cr>", "Project" },
         w = { "<cmd>lua require('spectre').open_visual({select_word=true})<cr>", "Replace Word" },
+        s = {
+            function()
+                require("ssr").open()
+            end,
+            "Structural replace",
+        },
     }
 
     -- Grammarous
-    lvim.builtin.which_key.mappings["H"] = {
-        name = icons.grammar .. "Grammarous",
-        c = { "<cmd>GrammarousCheck<cr>", "Run grammar check" },
-        p = { "<Plug>(grammarous-move-to-previous-error)", "Goto previous error" },
-        n = { "<Plug>(grammarous-move-to-next-error)", "Goto next error" },
-        f = { "<Plug>(grammarous-fixit)", "Fix the error under the cursor" },
-        F = { "<Plug>(grammarous-fixall)", "Fix all errors int the document" },
-        o = { "<Plug>(grammarous-open-info-window)", "Open info window" },
-        q = { "<Plug>(grammarous-close-info-window)", "Close info window" },
-        d = { "<Plug>(grammarous-disable-rule)", "Disable rule under cursor" },
-    }
+    if lvim.builtin.grammarous.active then
+        lvim.builtin.which_key.mappings["H"] = {
+            name = icons.grammar .. "Grammarous",
+            c = { "<cmd>GrammarousCheck<cr>", "Run grammar check" },
+            p = { "<Plug>(grammarous-move-to-previous-error)", "Goto previous error" },
+            n = { "<Plug>(grammarous-move-to-next-error)", "Goto next error" },
+            f = { "<Plug>(grammarous-fixit)", "Fix the error under the cursor" },
+            F = { "<Plug>(grammarous-fixall)", "Fix all errors int the document" },
+            o = { "<Plug>(grammarous-open-info-window)", "Open info window" },
+            q = { "<Plug>(grammarous-close-info-window)", "Close info window" },
+            d = { "<Plug>(grammarous-disable-rule)", "Disable rule under cursor" },
+        }
+    end
 
     -- Nvimtree
     if lvim.builtin.tree_provider == "neo-tree" then
@@ -146,15 +154,15 @@ M.which_keys_normal = function()
     end
 
     -- Save
-    lvim.builtin.which_key.mappings["w"] = { "<cmd>w!<cr>", icons.ok .. " Save buffer" }
-
-    -- Window picket
-    lvim.builtin.which_key.mappings["W"] = { "<cmd>lua _pick_window()<cr>", icons.world .. "Pick window" }
+    lvim.builtin.which_key.mappings["w"] =
+        { "<cmd>w! | lua vim.notify('File written')<cr>", icons.ok .. " Save buffer" }
 
     -- Close buffer with Leader-q
-    lvim.builtin.which_key.mappings["q"] =
-    { "<cmd>lua require('user.bufferline').delete_buffer()<cr>", icons.no .. " Close buffer" }
-    lvim.builtin.which_key.mappings["Q"] = { "<cmd>config qall<cr>", icons.no .. " Close all" }
+    lvim.builtin.which_key.mappings["q"] = {
+        "<cmd>lua require('user.bufferline').delete_buffer()<cr>",
+        icons.no .. " Close buffer",
+    }
+    lvim.builtin.which_key.mappings["Q"] = { "<cmd>lua require('user.builtin').smart_quit()<cr>", icons.no .. " Quit" }
 
     -- Dashboard
     lvim.builtin.which_key.mappings[";"] = { "<cmd>Alpha<CR>", icons.dashboard .. "Dashboard" }
@@ -178,24 +186,20 @@ M.which_keys_normal = function()
     }
 
     -- Overseer
-    if lvim.builtin.task_runner.active then
-        lvim.builtin.which_key.mappings["O"] = {
-            name = icons.config .. "Overseer",
-            l = { "<cmd>OverseerLoadBundle<CR>", "Load Bundle" },
-            s = { "<cmd>OverseerSaveBundle<CR>", "Save Bundle" },
-            n = { "<cmd>OverseerBuild<CR>", "New Task" },
-            q = { "<cmd>OverseerQuickAction<CR>", "Quick Action" },
-            f = { "<cmd>OverseerTaskAction<CR>", "Task Action" },
-            t = { "<cmd>OverseerToggle<cr>", "Toggle Output" },
-            r = { "<cmd>OverseerRun<cr>", "Run" },
-            R = { "<cmd>OverseerRunCmd<cr>", "Run with Cmd" },
-        }
-    end
+    lvim.builtin.which_key.mappings["O"] = {
+        name = icons.config .. "Overseer",
+        l = { "<cmd>OverseerLoadBundle<CR>", "Load Bundle" },
+        s = { "<cmd>OverseerSaveBundle<CR>", "Save Bundle" },
+        n = { "<cmd>OverseerBuild<CR>", "New Task" },
+        q = { "<cmd>OverseerQuickAction<CR>", "Quick Action" },
+        f = { "<cmd>OverseerTaskAction<CR>", "Task Action" },
+        t = { "<cmd>OverseerToggle<cr>", "Toggle Output" },
+        r = { "<cmd>OverseerRun<cr>", "Run" },
+        R = { "<cmd>OverseerRunCmd<cr>", "Run with Cmd" },
+    }
 
-    -- Names
     lvim.builtin.which_key.mappings["L"]["name"] = icons.moon .. " Lunarvim"
-    lvim.builtin.which_key.mappings["p"]["name"] = icons.package .. " Packer"
-
+    lvim.builtin.which_key.mappings["p"]["name"] = icons.package .. " Lazy"
     -- Disable
     lvim.builtin.which_key.mappings["h"] = nil
     lvim.builtin.which_key.mappings["l"] = nil
@@ -206,6 +210,20 @@ end
 M.which_keys_visual = function()
     local icons = require("user.icons").icons
 
+    lvim.builtin.which_key.vmappings["g"] = {
+        name = " Git",
+        l = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').copy_to_clipboard})<cr>",
+            "Copy line",
+            silent = false,
+        },
+        L = {
+            "<cmd>lua require('gitlinker').get_buf_range_url('n', {action_callback = require('gitlinker.actions').open_in_browser})<cr>",
+            "Open line in browser",
+            silent = true,
+        },
+    }
+    -- String search
     lvim.builtin.which_key.vmappings["s"] = {
         "<cmd>lua require('user.telescope').find_string_visual()<cr>",
         icons.find .. " Find string",
@@ -215,6 +233,13 @@ end
 -- NORMAL MODE
 M.normal_keys = function()
     lvim.keys.normal_mode = {
+        -- Search
+        -- ["<esc><esc>"] = "<cmd>nohlsearch<CR>",
+        -- CR maximize
+        -- ["<CR>"] = {
+        --     "<cmd>lua require('user.neovim').maximize_current_split()<CR>",
+        --     { noremap = true, silent = true, nowait = true },
+        -- },
         -- Buffers
         ["<F1>"] = "<cmd>BufferLineCyclePrev<cr>",
         ["<F2>"] = "<cmd>BufferLineCycleNext<cr>",
@@ -227,8 +252,6 @@ M.normal_keys = function()
         ["<F5>"] = "<cmd>MouseToggle<cr>",
         -- Yank current path
         ["<F6>"] = '<cmd>let @+ = expand("%:p")<cr>',
-        -- Symbols vista
-        ["<F10>"] = "<cmd>Vista!!<cr>",
         -- Toggle numbers
         ["<F11>"] = "<cmd>NoNuMode<cr>",
         ["<F12>"] = "<cmd>NuModeToggle<cr>",
@@ -270,8 +293,6 @@ M.insert_keys = function()
         ["<F5>"] = "<esc><cmd>MouseToggle<cr>",
         -- Yank current path
         ["<F6>"] = '<esc><cmd>let @+ = expand("%:p")<cr>',
-        -- Symbols vista
-        ["<F10>"] = "<esc><cmd>Vista!!<cr>",
         -- Windows navigation
         ["<A-Up>"] = "<cmd>wincmd k<cr>",
         ["<A-Down>"] = "<cmd>wincmd j<cr>",
@@ -280,7 +301,7 @@ M.insert_keys = function()
         -- Paste with Ctrl-v
         ["<C-v>"] = "<C-r><C-o>+",
         -- Snippets
-        ["<C-s>"] = "<cmd>lua require('telescope').extensions.luasnip.luasnip{}<cr>",
+        ["<C-x>"] = "<cmd>lua require('telescope').extensions.luasnip.luasnip{}<cr>",
         -- Toggle terminals
         ["<C-\\>"] = "<cmd>lua require('user.terminal').float_terminal_toggle('zsh', 100)<cr>",
         ["<C-]>"] = "<cmd>lua require('user.terminal').horizontal_terminal_toggle('zsh', 101, 20)<cr>",
@@ -288,22 +309,15 @@ M.insert_keys = function()
         ["<C-B>"] = "<cmd>lua require('user.terminal').horizontal_terminal_toggle('bemol --watch', 103, 10)<cr>",
     }
 
+    -- Signature help
+    lvim.keys.insert_mode["<C-s>"] = "<cmd>lua vim.lsp.buf.signature_help()<cr>"
+
     -- File explorer
     if lvim.builtin.tree_provider == "neo-tree" then
         lvim.keys.insert_mode["<F3>"] = { "<esc><cmd>NeoTreeRevealToggle<cr>" }
     else
         lvim.keys.insert_mode["<F3>"] = { "<esc><cmd>NvimTreeToggle<cr>" }
         lvim.keys.insert_mode["<S-F3>"] = { "<esc><cmd>NvimTreeRefresh<cr>" }
-    end
-
-    if lvim.builtin.noice.active then
-        lvim.keys.insert_mode["<C-s>"] = function()
-            vim.lsp.buf_request(0, "textDocument/signatureHelp", params, function(err, result, ctx)
-                require("noice.lsp").signature(err, result, ctx, {
-                    trigger = true,
-                })
-            end)
-        end
     end
 end
 
@@ -316,6 +330,8 @@ M.visual_keys = function()
         ["<C-x>"] = '"+c',
         -- Paste with Ctrl-v
         ["<C-v>"] = 'c<Esc>"+p',
+        -- Paste
+        ["p"] = [["_dP]],
     }
 end
 
@@ -346,6 +362,121 @@ M.terminal_keys = function()
     vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
 end
 
+M.mind_keys = function()
+    lvim.builtin.which_key.mappings["M"] = {
+        name = " Mind",
+        c = {
+            function()
+                require("mind").wrap_smart_project_tree_fn(function(args)
+                    require("mind.commands").create_node_index(
+                        args.get_tree(),
+                        require("mind.node").MoveDir.INSIDE_END,
+                        args.save_tree,
+                        args.opts
+                    )
+                end)
+            end,
+            "Create node index",
+        },
+        C = {
+            function()
+                require("mind").wrap_main_tree_fn(function(args)
+                    require("mind.commands").create_node_index(
+                        args.get_tree(),
+                        require("mind.node").MoveDir.INSIDE_END,
+                        args.save_tree,
+                        args.opts
+                    )
+                end)
+            end,
+            "Create node index",
+        },
+        i = {
+            function()
+                vim.notify "initializing project tree"
+                require("mind").wrap_smart_project_tree_fn(function(args)
+                    local tree = args.get_tree()
+                    local mind_node = require "mind.node"
+
+                    local _, tasks = mind_node.get_node_by_path(tree, "/Tasks", true)
+                    tasks.icon = " "
+
+                    local _, backlog = mind_node.get_node_by_path(tree, "/Tasks/Backlog", true)
+                    backlog.icon = " "
+
+                    local _, on_going = mind_node.get_node_by_path(tree, "/Tasks/On-going", true)
+                    on_going.icon = " "
+
+                    local _, done = mind_node.get_node_by_path(tree, "/Tasks/Done", true)
+                    done.icon = "󱍧 "
+
+                    local _, cancelled = mind_node.get_node_by_path(tree, "/Tasks/Cancelled", true)
+                    cancelled.icon = " "
+
+                    local _, notes = mind_node.get_node_by_path(tree, "/Notes", true)
+                    notes.icon = " "
+
+                    args.save_tree()
+                end)
+            end,
+            "Initialize project tree",
+        },
+        l = {
+            function()
+                require("mind").wrap_smart_project_tree_fn(function(args)
+                    require("mind.commands").copy_node_link_index(args.get_tree(), nil, args.opts)
+                end)
+            end,
+            "Copy node link index",
+        },
+        L = {
+            function()
+                require("mind").wrap_main_tree_fn(function(args)
+                    require("mind.commands").copy_node_link_index(args.get_tree(), nil, args.opts)
+                end)
+            end,
+            "Copy node link index",
+        },
+        j = {
+            function()
+                require("mind").wrap_main_tree_fn(function(args)
+                    local tree = args.get_tree()
+                    local path = vim.fn.strftime "/Journal/%Y/%b/%d"
+                    local _, node = require("mind.node").get_node_by_path(tree, path, true)
+
+                    if node == nil then
+                        vim.notify("cannot open journal 🙁", vim.log.levels.WARN)
+                        return
+                    end
+
+                    require("mind.commands").open_data(tree, node, args.data_dir, args.save_tree, args.opts)
+                    args.save_tree()
+                end)
+            end,
+            "Open journal",
+        },
+        M = { "<cmd>MindOpenMain<CR>", "Open main tree" },
+        z = { "<cmd>MindClose<CR>", "Close" },
+        m = { "<cmd>MindOpenSmartProject<CR>", "Open smart project tree" },
+        s = {
+            function()
+                require("mind").wrap_smart_project_tree_fn(function(args)
+                    require("mind.commands").open_data_index(args.get_tree(), args.data_dir, args.save_tree, args.opts)
+                end)
+            end,
+            "Open data index",
+        },
+        S = {
+            function()
+                require("mind").wrap_main_tree_fn(function(args)
+                    require("mind.commands").open_data_index(args.get_tree(), args.data_dir, args.save_tree, args.opts)
+                end)
+            end,
+            "Open data index",
+        },
+    }
+end
+
 M.config = function()
     lvim.builtin.which_key.setup.icons = {
         breadcrumb = "/", -- symbol used in the command line area that shows your active key combo
@@ -368,6 +499,10 @@ M.config = function()
     M.visual_keys()
     M.which_keys_normal()
     M.which_keys_visual()
+
+    if lvim.builtin.mind.active then
+        M.mind_keys()
+    end
 end
 
 return M

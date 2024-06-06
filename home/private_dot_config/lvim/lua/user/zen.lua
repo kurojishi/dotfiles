@@ -12,7 +12,7 @@ M.show_diagnostics = function()
     local clients = vim.lsp.get_active_clients()
     for _, client in ipairs(clients) do
         local ns = vim.lsp.diagnostic.get_namespace(client.id)
-        vim.diagnostic.show(ns, nil, nil, lvim.lsp.diagnostics)
+        vim.diagnostic.show(ns, nil, nil, require("user.lsp").default_diagnostic_config)
     end
 end
 
@@ -43,18 +43,22 @@ M.config = function()
             },
         },
         on_open = function()
+            lvim.builtin.cmp.active = false
             vim.cmd [[
-          set foldlevel=10
-          lua require("user.zen").hide_diagnostics()
-          ]]
+                set foldlevel=10
+                lua require("user.zen").hide_diagnostics()
+            ]]
+            require("lualine").hide()
         end,
         on_close = function()
+            lvim.builtin.cmp.active = true
             vim.cmd [[
-          set foldlevel=4
-          set foldmethod=expr
-          set foldexpr=nvim_treesitter#foldexpr()
-          lua require("user.zen").show_diagnostics()
-          ]]
+                set foldlevel=4
+                set foldmethod=expr
+                set foldexpr=nvim_treesitter#foldexpr()
+                lua require("user.zen").show_diagnostics()
+            ]]
+            require("lualine").hide { unhide = true }
         end,
     }
 end

@@ -1,46 +1,78 @@
 local M = {}
 
 M.kind = {
-    Class = " ",
+    Array = " ",
+    Boolean = "󰨙 ",
+    Class = " ",
+    Codeium = "󰘦 ",
+    Collapsed = " ",
     Color = " ",
-    Constant = " ",
+    Constant = "",
     Constructor = " ",
+    Control = " ",
     Default = " ",
-    Enum = "練",
+    Enum = "ℰ",
     EnumMember = " ",
     Event = " ",
-    Field = " ", -- "ﰠ"
-    File = " ",
+    Field = "󰜢",
+    File = "󰈚",
     Folder = " ",
     Function = " ",
+    Implementation = "",
     Interface = " ",
-    Keyword = " ",
-    Method = " ",
-    Module = " ",
-    Operator = " ",
+    Key = " ",
+    Keyword = " ",
+    Macro = " ",
+    Method = "ƒ",
+    Module = " ",
+    Namespace = "󰦮 ",
+    Null = " ",
+    Number = "󰎠 ",
+    Object = " ",
+    Operator = " ",
+    Package = " ",
+    Parameter = "",
     Property = " ",
-    Reference = " ",
-    Snippet = " ", -- ""," "," "
-    Struct = "舘",
-    Text = " ",
-    TypeParameter = "  ",
-    Unit = "塞",
-    Value = " ",
-    Variable = " ",
+    Reference = " ",
+    Snippet = " ",
+    spell = "󰓆 ",
+    StaticMethod = "",
+    String = "󰅳 ", -- " ","𝓐 " ," " ,"󰅳 "
+    Struct = "󰙅",
+    TabNine = "󰏚 ",
+    Text = " ",
+    TypeAlias = "",
+    TypeParameter = " ",
+    Undefined = "",
+    Unit = "󰑭",
+    Value = " ",
+    Variable = "󰀫 ",
 }
 
 M.config = function()
+    local cmp = require "cmp"
+    lvim.builtin.cmp.sorting = {
+        priority_weight = 2.0,
+        comparators = {
+            cmp.config.compare.locality,
+            cmp.config.compare.recently_used,
+            require "clangd_extensions.cmp_scores",
+            cmp.config.compare.score,
+            cmp.config.compare.offset,
+            cmp.config.compare.order,
+            cmp.config.compare.kind,
+            cmp.config.compare.length,
+        },
+    }
     lvim.builtin.cmp.sources = {
-        { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
         { name = "nvim_lsp", group_index = 1 },
         { name = "nvim_lsp_signature_help", group_index = 1 },
+        { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
         { name = "nvim_lua", group_index = 1 },
-        { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 3 },
+        { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 4 },
         { name = "path", group_index = 1 },
-        { name = "dictionary", group_index = 1 },
+        { name = "dictionary", group_index = 1, keyword_length = 4 },
         { name = "git", group_index = 1 },
-        { name = "crates", group_index = 1 },
-        { name = "calc", group_index = 1 },
         { name = "emoji", group_index = 1 },
     }
 
@@ -67,63 +99,52 @@ M.config = function()
         nvim_lua = "(NvLua)",
         dictionary = "(Dict)",
     }
-    if lvim.builtin.borderless_cmp then
-        vim.opt.pumblend = 4
-        lvim.builtin.cmp.formatting.fields = { "abbr", "kind", "menu" }
-        lvim.builtin.cmp.window = {
-            completion = {
-                border = cmp_border,
-                winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
-            },
-            documentation = {
-                border = cmp_border,
-                winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
-            },
-        }
-        lvim.builtin.cmp.formatting.format = function(entry, vim_item)
-            if entry.source.name == "cmdline_history" then
-                vim_item.kind = "⌘"
-                vim_item.menu = ""
-                return vim_item
-            end
-            vim_item.kind =
-                string.format("%s %s", M.kind[vim_item.kind] or " ", cmp_sources[entry.source.name] or vim_item.kind)
-
+    -- Borderless cmp
+    vim.opt.pumblend = 4
+    lvim.builtin.cmp.formatting.fields = { "abbr", "kind", "menu" }
+    lvim.builtin.cmp.window = {
+        completion = {
+            border = cmp_border,
+            winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
+        },
+        documentation = {
+            border = cmp_border,
+            winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
+        },
+    }
+    lvim.builtin.cmp.formatting.format = function(entry, vim_item)
+        if entry.source.name == "cmdline_history" or entry.source.name == "cmdline" then
+            vim_item.kind = "⌘"
+            vim_item.menu = ""
             return vim_item
         end
-    else
-        lvim.builtin.cmp.formatting = {
-            fields = { "kind", "abbr", "menu" },
-            format = function(entry, vim_item)
-                if entry.source.name == "cmdline_history" then
-                    vim_item.kind = "⌘"
-                    vim_item.menu = ""
-                    return vim_item
-                end
-                vim_item.menu = cmp_sources[entry.source.name] or vim_item.kind
-                vim_item.kind = M.kind[vim_item.kind] or vim_item.kind
+        vim_item.kind =
+            string.format("%s %s", M.kind[vim_item.kind] or " ", cmp_sources[entry.source.name] or vim_item.kind)
 
-                return vim_item
-            end,
-        }
+        return vim_item
     end
-    local cmp_ok, cmp = pcall(require, "cmp")
-    if not cmp_ok or cmp == nil then
-        cmp = {
-            mapping = function(...) end,
-            setup = { filetype = function(...) end, cmdline = function(...) end },
-            config = { sources = function(...) end },
-        }
-    end
-    for _, cmd_type in ipairs { ":", "/", "?", "@" } do
-        cmp.setup.cmdline(cmd_type, {
-            mapping = cmp.mapping.preset.cmdline {
-                ["<Up>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "c" }),
-                ["<Down>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "c" }),
+    cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline {
+            ["<Up>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "c" }),
+            ["<Down>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "c" }),
+        },
+        sources = {
+            { name = "cmdline" },
+            { name = "path" },
+        },
+        window = {
+            completion = {
+                border = cmp_border,
+                winhighlight = "Search:None",
             },
+        },
+    })
+    for _, cmd_type in ipairs { "/", "?" } do
+        cmp.setup.cmdline(cmd_type, {
+            mapping = cmp.mapping.preset.cmdline {},
             sources = {
-                { name = "cmdline_history", group_index = 1 },
-                { name = "path", group_index = 1 },
+                { name = "buffer" },
+                { name = "path" },
             },
             window = {
                 completion = {
@@ -133,6 +154,16 @@ M.config = function()
             },
         })
     end
+    cmp.setup.filetype("kotlin", {
+        sources = cmp.config.sources({
+            { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
+            { name = "nvim_lsp", group_index = 1 },
+            { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 4 },
+            { name = "path", group_index = 1 },
+            { name = "dictionary", group_index = 1, keyword_length = 4 },
+            { name = "emoji", group_index = 2 },
+        }, {}),
+    })
     cmp.setup.filetype("toml", {
         sources = cmp.config.sources({
             { name = "nvim_lsp", group_index = 1 },
@@ -160,7 +191,6 @@ M.config = function()
             { name = "dictionary", group_index = 1 },
             { name = "buffer", group_index = 1 },
             { name = "luasnip", group_index = 1, max_item_count = 5, keyword_length = 3 },
-            { name = "calc", group_index = 2 },
             { name = "emoji", group_index = 2 },
         },
     })

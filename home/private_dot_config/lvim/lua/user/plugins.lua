@@ -5,6 +5,18 @@ M.config = function()
         ------------------------------------------------------------------------------
         -- Themes and visual stuff.
         ------------------------------------------------------------------------------
+        {
+            "rebelot/kanagawa.nvim",
+            config = function()
+                require("user.theme").kanagawa()
+            end,
+        },
+        {
+            "EdenEast/nightfox.nvim",
+            config = function()
+                require("user.theme").nightfox()
+            end,
+        },
         -- Colorizer
         {
             "norcalli/nvim-colorizer.lua",
@@ -16,23 +28,11 @@ M.config = function()
         ------------------------------------------------------------------------------
         -- Git and VCS.
         ------------------------------------------------------------------------------
-        -- Fugitive
-        {
-            "tpope/vim-fugitive",
-            cmd = { "Git", "Gdiffsplit" },
-            ft = { "fugitive" },
-        },
         -- Git blame
         {
             "APZelos/blamer.nvim",
             config = function()
-                local icons = require("user.icons").icons
-                vim.g.blamer_enabled = 0
-                vim.g.blamer_prefix = " " .. icons.magic .. " "
-                vim.g.blamer_template = "<committer-time> • <author> • <summary>"
-                vim.g.blamer_relative_time = 1
-                vim.g.blamer_delay = 200
-                vim.cmd "highlight Blamer guifg=#d3d3d3"
+                require("user.blamer").config()
             end,
         },
         -- Github management
@@ -41,8 +41,18 @@ M.config = function()
             config = function()
                 require("user.octo").config()
             end,
-            after = { "which-key.nvim" },
+            lazy = true,
+            dependencies = { "which-key.nvim" },
+            cmd = "Octo",
+        },
+        -- Git linker
+        {
+            "ruifm/gitlinker.nvim",
             event = "BufRead",
+            config = function()
+                require("user.gitlinker").config()
+            end,
+            dependencies = "nvim-lua/plenary.nvim",
         },
         ------------------------------------------------------------------------------
         -- Telescope extensions.
@@ -50,31 +60,30 @@ M.config = function()
         -- Telescope zoxide
         {
             "jvgrootveld/telescope-zoxide",
-            requires = { "nvim-telescope/telescope.nvim" },
-        },
-        -- Telescope repo
-        {
-            "cljoly/telescope-repo.nvim",
-            requires = { "nvim-lua/plenary.nvim" },
+            dependencies = { "nvim-telescope/telescope.nvim" },
+            lazy = true,
         },
         -- Telescope file browser
-        { "nvim-telescope/telescope-file-browser.nvim" },
-        -- Telescope live grep
-        { "nvim-telescope/telescope-live-grep-args.nvim" },
         {
-            "sudormrfbin/cheatsheet.nvim",
-            requires = {
-                { "nvim-telescope/telescope.nvim" },
-                { "nvim-lua/popup.nvim" },
-                { "nvim-lua/plenary.nvim" },
-            },
+            "nvim-telescope/telescope-file-browser.nvim",
+            dependencies = { "nvim-telescope/telescope.nvim" },
+            lazy = true,
+        },
+        -- Telescope live grep
+        {
+            "nvim-telescope/telescope-live-grep-args.nvim",
+            dependencies = { "nvim-telescope/telescope.nvim" },
+            lazy = true,
         },
         {
-            "nvim-telescope/telescope-frecency.nvim",
-            config = function()
-                print()
-            end,
-            requires = { "kkharji/sqlite.lua" },
+            "danielfalk/smart-open.nvim",
+            branch = "0.2.x",
+            dependencies = {
+                "kkharji/sqlite.lua",
+                "nvim-telescope/telescope-fzy-native.nvim",
+                "nvim-telescope/telescope.nvim",
+            },
+            lazy = true,
         },
         ------------------------------------------------------------------------------
         -- LSP extensions.
@@ -83,25 +92,31 @@ M.config = function()
         {
             "ray-x/lsp_signature.nvim",
             config = function()
-                require("user/lsp_signature").config()
+                require("user.lsp.signature").config()
             end,
-            event = { "BufRead", "BufNew" },
-            disable = not lvim.builtin.lsp_signature_help.active,
-        },
-        -- Lsp progreess in fidget
-        {
-            "j-hui/fidget.nvim",
-            config = function()
-                require("user.fidget").config()
-            end,
+            ft = { "typescript", "javascript", "lua", "c", "cpp", "go", "python", "java", "rust" },
+            enabled = lvim.builtin.lsp_signature_help.active,
         },
         -- Lsp Rust
         {
-            "simrat39/rust-tools.nvim",
+            "mrcjkb/rustaceanvim",
+            version = "^3",
+            ft = { "rust", "rs" },
+            lazy = true,
+        },
+        {
+            "Canop/nvim-bacon",
             ft = { "rust", "rs" },
             config = function()
-                require("user.lsp.rust").config()
+                require("bacon").setup {
+                    quickfix = {
+                        enabled = true,
+                        event_trigger = true,
+                    },
+                }
             end,
+            enabled = lvim.builtin.bacon.active,
+            lazy = true,
         },
         -- Lsp java
         {
@@ -119,8 +134,7 @@ M.config = function()
                 "typescriptreact",
                 "typescript.tsx",
             },
-            opt = true,
-            event = { "BufReadPre", "BufNew" },
+            lazy = true,
             config = function()
                 require("user.lsp.typescript").config()
             end,
@@ -128,41 +142,32 @@ M.config = function()
         -- Lsp Cland Extensions
         {
             "p00f/clangd_extensions.nvim",
-            ft = { "c", "cpp", "objc", "objcpp" },
+            ft = { "c", "cpp", "objc", "objcpp", "h", "hpp" },
             config = function()
                 require("user.lsp.c").config()
             end,
         },
-        -- Lsp lines
         {
-            "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+            "Civitasv/cmake-tools.nvim",
             config = function()
-                require("lsp_lines").setup()
+                require("user.lsp.c").cmake_config()
             end,
-            event = "BufRead",
-        },
-        -- Diagnostics on right corner.
-        {
-            "santigo-zero/right-corner-diagnostics.nvim",
-            event = "LspAttach",
-            config = function()
-                require("rcd").setup {
-                    position = "bottom",
-                    auto_cmds = true,
-                }
-            end,
-            disable = true,
+            ft = { "c", "cpp", "objc", "objcpp", "h", "hpp" },
         },
         -- Crates
         {
             "Saecki/crates.nvim",
             event = { "BufRead Cargo.toml" },
-            requires = { "nvim-lua/plenary.nvim" },
+            dependencies = { "nvim-lua/plenary.nvim" },
             config = function()
                 require("crates").setup {
                     null_ls = {
                         enabled = true,
                         name = "crates",
+                    },
+                    popup = {
+                        style = "minimal",
+                        border = "rounded",
                     },
                 }
             end,
@@ -170,8 +175,9 @@ M.config = function()
         -- Scala metals
         {
             "scalameta/nvim-metals",
-            requires = { "nvim-lua/plenary.nvim" },
+            dependencies = { "nvim-lua/plenary.nvim" },
             ft = { "scala", "sbt" },
+            enabled = lvim.builtin.metals.active,
         },
         -- Go
         {
@@ -188,7 +194,6 @@ M.config = function()
                 }
             end,
             ft = { "go", "gomod" },
-            event = { "BufRead", "BufNew" },
         },
         -- Node
         {
@@ -196,43 +201,94 @@ M.config = function()
             config = function()
                 require("package-info").setup()
             end,
-            opt = true,
+            lazy = true,
             event = { "BufReadPre", "BufNew" },
         },
-        -- Python venv
-        {
-            "AckslD/swenv.nvim",
-            ft = "python",
-            event = { "BufRead", "BufNew" },
-        },
-        -- Python coverage highlight
-        { "mgedmin/coverage-highlight.vim" },
         -- Refactoring
+        {
+            "icholy/lsplinks.nvim",
+            config = function()
+                require("lsplinks").setup()
+            end,
+        },
         {
             "ThePrimeagen/refactoring.nvim",
             ft = { "typescript", "javascript", "lua", "c", "cpp", "go", "python", "java", "rust", "kotlin" },
-            event = "BufRead",
+            lazy = true,
             config = function()
                 require("user.refactoring").config()
             end,
         },
         {
-            "smjonas/inc-rename.nvim",
+            "cshuaimin/ssr.nvim",
             config = function()
-                require("inc_rename").setup()
+                require("ssr").setup {
+                    min_width = 50,
+                    min_height = 5,
+                    keymaps = {
+                        close = "q",
+                        next_match = "n",
+                        prev_match = "N",
+                        replace_all = "<leader><cr>",
+                    },
+                }
             end,
-            disable = not lvim.builtin.noice.active,
+            lazy = true,
+            event = { "BufReadPost", "BufNew" },
+        },
+        -- Symbols
+        {
+            "Wansmer/symbol-usage.nvim",
+            event = "LspAttach",
+            enabled = lvim.builtin.symbols_usage.active,
+            config = function()
+                require("user.symbol_use").config()
+            end,
+        },
+        {
+            "simrat39/symbols-outline.nvim",
+            config = function()
+                require("user.outline").config()
+            end,
+            event = "BufReadPost",
+            enabled = lvim.builtin.tag_provider == "symbols-outline",
+        },
+        -- Preview code actions
+        {
+            "aznhe21/actions-preview.nvim",
+            config = function()
+                require("actions-preview").setup {
+                    telescope = {
+                        sorting_strategy = "ascending",
+                        layout_strategy = "vertical",
+                        layout_config = {
+                            width = 0.8,
+                            height = 0.9,
+                            prompt_position = "top",
+                            preview_cutoff = 20,
+                            preview_height = function(_, _, max_lines)
+                                return max_lines - 20
+                            end,
+                        },
+                    },
+                }
+            end,
+        },
+        {
+            "abzcoding/lsp_lines.nvim",
+            lazy = true,
+            config = function()
+                require("lsp_lines").setup()
+            end,
+            enabled = lvim.builtin.lsp_lines,
         },
         ------------------------------------------------------------------------------
         -- Cmp all the things.
         ------------------------------------------------------------------------------
         -- Cmp for command line
-        { "hrsh7th/cmp-cmdline" },
-        { "dmitmel/cmp-cmdline-history" },
         -- Cmp for emojis..
         { "hrsh7th/cmp-emoji" },
-        -- Cmp for to calculate maths expressions.
-        { "hrsh7th/cmp-calc" },
+        { "hrsh7th/cmp-nvim-lsp" },
         {
             "uga-rosa/cmp-dictionary",
             config = function()
@@ -244,29 +300,32 @@ M.config = function()
                     },
                 }
             end,
-            rocks = { "mpack" },
+            enabled = lvim.builtin.cmp.dictionary.enable,
         },
         -- Cmp for github/gitlab issues
         {
             "petertriho/cmp-git",
-            requires = "nvim-lua/plenary.nvim",
+            dependencies = "nvim-lua/plenary.nvim",
             config = function()
                 require("cmp_git").setup()
             end,
         },
-        { "hrsh7th/cmp-nvim-lsp-signature-help" },
+        {
+            "hrsh7th/cmp-nvim-lsp-signature-help",
+            enabled = not lvim.builtin.lsp_signature_help.active,
+        },
         ------------------------------------------------------------------------------
         -- Markdown support
         ------------------------------------------------------------------------------
         -- Markdown preview
         {
             "iamcco/markdown-preview.nvim",
-            run = "cd app && npm install",
-            ft = { "markdown" },
-            config = function()
-                vim.g.mkdp_auto_start = 1
-                vim.g.mkdp_browser = "/usr/bin/firefox"
+            cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+            build = "cd app && yarn install",
+            init = function()
+                vim.g.mkdp_filetypes = { "markdown" }
             end,
+            ft = { "markdown" },
         },
         -- Glow markdown preview
         {
@@ -277,6 +336,10 @@ M.config = function()
         {
             "mzlogin/vim-markdown-toc",
             ft = "markdown",
+        },
+        {
+            "jghauser/follow-md-links.nvim",
+            ft = { "markdown" },
         },
         ------------------------------------------------------------------------------
         -- Spelling and grammar
@@ -290,18 +353,19 @@ M.config = function()
                     captures = { "comment" },
                 }
             end,
-            fd = { "markdown", "text", "rst" },
+            ft = { "markdown", "text", "rst" },
         },
         -- Grammarous
         {
             "rhysd/vim-grammarous",
             cmd = "GrammarousCheck",
+            enabled = lvim.builtin.grammarous.active,
         },
         -- Grammar guard
         {
             "brymer-meneses/grammar-guard.nvim",
-            filetype = { "latex", "tex", "bib", "markdown", "rst", "text" },
-            requires = { "neovim/nvim-lspconfig" },
+            ft = { "latex", "tex", "bib", "markdown", "rst", "text" },
+            dependencies = { "neovim/nvim-lspconfig" },
         },
         ------------------------------------------------------------------------------
         -- Session and position
@@ -312,11 +376,11 @@ M.config = function()
             config = function()
                 require("remember").setup {}
             end,
-            event = "BufWinEnter",
         },
         -- Session manager
         {
-            "crisidev/persisted.nvim",
+            "olimorris/persisted.nvim",
+            lazy = true,
             config = function()
                 require("user.persisted").config()
             end,
@@ -326,18 +390,20 @@ M.config = function()
         ------------------------------------------------------------------------------
         {
             "folke/zen-mode.nvim",
+            cmd = "ZenMode",
+            lazy = true,
             config = function()
                 require("user.zen").config()
             end,
-            event = "BufRead",
         },
         {
             "folke/twilight.nvim",
             config = function()
                 require("user.twilight").config()
             end,
-            event = "BufRead",
-            disable = not lvim.builtin.twilight.enable,
+            lazy = true,
+            cmd = "Twilight",
+            enabled = lvim.builtin.twilight.enable,
         },
         ------------------------------------------------------------------------------
         -- Search and replace
@@ -352,8 +418,9 @@ M.config = function()
         },
         -- Spectre
         {
-            "windwp/nvim-spectre",
+            "nvim-pack/nvim-spectre",
             event = "BufRead",
+            lazy = true,
             config = function()
                 require("user.spectre").config()
             end,
@@ -363,16 +430,6 @@ M.config = function()
         ------------------------------------------------------------------------------
         -- Zoxide
         { "nanotee/zoxide.vim" },
-        -- Scrollbar
-        {
-            "petertriho/nvim-scrollbar",
-            config = function()
-                require("user.scrollbar").config()
-                -- Register current position handler.
-                -- require("user.scrollbar").register_current_position_handler()
-            end,
-            after = { "nvim-hlslens" },
-        },
         -- Preview jumps
         {
             "nacro90/numb.nvim",
@@ -381,37 +438,23 @@ M.config = function()
                 require("numb").setup()
             end,
         },
-        -- Window picker
-        {
-            "s1n7ax/nvim-window-picker",
-            tag = "1.*",
-            config = function()
-                require("window-picker").setup {
-                    autoselect_one = true,
-                    include_current = false,
-                    filter_rules = {
-                        -- filter using buffer options
-                        bo = {
-                            -- if the file type is one of following, the window will be ignored
-                            filetype = { "neo-tree", "neo-tree-popup", "notify", "quickfix" },
-
-                            -- if the buffer type is one of following, the window will be ignored
-                            buftype = { "terminal" },
-                        },
-                    },
-                    other_win_hl_color = "#e35e4f",
-                }
-            end,
-        },
         -- Neotree
         {
             "nvim-neo-tree/neo-tree.nvim",
             branch = "v2.x",
-            requires = { "MunifTanjim/nui.nvim" },
+            dependencies = { "MunifTanjim/nui.nvim" },
             config = function()
                 require("user.neotree").config()
             end,
-            disable = lvim.builtin.tree_provider ~= "neo-tree",
+            enabled = lvim.builtin.tree_provider == "neo-tree",
+        },
+        -- Treesitter textobject
+        {
+            "nvim-treesitter/nvim-treesitter-textobjects",
+            lazy = true,
+            event = "BufReadPre",
+            dependencies = "nvim-treesitter",
+            enabled = lvim.builtin.treesitter_textobjects.active,
         },
         ------------------------------------------------------------------------------
         -- Debug
@@ -421,8 +464,8 @@ M.config = function()
             config = function()
                 require("dap-go").setup()
             end,
+            lazy = true,
             ft = { "go", "gomod" },
-            event = { "BufRead", "BufNew" },
         },
         {
             "mfussenegger/nvim-dap-python",
@@ -431,24 +474,32 @@ M.config = function()
                 require("dap-python").setup(mason_path .. "packages/debugpy/venv/bin/python")
                 require("dap-python").test_runner = "pytest"
             end,
+            lazy = true,
             ft = "python",
-            event = { "BufRead", "BufNew" },
+        },
+        {
+            "theHamsta/nvim-dap-virtual-text",
+            config = function()
+                require("nvim-dap-virtual-text").setup()
+            end,
+            lazy = true,
         },
         ------------------------------------------------------------------------------
         -- Noice
         ------------------------------------------------------------------------------
-        { "MunifTanjim/nui.nvim" },
         {
             "folke/noice.nvim",
-            event = "VimEnter",
+            event = "VeryLazy",
             config = function()
                 require("user.noice").config()
             end,
-            requires = {
-                "MunifTanjim/nui.nvim",
+            -- version = '1.5.2',
+            dependencies = {
                 "rcarriga/nvim-notify",
+                "MunifTanjim/nui.nvim",
+                "smjonas/inc-rename.nvim",
             },
-            disable = not lvim.builtin.noice.active,
+            enabled = lvim.builtin.noice.active,
         },
         ------------------------------------------------------------------------------
         -- Miscellaneous
@@ -459,11 +510,13 @@ M.config = function()
             config = function()
                 require("user.silicon").config()
             end,
+            event = "VeryLazy",
+            cmd = "Silicon",
         },
         -- TODO comments
         {
             "folke/todo-comments.nvim",
-            requires = "nvim-lua/plenary.nvim",
+            dependencies = "nvim-lua/plenary.nvim",
             config = function()
                 require("user.todo_comments").config()
             end,
@@ -475,32 +528,32 @@ M.config = function()
             config = function()
                 require("user.bqf").config()
             end,
-            event = "BufRead",
+            event = "WinEnter",
         },
         -- Trouble
-        { "folke/trouble.nvim" },
+        {
+            "folke/trouble.nvim",
+            config = function()
+                require("user.trouble").config()
+            end,
+            cmd = "Trouble",
+            event = "VeryLazy",
+        },
         -- Dressing
         {
             "stevearc/dressing.nvim",
             config = function()
                 require("user.dress").config()
             end,
+            lazy = true,
             event = "BufWinEnter",
-        },
-        -- Vista
-        {
-            "liuchengxu/vista.vim",
-            config = function()
-                require("user.vista").config()
-            end,
-            event = "BufReadPost",
         },
         -- i3 syntax
         { "mboughaba/i3config.vim" },
         -- Visual multi
         {
             "mg979/vim-visual-multi",
-            config = function()
+            init = function()
                 vim.cmd [[
                     let g:VM_maps = {}
                     let g:VM_maps['Find Under'] = '<C-l>'
@@ -514,6 +567,11 @@ M.config = function()
             config = function()
                 require("user.incline").config()
             end,
+            enabled = lvim.builtin.breadcrumbs.provider == "incline",
+        },
+        {
+            "Bekaboo/dropbar.nvim",
+            enabled = lvim.builtin.breadcrumbs.provider == "dropbar",
         },
         -- Cleanup whitespaces
         {
@@ -522,75 +580,121 @@ M.config = function()
                 require("spaceless").setup()
             end,
         },
-        -- Orgmode
-        {
-            "kristijanhusak/orgmode.nvim",
-            ft = { "org" },
-            config = function()
-                require("user.orgmode").setup()
-            end,
-            disable = not lvim.builtin.orgmode.active,
-        },
-        -- Clipboard management
-        {
-            "AckslD/nvim-neoclip.lua",
-            requires = {
-                { "nvim-telescope/telescope.nvim" },
-            },
-            config = function()
-                require("neoclip").setup {
-                    on_paste = {
-                        set_reg = true,
-                    },
-                }
-            end,
-        },
-        -- Legendary
-        {
-            "mrjones2014/legendary.nvim",
-            config = function()
-                require("user.legendary").config()
-            end,
-            disable = not lvim.builtin.legendary.active,
-        },
+        -- Better hl
         {
             "m-demare/hlargs.nvim",
             config = function()
-                require("hlargs").setup()
+                require("hlargs").setup {
+                    excluded_filetype = { "TelescopePrompt", "guihua", "guihua_rust", "clap_input" },
+                }
             end,
-            requires = { "nvim-treesitter/nvim-treesitter" },
-            disable = not lvim.builtin.hlargs.active,
+            lazy = true,
+            event = "VeryLazy",
+            dependencies = { "nvim-treesitter/nvim-treesitter" },
         },
+        -- Testing
         {
             "stevearc/overseer.nvim",
             config = function()
                 require("user.overseer").config()
             end,
-            disable = not lvim.builtin.task_runner.active,
         },
         {
             "nvim-neotest/neotest",
             config = function()
                 require("user.ntest").config()
             end,
-            requires = {
-                { "nvim-neotest/neotest-go" },
-                { "nvim-neotest/neotest-python" },
-                { "nvim-neotest/neotest-plenary" },
-                { "rouge8/neotest-rust" },
-                { "nvim-lua/plenary.nvim" },
-                { "nvim-treesitter/nvim-treesitter" },
-                { "antoinemadec/FixCursorHold.nvim" },
+            dependencies = {
+                "nvim-lua/plenary.nvim",
+                "nvim-treesitter/nvim-treesitter",
+                "antoinemadec/FixCursorHold.nvim",
             },
-            disable = not lvim.builtin.test_runner.active,
+            event = { "BufReadPost", "BufNew" },
         },
-        -- {
-        --     "lvimuser/lsp-inlayhints.nvim",
-        --     branch = "anticonceal",
-        --     config = function()
-        --         require("lsp-inlayhints").setup()
-        --     end,
-               -- },
+        { "nvim-neotest/neotest-plenary" },
+        { "nvim-neotest/neotest-go", event = { "BufEnter *.go" } },
+        { "nvim-neotest/neotest-python", event = { "BufEnter *.py" } },
+        { "rouge8/neotest-rust", event = { "BufEnter *.rs" } },
+        { "nvim-neotest/nvim-nio" },
+        -- Hop
+        {
+            "phaazon/hop.nvim",
+            event = "VeryLazy",
+            cmd = { "HopChar1CurrentLineAC", "HopChar1CurrentLineBC", "HopChar2MW", "HopWordMW" },
+            config = function()
+                require("user.hop").config()
+            end,
+            enabled = lvim.builtin.motion_provider == "hop",
+        },
+        -- Flash
+        {
+            "folke/flash.nvim",
+            event = "VeryLazy",
+            keys = require("user.flash").keys,
+            enabled = lvim.builtin.motion_provider == "flash",
+        },
+        -- Highligh logs
+        {
+            "mtdl9/vim-log-highlighting",
+            ft = { "text", "log" },
+            lazy = true,
+        },
+        -- Powerful tab
+        {
+            "abecodes/tabout.nvim",
+            config = function()
+                require("user.tabout").config()
+            end,
+        },
+        -- Debug print
+        {
+            "andrewferrier/debugprint.nvim",
+            config = function()
+                require("user.debugprint").config()
+            end,
+        },
+        -- Status column
+        {
+            "luukvbaal/statuscol.nvim",
+            config = function()
+                require("user.statuscol").config()
+            end,
+            enabled = lvim.builtin.statuscol.active,
+        },
+        -- Hearthly files
+        { "earthly/earthly.vim" },
+        -- Startup time
+        {
+            "dstein64/vim-startuptime",
+            enabled = lvim.builtin.startuptime.active,
+        },
+        -- Tags
+        {
+            "liuchengxu/vista.vim",
+            init = function()
+                require("user.vista").config()
+            end,
+            event = "BufReadPost",
+            enabled = lvim.builtin.tag_provider == "vista",
+        },
+        -- Mind
+        {
+            "Selyss/mind.nvim",
+            dependencies = { "nvim-lua/plenary.nvim" },
+            config = function()
+                require("user.mind").config()
+            end,
+            event = "VeryLazy",
+            enabled = lvim.builtin.mind.active,
+        },
+        -- File icons
+        {
+            "abzcoding/nvim-mini-file-icons",
+            config = function()
+                require("nvim-web-devicons").setup()
+            end,
+            enabled = not lvim.use_icons,
+        },
     }
 end
 

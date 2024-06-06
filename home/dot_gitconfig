@@ -26,3 +26,6 @@
     diffFilter = delta --color-only
 [init]
 	defaultBranch = main
+
+[includeIf "gitdir:~/proton.src/"]
+  path = ~/.gitconfig-proton

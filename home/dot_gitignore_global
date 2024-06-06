@@ -117,3 +117,8 @@ package-lock.json
 
 
 *.GOPATH/*
+lcov
+coverage.*
+cobertura.xml
+*.profraw
+massif*

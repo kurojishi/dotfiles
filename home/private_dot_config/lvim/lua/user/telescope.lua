@@ -42,8 +42,9 @@ function M._multiopen(prompt_bufnr, open_cmd)
     local picker = action_state.get_current_picker(prompt_bufnr)
     local num_selections = table.getn(picker:get_multi_selection())
     local border_contents = picker.prompt_border.contents[1]
-    if not (
-        string.find(border_contents, "Find Files")
+    if
+        not (
+            string.find(border_contents, "Find Files")
             or string.find(border_contents, "Git Files")
             or string.find(border_contents, "Sessions")
         )
@@ -100,7 +101,7 @@ function M.layout_config()
     return {
         width = 0.9,
         height = 0.4,
-        preview_cutoff = 150,
+        preview_cutoff = 135,
         prompt_position = "bottom",
         horizontal = {
             preview_width = 0.32,
@@ -164,10 +165,6 @@ M.noice = function()
     require("telescope").extensions.noice.noice(opts)
 end
 
-M.projects = function()
-    require("telescope").extensions.repo.list(M.get_theme())
-end
-
 M.zoxide = function()
     require("telescope").extensions.zoxide.list(M.get_theme())
 end
@@ -176,12 +173,12 @@ M.persisted = function()
     require("telescope").extensions.persisted.persisted(M.get_theme())
 end
 
-M.neoclip = function()
-    require("telescope").extensions.neoclip.neoclip(M.get_theme())
+M.smart_open = function()
+    require("telescope").extensions.smart_open.smart_open(M.get_theme())
 end
 
-M.frecency = function()
-    require("telescope").extensions.frecency.frecency(M.get_theme())
+M.session = function()
+    M.persisted()
 end
 
 -- show refrences to this using language server
@@ -255,7 +252,13 @@ M.find_string_visual = function()
 end
 
 M.buffers = function()
-    builtin.buffers(M.get_theme())
+    local opts = M.get_theme()
+    opts["on_complete"] = {
+        function(_picker)
+            vim.cmd "startinsert"
+        end,
+    }
+    builtin.buffers(opts)
 end
 
 M.resume = function()
@@ -283,7 +286,7 @@ M.subrange = function(table, first, last)
 end
 
 M.path_display = function()
-    return function(opts, path)
+    return function(_, path)
         local os_sep = utils.get_separator()
         local split_path = vim.split(path, os_sep)
         local path_count = M.table_lenght(split_path)
@@ -323,6 +326,8 @@ end
 M.config = function()
     -- Telescope
     local icons = require("user.icons").icons
+    lvim.builtin.telescope.max_path_length = 5
+    lvim.builtin.telescope.defaults.initial_mode = "insert"
     lvim.builtin.telescope.defaults.dynamic_preview_title = true
     lvim.builtin.telescope.defaults.layout_config = M.layout_config()
     lvim.builtin.telescope.defaults.path_display = M.path_display()
@@ -332,7 +337,8 @@ M.config = function()
         results = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
         preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
     }
-    lvim.builtin.telescope.defaults.selection_caret = icons.right
+    lvim.builtin.telescope.theme = "ivy"
+    lvim.builtin.telescope.defaults.selection_caret = icons.right .. " "
     lvim.builtin.telescope.defaults.cache_picker = { num_pickers = 5 }
     lvim.builtin.telescope.defaults.layout_strategy = "horizontal"
     lvim.builtin.telescope.defaults.color_devicons = true
@@ -396,24 +402,15 @@ M.config = function()
         find_command = { "fd", "--type=file", "--hidden" },
     }
 
+    lvim.builtin.telescope.pickers.buffers.sort_lastused = true
+    lvim.builtin.telescope.pickers.buffers.sort_mru = true
     lvim.builtin.telescope.on_config_done = function(telescope)
         telescope.load_extension "luasnip"
         telescope.load_extension "zoxide"
-        telescope.load_extension "repo"
         telescope.load_extension "file_browser"
         telescope.load_extension "persisted"
-        telescope.load_extension "neoclip"
-        telescope.extensions.frecency.settings = {
-            show_scores = true,
-            show_unindexed = true,
-            ignore_patterns = { "*.git/*", "*/tmp/*", "*/target/*" },
-            workspaces = {
-                ["github"] = "/home/matbigoi/github",
-                ["smithy-rs"] = "/home/matbigoi/github/smithy-rs",
-                ["workplace"] = "/home/matbigoi/workplace",
-            },
-        }
-        telescope.load_extension "frecency"
+        telescope.load_extension "smart_open"
+        telescope.load_extension "refactoring"
     end
 end
 

@@ -1,60 +1,70 @@
 local M = {}
 
 local icons = require("user.icons").icons
-local ok, wk = pcall(require, "which-key")
-if not ok then
-    return
+
+M.diagnostics = function(direction, level)
+    local filetype = vim.bo.filetype
+    if lvim.builtin.bacon.active and filetype == "rust" then
+        vim.cmd.BaconLoad {}
+        vim.api.nvim_command ":w"
+        if direction == "next" then
+            vim.cmd.BaconNext {}
+        else
+            vim.cmd.BaconPrevious {}
+        end
+    else
+        if direction == "next" then
+            vim.diagnostic.goto_next {
+                float = { border = "rounded", focusable = true, source = "always" },
+                severity = { min = level },
+            }
+        else
+            vim.diagnostic.goto_prev {
+                float = { border = "rounded", focusable = true, source = "always" },
+                severity = { min = level },
+            }
+        end
+    end
 end
 
-M.comments_keys = function()
-    -- NORMAL mode mappings
-    vim.keymap.set("n", "fc", "<Plug>(comment_toggle_linewise)", { desc = icons.comment .. " Comment linewise" })
-    vim.keymap.set("n", "fcc", function()
-        return vim.v.count == 0 and "<Plug>(comment_toggle_linewise_current)" or "<Plug>(comment_toggle_linewise_count)"
-    end, { expr = true, desc = "Comment toggle current line" })
+M.show_line_diagnostics = function()
+    local filetype = vim.bo.filetype
+    if lvim.builtin.bacon.active and filetype == "rust" then
+        vim.cmd.BaconLoad {}
+        vim.api.nvim_command ":w"
+        vim.cmd.BaconShow {}
+    else
+        vim.diagnostic.open_float { border = "rounded", focusable = true }
+    end
+end
 
-    vim.keymap.set("n", "fb", "<Plug>(comment_toggle_blockwise)", { desc = icons.comment .. " Comment blockwise" })
-    vim.keymap.set("n", "fbc", function()
-        return vim.v.count == 0 and "<Plug>(comment_toggle_blockwise_current)"
-            or "<Plug>(comment_toggle_blockwise_count)"
-    end, { expr = true, desc = "Comment toggle current block" })
-
-    -- Above, below, eol
-    vim.keymap.set(
-        "n",
-        "fco",
-        '<cmd>lua require("Comment.api").locked.insert_linewise_below()<cr>',
-        { desc = "Comment insert below" }
-    )
-    vim.keymap.set(
-        "n",
-        "fcO",
-        '<cmd>lua require("Comment.api").locked.insert_linewise_above()<cr>',
-        { desc = "Comment insert above" }
-    )
-    vim.keymap.set(
-        "n",
-        "fcA",
-        '<cmd>lua require("Comment.api").locked.insert_linewise_eol()<cr>',
-        { desc = "Comment insert end of line" }
-    )
-
-    -- VISUAL mode mappings
-    vim.keymap.set("x", "fc", "<Plug>(comment_toggle_linewise_visual)", { desc = "Comment toggle linewise (visual)" })
-    vim.keymap.set("x", "fb", "<Plug>(comment_toggle_blockwise_visual)", { desc = "Comment toggle blockwise (visual)" })
+M.show_diagnostics = function(type)
+    local filetype = vim.bo.filetype
+    if lvim.builtin.bacon.active and filetype == "rust" then
+        vim.cmd.BaconLoad {}
+        vim.api.nvim_command ":w"
+        vim.cmd.Trouble "quickfix"
+    else
+        vim.cmd.Trouble(type)
+    end
 end
 
 M.lsp_normal_keys = function()
+    local ok, wk = pcall(require, "which-key")
+    if not ok then
+        return
+    end
+
     -- Hover
     lvim.lsp.buffer_mappings.normal_mode["K"] = {
-        "<cmd>lua require('user.lsp').show_documentation()<CR>",
+        "<cmd>lua require('user.lsp').show_documentation()<cr>",
         icons.docs .. "Show Documentation",
     }
-    lvim.lsp.buffer_mappings.visual_mode["K"] = lvim.lsp.buffer_mappings.normal_mode["K"]
 
     wk.register {
         -- Lsp
         ["f"] = {
+            ["?"] = icons.debug .. "Add debug",
             name = icons.codelens .. "Lsp actions",
             -- Code actions popup
             A = {
@@ -63,7 +73,7 @@ M.lsp_normal_keys = function()
             },
             a = {
                 --     "<cmd>CodeActionMenu<cr>",
-                "<cmd>lua vim.lsp.buf.code_action()<cr>",
+                "<cmd>lua require('actions-preview').code_actions()<cr>",
                 icons.codelens .. "Code actions",
             },
             -- Goto
@@ -87,44 +97,52 @@ M.lsp_normal_keys = function()
                 "<cmd>lua require('user.telescope').lsp_implementations()<cr>",
                 icons.go .. " Goto implementations",
             },
-            -- Signature
-            s = {
-                "<cmd>lua vim.lsp.buf.signature_help()<cr>",
-                icons.Function .. " Show signature help",
-            },
             -- Diagnostics
             l = {
-                "<cmd>lua vim.diagnostic.open_float()<cr>",
+                "<cmd>lua require('user.lsp.keys').show_line_diagnostics()<cr>",
                 icons.hint .. "Show line diagnostics",
             },
-            L = {
-                "<cmd>lua require('lsp_lines').toggle()<cr>",
-                icons.hint .. "Toggle LSP lines",
-            },
             e = {
-                "<cmd>lua require('user.telescope').diagnostics()<cr>",
-                icons.hint .. "All diagnostics",
+                "<cmd>lua require('user.lsp.keys').show_diagnostics('document_diagnostics')<cr>",
+                icons.hint .. "Document diagnostics",
+            },
+            E = {
+                "<cmd>lua require('user.lsp.keys').show_diagnostics('workspace_diagnostics')<cr>",
+                icons.hint .. "Wordspace diagnostics",
             },
             N = {
-                "<cmd>lua vim.diagnostic.goto_next({float = {border = 'rounded', focusable = false, source = 'always'}, severity = {min = vim.diagnostic.severity.ERROR}})<cr>",
-                icons.hint .. "Next ERROR diagnostic",
+                "<cmd>lua require('user.lsp.keys').diagnostics('next', vim.diagnostic.severity.ERROR)<cr>",
+                icons.error .. "Next ERROR diagnostic",
             },
             P = {
-                "<cmd>lua vim.diagnostic.goto_prev({float = {border = 'rounded', focusable = false, source = 'always'}, severity = {min = vim.diagnostic.severity.ERROR}})<cr>",
-                icons.hint .. "Previous ERROR diagnostic",
+                "<cmd>lua require('user.lsp.keys').diagnostics('prev', vim.diagnostic.severity.ERROR)<cr>",
+                icons.error .. "Previous ERROR diagnostic",
             },
             n = {
-                "<cmd>lua vim.diagnostic.goto_next({float = {border = 'rounded', focusable = false, source = 'always'}, severity = {min = vim.diagnostic.severity.WARN}})<cr>",
-                icons.hint .. "Next diagnostic",
+                "<cmd>lua require('user.lsp.keys').diagnostics('next', vim.diagnostic.severity.WARN)<cr>",
+                icons.warn .. "Next diagnostic",
             },
             p = {
-                "<cmd>lua vim.diagnostic.goto_prev({float = {border = 'rounded', focusable = false, source = 'always'}, severity = {min = vim.diagnostic.severity.WARN}})<cr>",
-                icons.hint .. "Previous diagnostic",
+                "<cmd>lua require('user.lsp.keys').diagnostics('prev', vim.diagnostic.severity.WARN)<cr>",
+                icons.warn .. "Previous diagnostic",
+            },
+            s = {
+                "<cmd>lua require('user.lsp.keys').diagnostics('next', vim.diagnostic.severity.HINT)<cr>",
+                icons.hint .. "Next typo",
             },
             -- Format
             F = {
                 "<cmd>lua vim.lsp.buf.format { async = true }<cr>",
                 icons.magic .. "Format file",
+            },
+            -- Rename
+            R = {
+                "<cmd>lua vim.lsp.buf.rename()<cr>",
+                icons.rename .. "Rename symbol",
+            },
+            x = {
+                "<cmd>lua require('lsplinks').gx()<cr>",
+                icons.world .. "Open link",
             },
             -- Peek
             z = {
@@ -155,7 +173,7 @@ M.lsp_normal_keys = function()
             },
             -- Trouble
             D = {
-                name = icons.error .. "Trouble",
+                name = icons.error .. "Diagnostics",
                 r = { "<cmd>Trouble lsp_references<cr>", "References" },
                 f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
                 d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
@@ -163,68 +181,122 @@ M.lsp_normal_keys = function()
                 l = { "<cmd>Trouble loclist<cr>", "LocationList" },
                 w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
             },
+            -- Inlay hints
+            w = { "<cmd>lua require('user.lsp').toggle_inlay_hints()<cr>", icons.inlay .. "Toggle Inlay" },
+            -- Neotest
+            T = {
+                name = icons.settings .. "Tests",
+                f = {
+                    "<cmd>lua require('neotest').run.run({vim.fn.expand('%'), env=require('user.ntest').get_env()})<cr>",
+                    "File",
+                },
+                o = { "<cmd>lua require('neotest').output.open({ enter = true, short = false })<cr>", "Output" },
+                r = { "<cmd>lua require('neotest').run.run({env=require('user.ntest').get_env()})<cr>", "Run" },
+                a = { "<cmd>lua require('user.ntest').run_all()<cr>", "Run All" },
+                c = { "<cmd>lua require('user.ntest').cancel()<cr>", "Cancel" },
+                R = { "<cmd>lua require('user.ntest').run_file_sync()<cr>", "Run Async" },
+                s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Toggle summary" },
+                n = { "<cmd>lua require('neotest').jump.next({ status = 'failed' })<cr>", "Jump to next failed" },
+                p = {
+                    "<cmd>lua require('neotest').jump.prev({ status = 'failed' })<cr>",
+                    "Jump to previous failed",
+                },
+                d = { "<cmd>lua require('neotest').run.run({ strategy = 'dap' })<cr>", "Dap Run" },
+                l = { "<cmd>lua require('neotest').run.run_last()<cr>", "Last" },
+                x = { "<cmd>lua require('neotest').run.stop()<cr>", "Stop" },
+                w = { "<cmd>lua require('neotest').watch.watch()<cr>", "Watch" },
+                t = { "<cmd>OverseerToggle<cr>", "Toggle tests" },
+                T = { "<cmd>OverseerRun<cr>", "Run task" },
+                C = { "<cmd>OverseerRunCmd<cr>", "Run task with Cmd" },
+            },
         },
     }
 
-    -- Rename
-    if lvim.builtin.noice.active then
+    -- Signature
+    if lvim.builtin.lsp_signature_help.active then
+        vim.keymap.set({ "n" }, "<C-k>", function()
+            require("lsp_signature").toggle_float_win()
+        end, { silent = true, noremap = true, desc = "Toggle signature" })
+
         wk.register {
             ["f"] = {
-                R = {
-                    function()
-                        return ":IncRename " .. vim.fn.expand "<cword>"
-                    end,
-                    icons.magic .. "Rename symbol",
-                    expr = true,
+                j = {
+                    "<cmd>lua require('lsp_signature').toggle_float_win()<cr>",
+                    icons.Function .. " Show signature help",
                 },
             },
         }
     else
+        vim.keymap.set({ "n" }, "<C-k>", function()
+            vim.lsp.buf.signature_help()
+        end, { silent = true, noremap = true, desc = "Toggle signature" })
+
         wk.register {
             ["f"] = {
-                R = {
-                    "<cmd>lua vim.lsp.buf.rename()<cr>",
-                    icons.magic .. "Rename symbol",
+                j = {
+                    "<cmd>lua vim.lsp.buf.signature_help()<cr>",
+                    icons.Function .. " Show signature help",
                 },
             },
         }
     end
 
-    -- Neotest
-    if lvim.builtin.test_runner.active then
+    -- Symbol usage
+    if lvim.builtin.symbols_usage.active then
         wk.register {
             ["f"] = {
-                T = {
-                    name = icons.settings .. "Tests",
-                    f = {
-                        "<cmd>lua require('neotest').run.run({vim.fn.expand('%'), env=require('user.ntest').get_env()})<cr>",
-                        "File",
-                    },
-                    o = { "<cmd>lua require('neotest').output.open({ enter = true, short = false })<cr>", "Output" },
-                    r = { "<cmd>lua require('neotest').run.run({env=require('user.ntest').get_env()})<cr>", "Run" },
-                    a = { "<cmd>lua require('user.ntest').run_all()<cr>", "Run All" },
-                    c = { "<cmd>lua require('user.ntest').cancel()<cr>", "Cancel" },
-                    R = { "<cmd>lua require('user.ntest').run_file_sync()<cr>", "Run Async" },
-                    s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Toggle summary" },
-                    n = { "<cmd>lua require('neotest').jump.next({ status = 'failed' })<cr>", "Jump to next failed" },
-                    p = {
-                        "<cmd>lua require('neotest').jump.prev({ status = 'failed' })<cr>",
-                        "Jump to previous failed",
-                    },
-                    d = { "<cmd>lua require('neotest').run.run({ strategy = 'dap' })<cr>", "Dap Run" },
-                    l = { "<cmd>lua require('neotest').run.run_last()<cr>", "Last" },
-                    x = { "<cmd>lua require('neotest').run.stop()<cr>", "Stop" },
-                    w = { "<cmd>lua require('neotest').watch.watch()<cr>", "Watch" },
-                    t = { "<cmd>OverseerToggle<cr>", "Toggle tests" },
-                    T = { "<cmd>OverseerRun<cr>", "Run task" },
-                    Tc = { "<cmd>OverseerRunCmd<cr>", "Run task with Cmd" },
+                W = {
+                    name = icons.inlay .. "Symbol usage",
+                    t = { "<cmd>lua require('symbol-usage').toggle()<cr>", "Toggle" },
+                    r = { "<cmd>lua require('symbol-usage').refresh()<cr>", "Refresh" },
                 },
+            },
+        }
+    end
+
+    -- Incremental rename
+    if lvim.builtin.noice.active then
+        wk.register {
+            ["f"] = {
+                I = {
+                    function()
+                        return ":IncRename " .. vim.fn.expand "<cword>"
+                    end,
+                    icons.rename .. "Rename incremental",
+                    expr = true,
+                },
+            },
+        }
+    end
+
+    -- Tags
+    if lvim.builtin.tag_provider == "symbols-outline" then
+        wk.register {
+            ["f"] = {
+                o = { "<cmd>SymbolsOutline<cr>", icons.outline .. " Symbol Outline" },
+            },
+        }
+    elseif lvim.builtin.tag_provider == "vista" then
+        wk.register {
+            ["f"] = {
+                o = { "<cmd>Vista!!<cr>", icons.outline .. " Vista" },
             },
         }
     end
 end
 
 M.lsp_visual_keys = function()
+    local ok, wk = pcall(require, "which-key")
+    if not ok then
+        return
+    end
+
+    -- Hover
+    lvim.lsp.buffer_mappings.visual_mode["K"] = {
+        "<cmd>lua require('user.lsp').show_documentation()<cr>",
+        icons.docs .. "Show Documentation",
+    }
+
     -- Visual
     wk.register({
         ["f"] = {
@@ -250,17 +322,38 @@ M.lsp_visual_keys = function()
                 "<cmd>lua vim.lsp.buf.rename()<cr>",
                 icons.magic .. "Rename symbol",
             },
-            -- Range code actions
+            -- Code actions
             a = {
+                "<cmd>lua vim.lsp.buf.code_action()<cr>",
+                icons.code_lens_action .. "Code actions",
+            },
+            -- Range code actions
+            A = {
                 "<cmd>lua vim.lsp.buf.range_code_action()<cr>",
-                icons.code_lens_action .. " Code actions",
+                icons.code_lens_action .. "Range code actions",
             },
         },
     }, { mode = "v" })
+
+    -- Tags
+    if lvim.builtin.tag_provider == "symbols-outline" then
+        wk.register {
+            ["f"] = {
+                o = { "<cmd>SymbolsOutline<cr>", icons.outline .. " Symbol Outline" },
+            },
+            { mode = "v" },
+        }
+    elseif lvim.builtin.tag_provider == "vista" then
+        wk.register {
+            ["f"] = {
+                o = { "<cmd>Vista!!<cr>", icons.outline .. " Vista" },
+            },
+            { mode = "v" },
+        }
+    end
 end
 
 M.config = function()
-    M.comments_keys()
     M.lsp_normal_keys()
     M.lsp_visual_keys()
 end

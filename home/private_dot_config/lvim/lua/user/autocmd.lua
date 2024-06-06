@@ -3,14 +3,41 @@ local M = {}
 -- Function to replace local autocmds with global ones.
 
 M.config = function()
-    -- Autocommands
+    -- Colorscheme
+    vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "*",
+        desc = "Apply the custom colorschemes",
+        callback = function()
+            require("user.theme").telescope_theme()
+            require("user.theme").dashboard_theme()
+            require("user.icons").define_dap_signs()
+        end,
+    })
+
+    -- Cleanup.
     vim.api.nvim_clear_autocmds { pattern = "lir", group = "_filetype_settings" }
+    vim.api.nvim_clear_autocmds { pattern = "*", group = "_lvim_colorscheme" }
+    vim.api.nvim_clear_autocmds { pattern = "*", group = "nvim_swapfile" }
+
+    -- Custom group.
     vim.api.nvim_create_augroup("_lvim_user", {})
+
+    -- Prevent entering buffers in insert mode.
+    vim.api.nvim_create_autocmd("WinLeave", {
+        group = "_lvim_user",
+        desc = "Prevent entering buffers in insert mode.",
+        callback = function()
+            if vim.bo.ft == "TelescopePrompt" and vim.fn.mode() == "i" then
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "i", false)
+            end
+        end,
+    })
 
     -- Codelense viewer
     vim.api.nvim_create_autocmd("CursorHold", {
         group = "_lvim_user",
-        pattern = { "*.rs", "*.c", "*.cpp", "*.go", "*.ts", "*.tsx", "*.kt", "*.py", "*.pyi", "*.java" },
+        pattern = { "*.rs", "*.c", "*.cpp", "*.go", "*.ts", "*.tsx", "*.py", "*.pyi", "*.java" },
+        desc = "Enable and refresh codelens",
         command = "lua require('user.codelens').show_line_sign()",
     })
 
@@ -18,26 +45,25 @@ M.config = function()
     vim.api.nvim_create_autocmd("TermOpen", {
         group = "_lvim_user",
         pattern = "term://*",
+        desc = "Set terminal keymappings",
         command = "lua require('user.keys').terminal_keys()",
     })
 
-    -- Smithy filetype
-    vim.api.nvim_create_autocmd("BufRead,BufNewFile", {
-        group = "_lvim_user",
-        pattern = "*.smithy",
-        command = "setfiletype smithy",
-    })
-
-    vim.api.nvim_create_autocmd("BufReadPost", {
+    vim.api.nvim_create_autocmd("BufWinEnter", {
         group = "_lvim_user",
         pattern = "*.md",
-        command = "set syntax=markdown textwidth=80",
+        desc = "Beautify markdown",
+        callback = function()
+            vim.cmd [[set syntax=markdown textwidth=80]]
+            require("user.markdown_syntax").config()
+        end,
     })
 
     -- Disable colorcolumn
     vim.api.nvim_create_autocmd("BufEnter", {
         group = "_lvim_user",
         pattern = "*",
+        desc = "Disable the ANNOYING colorcolumn",
         command = "set colorcolumn=",
     })
 
@@ -45,6 +71,7 @@ M.config = function()
     vim.api.nvim_create_autocmd("BufWritePre", {
         group = "_lvim_user",
         pattern = { "/tmp/*", "COMMIT_EDITMSG", "MERGE_MSG", "*.tmp", "*.bak" },
+        desc = "Disable undo for specific files",
         callback = function()
             vim.opt_local.undofile = false
         end,
@@ -54,15 +81,19 @@ M.config = function()
     vim.api.nvim_create_autocmd("CmdlineLeave", {
         group = "_lvim_user",
         pattern = "*",
+        desc = "Allow hlslense in scrollbar",
         command = "lua ok, sb = pcall(require, 'scrollbar.handlers.search'); if ok then sb.handler.hide() end",
     })
 
     -- Start metals
-    vim.api.nvim_create_autocmd("Filetype", {
-        group = "_lvim_user",
-        pattern = { "scala", "sbt" },
-        callback = require("user.lsp.scala").start,
-    })
+    if lvim.builtin.metals.active then
+        vim.api.nvim_create_autocmd("Filetype", {
+            group = "_lvim_user",
+            pattern = { "scala", "sbt" },
+            desc = "Start Scala metals",
+            callback = require("user.lsp.scala").start,
+        })
+    end
 
     -- Faster yank
     vim.api.nvim_create_autocmd("TextYankPost", {
@@ -74,13 +105,75 @@ M.config = function()
         end,
     })
 
-    -- Orgmode triggers
-    vim.api.nvim_create_autocmd("Filetype", {
-        group = "_lvim_user",
-        pattern = { "org" },
-        callback = function()
-            lvim.builtin.which_key.setup.triggers = { "<leader>", "<space>", "g", "f", "z", "]", "[" }
+    -- Build tools mappings
+    vim.api.nvim_create_augroup("_build_tools", {})
+    vim.api.nvim_create_augroup("_format_tools", {})
+
+    -- Cargo.toml
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = "toml",
+        desc = "Set additional buffer keymaps for Cargo.toml",
+        callback = require("user.lsp.toml").build_tools,
+    })
+
+    -- C/C++
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = { "rust", "rs" },
+        desc = "Set additional buffer keymaps for Rust files",
+        callback = require("user.lsp.rust").build_tools,
+    })
+
+    -- Rust
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = { "c", "cpp" },
+        desc = "Set additional buffer keymaps for C/C++ files",
+        callback = require("user.lsp.c").build_tools,
+    })
+
+    -- Python
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = "python",
+        desc = "Set additional buffer keymaps for Python files",
+        callback = require("user.lsp.python").build_tools,
+    })
+
+    -- Java
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = "java",
+        desc = "Set additional buffer keymaps for Java files",
+        callback = function(_args)
+            require("user.lsp.java").config()
+            require("user.lsp.java").build_tools()
         end,
+    })
+
+    -- Js/Ts
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = { "typescript", "javascript" },
+        desc = "Set additional buffer keymaps for Typescript files",
+        callback = require("user.lsp.typescript").build_tools,
+    })
+
+    -- Go
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = "go",
+        desc = "Set additional buffer keymaps for Go files",
+        callback = require("user.lsp.go").build_tools,
+    })
+
+    -- Kotlin
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "_build_tools",
+        pattern = "kotlin",
+        desc = "Set additional buffer keymaps for Kotlin files",
+        callback = require("user.lsp.kotlin").build_tools,
     })
 end
 

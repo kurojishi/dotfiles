@@ -18,7 +18,6 @@ M.config = function()
         lua = "nvim_lsp",
         python = "nvim_lsp",
         rust = "nvim_lsp",
-        kotlin = "nvim_lsp",
     }
 end
 

@@ -7,23 +7,24 @@ M.config = function()
         return
     end
 
-    -- Determine OS
+    -- Determine paths
     local home = vim.env.HOME
-    local launcher_path =
-        vim.fn.glob(home .. "/.local/share/nvim/lsp_servers/jdtls/plugins/org.eclipse.equinox.launcher_*.jar")
+    local mason_path = vim.fn.glob(vim.fn.stdpath "data" .. "/mason")
+    local launcher_path = vim.fn.glob(mason_path .. "/packages/jdtls/plugins/org.eclipse.equinox.launcher_*.jar")
     if #launcher_path == 0 then
-        launcher_path = vim.fn.glob(
-            home .. "/.local/share/nvim/lsp_servers/jdtls/plugins/org.eclipse.equinox.launcher_*.jar",
-            1,
-            1
-        )[1]
+        launcher_path =
+            vim.fn.glob(mason_path .. "/packages/jdtls/plugins/org.eclipse.equinox.launcher_*.jar", true, true)[1]
     end
+    local CONFIG = "linux"
+    local WORKSPACE_PATH = ""
     if vim.fn.has "mac" == 1 then
         CONFIG = "mac"
+        WORKSPACE_PATH = home .. "/.cache/jdtls/workspace/"
     elseif vim.fn.has "unix" == 1 then
-        CONFIG = "linux"
+        WORKSPACE_PATH = home .. "/.cache/jdtls/workspace/"
     else
-        print "Unsupported system"
+        vim.notify("Unsupported system", vim.log.levels.ERROR)
+        return
     end
 
     -- Find root of project
@@ -36,33 +37,27 @@ M.config = function()
     local extendedClientCapabilities = jdtls.extendedClientCapabilities
     extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
-    -- NOTE: for debugging
-    -- git clone git@github.com:microsoft/java-debug.git ~/.config/lvim/.java-debug
-    -- cd ~/.config/lvim/.java-debug/
-    -- ./mvnw clean install
-    local bundles = vim.fn.glob(
-        home .. "/.config/lvim/.java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar"
-    )
+    local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+    local workspace_dir = WORKSPACE_PATH .. project_name
+
+    -- Debug bundles
+    local bundles = { vim.fn.glob(mason_path .. "/packages/java-test/extension/server/*.jar", true) }
     if #bundles == 0 then
-        bundles = vim.fn.glob(
-            home
-                .. "/.config/lvim/.java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
-            1,
-            1
+        bundles = { vim.fn.glob(mason_path .. "/packages/java-test/extension/server/*.jar", true) }
+    end
+    local extra_bundles = vim.fn.glob(
+        mason_path .. "/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
+        true
+    )
+    if #extra_bundles == 0 then
+        extra_bundles = vim.fn.glob(
+            mason_path .. "/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar",
+            true
         )
     end
+    vim.list_extend(bundles, { extra_bundles })
 
-    -- NOTE: for testing
-    -- git clone git@github.com:microsoft/vscode-java-test.git ~/.config/lvim/.vscode-java-test
-    -- cd ~/.config/lvim/vscode-java-test
-    -- npm install
-    -- npm run build-plugin
-    local extra_bundles = vim.split(vim.fn.glob(home .. "/.config/lvim/.vscode-java-test/server/*.jar"), "\n")
-    if #extra_bundles == 0 then
-        extra_bundles = vim.fn.glob(home .. "/.config/lvim/.vscode-java-test/server/*.jar", 1, 1)
-    end
-    vim.list_extend(bundles, extra_bundles)
-
+    -- LSP configuration.
     local config = {
         cmd = {
             "java",
@@ -71,7 +66,7 @@ M.config = function()
             "-Declipse.product=org.eclipse.jdt.ls.core.product",
             "-Dlog.protocol=true",
             "-Dlog.level=ALL",
-            "-javaagent:" .. home .. "/.local/share/nvim/lsp_servers/jdtls/lombok.jar",
+            "-javaagent:" .. mason_path .. "/packages/jdtls/lombok.jar",
             "-Xms1g",
             "--add-modules=ALL-SYSTEM",
             "--add-opens",
@@ -81,13 +76,24 @@ M.config = function()
             "-jar",
             launcher_path,
             "-configuration",
-            home .. "/.local/share/nvim/lsp_servers/jdtls/config_" .. CONFIG,
+            mason_path .. "/packages/jdtls/config_" .. CONFIG,
             "-data",
-            root_dir,
+            workspace_dir,
         },
-
-        on_attach = require("lvim.lsp").common_on_attach,
-        on_init = require("lvim.lsp").common_on_init,
+        on_attach = function(client, bufnr)
+            if client.server_capabilities.inlayHintProvider then
+                vim.lsp.inlay_hint.enable()
+            end
+            local _, _ = pcall(vim.lsp.codelens.refresh)
+            require("jdtls.dap").setup_dap_main_class_configs()
+            require("jdtls").setup_dap { hotcodereplace = "auto" }
+            require("lvim.lsp").on_attach(client, bufnr)
+        end,
+        on_init = function(client)
+            if client.config.settings then
+                client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+            end
+        end,
         on_exit = require("lvim.lsp").common_on_exit,
         capabilities = require("lvim.lsp").common_capabilities(),
         root_dir = root_dir,
@@ -115,6 +121,11 @@ M.config = function()
                 },
                 references = {
                     includeDecompiledSources = true,
+                },
+                inlayHints = {
+                    parameterNames = {
+                        enabled = "all", -- literals, all, none
+                    },
                 },
                 format = {
                     enabled = true,
@@ -161,14 +172,61 @@ M.config = function()
     }
 
     jdtls.start_or_attach(config)
-    jdtls.setup_dap { hotcodereplace = "auto" }
+end
 
+M.build_tools = function()
+    -- Additional mappings
     vim.cmd "command! -buffer -nargs=? -complete=custom,v:lua.require'jdtls'._complete_compile JdtCompile lua require('jdtls').compile(<f-args>)"
     vim.cmd "command! -buffer -nargs=? -complete=custom,v:lua.require'jdtls'._complete_set_runtime JdtSetRuntime lua require('jdtls').set_runtime(<f-args>)"
-    vim.cmd "command! -buffer JdtUpdateConfig lua require('jdtls').update_project_config()"
-    -- vim.cmd "command! -buffer JdtJol lua require('jdtls').jol()"
     vim.cmd "command! -buffer JdtBytecode lua require('jdtls').javap()"
-    -- vim.cmd "command! -buffer JdtJshell lua require('jdtls').jshell()"
+    vim.cmd "command! -buffer JdtJshell lua require('jdtls').jshell()"
+
+    local icons = require "user.icons"
+    local which_key = require "which-key"
+    local opts = {
+        mode = "n",
+        prefix = "f",
+        buffer = vim.fn.bufnr(),
+        silent = true,
+        noremap = true,
+        nowait = true,
+    }
+    local mappings = {
+        B = {
+            name = icons.languages.java .. " Build helpers",
+            o = { "<Cmd>lua require('jdtls').organize_imports()<CR>", "Organize Imports" },
+            v = { "<Cmd>lua require('jdtls').extract_variable()<CR>", "Extract Variable" },
+            c = { "<Cmd>lua require('jdtls').extract_constant()<CR>", "Extract Constant" },
+            m = { "<Cmd>lua require('jdtls').extract_method()<CR>", "Extract Method" },
+            t = { "<Cmd>lua require('jdtls').test_nearest_method()<CR>", "Test Method" },
+            T = { "<Cmd>lua require('jdtls').test_class()<CR>", "Test Class" },
+            u = { "<Cmd>lua require('jdtls').update_project_config()<CR>", "Update Config" },
+            x = { "<Cmd>lua require('jdtls').javap()<CR>", "Bytecode" },
+            S = { "<Cmd>lua require('jdtls').jshell()<CR>", "Jshell" },
+            B = { "<Cmd>lua require('jdtls').compile('full')<CR>", "Compile full" },
+            b = { "<Cmd>lua require('jdtls').compile('incremental')<CR>", "Compile incremental" },
+            s = { "<Cmd>lua require('jdtls').super_implementation()<CR>", "Go to super" },
+            r = { "<Cmd>JdtSetRuntime<CR>", "Set runtime" },
+        },
+    }
+    local vopts = {
+        mode = "v",
+        prefix = "f",
+        buffer = vim.fn.bufnr(),
+        silent = true,
+        noremap = true,
+        nowait = true,
+    }
+    local vmappings = {
+        B = {
+            name = icons.languages.java .. " Build helpers",
+            v = { "<Cmd>lua require('jdtls').extract_variable(true)<CR>", "Extract Variable" },
+            c = { "<Cmd>lua require('jdtls').extract_constant(true)<CR>", "Extract Constant" },
+            m = { "<Cmd>lua require('jdtls').extract_method(true)<CR>", "Extract Method" },
+        },
+    }
+    which_key.register(mappings, opts)
+    which_key.register(vmappings, vopts)
 end
 
 return M

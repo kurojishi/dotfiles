@@ -9,10 +9,7 @@ M.config = function()
     dressing.setup {
         input = {
             get_config = function()
-                if lvim.builtin.noice.active then
-                    return { enabled = false }
-                end
-                if vim.api.nvim_buf_get_option(0, "filetype") == "neo-tree" then
+                if vim.api.nvim_get_option_value("filetype", { buf = 0 }) == "neo-tree" then
                     return { enabled = false }
                 end
             end,
@@ -20,13 +17,12 @@ M.config = function()
         select = {
             format_item_override = {
                 codeaction = function(action_tuple)
-                    local title = action_tuple[2].title:gsub("\r\n", "\\r\\n")
-                    local client = vim.lsp.get_client_by_id(action_tuple[1])
-                    return string.format("%s\t[%s]", title:gsub("\n", "\\n"), client.name)
+                    local title = action_tuple.action.title:gsub("\r\n", "\\r\\n")
+                    return string.format("%s", title:gsub("\n", "\\n"))
                 end,
             },
         },
-        -- telescope = require('user.telescope').get_theme(),
+        telescope = require("user.telescope").get_theme(),
     }
 end
 

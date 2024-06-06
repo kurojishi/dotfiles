@@ -1,7 +1,10 @@
 local M = {}
 
-M.config = function()
-    require("grammar-guard").init()
+M.grammar_guard = function()
+    local ok, grammarguard = pcall(require, "grammar-guard")
+    if ok then
+        grammarguard.init()
+    end
 
     local opts = {
         cmd = { "ltex-ls" },
@@ -13,12 +16,12 @@ M.config = function()
             ltex = {
                 checkFrequency = "save",
                 enabled = { "latex", "tex", "bib", "markdown", "rst", "text" },
-                language = "en",
+                language = "en-US",
                 diagnosticSeverity = "information",
                 sentenceCacheSize = 2000,
                 additionalRules = {
                     enablePickyRules = true,
-                    motherTongue = "en",
+                    -- motherTongue = "it-IT",
                 },
                 trace = { server = "warning" },
             },
@@ -33,10 +36,19 @@ M.config = function()
         return
     end
 
-    local status_ok, result = pcall(lsp.grammar_guard.setup, opts)
+    status_ok, lsp = pcall(lsp.grammar_guard.setup, opts)
     if not status_ok then
         return
     end
+end
+
+M.marksman = function()
+    require("lspconfig").marksman.setup {}
+end
+
+M.config = function()
+    M.grammar_guard()
+    M.marksman()
 end
 
 return M

@@ -1,61 +1,65 @@
-["src/nerd-font"]
-    type = "git-repo"
-    url = "https://github.com/ryanoasis/nerd-fonts"
-    refreshPeriod = "168h"
-["src/dunst"]
-    type = "git-repo"
-    url = "https://github.com/dunst-project/dunst"
-    refreshPeriod = "168h"
-["src/Waybar"]
-    type = "git-repo"
-    url = "https://github.com/Alexays/Waybar"
-    args = "-b 0.9.13"
-    refreshPeriod = "168h"
-["src/grim"]
-    type = "git-repo"
-    url = "https://github.com/emersion/grim.git"
-    args = "--depth 1"
-["src/slurp"]
-    type = "git-repo"
-    url = "https://github.com/emersion/slurp.git"
-    args = "--depth 1"
-[".oh-my-zsh"]
-    type = "archive"
-    url = "https://github.com/ohmyzsh/ohmyzsh/archive/master.tar.gz"
-    exact = true
-    stripComponents = 1
-    refreshPeriod = "168h"
-[".oh-my-zsh/custom/plugins/zsh-syntax-highlighting"]
-    type = "archive"
-    url = "https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz"
-    exact = true
-    stripComponents = 1
-    refreshPeriod = "168h"
-["debs/zoom.deb"]
-    type = "file"
-    url = "https://zoom.us/client/5.12.2.4816/zoom_amd64.deb"
-    refreshPeriod = "168h"
-["debs/git-delta.deb"]
-    type = "file"
-    url = "https://github.com/dandavison/delta/releases/download/0.14.0/git-delta_0.14.0_amd64.deb"
-    refreshPeriod = "168h"
-["debs/discord.deb"]
-    type = "file"
-    url = "https://dl.discordapp.net/apps/linux/0.0.21/discord-0.0.21.deb"
-    refreshPeriod = "168h"
-[".pyenv"]
-    type = "git-repo"
-    url = "https://github.com/pyenv/pyenv.git"
-    refreshPeriod = "168h"
-[".nodenv"]
-    type = "git-repo"
-    url = "https://github.com/nodenv/nodenv.git"
-    refreshPeriod = "168h"
-[".nodenv/plugins/node-build"]
-    type = "git-repo"
-    url = "https://github.com/nodenv/node-build.git"
-    refreshPeriod = "168h"
-["installers/golang.tar.gz"]
-    type = "file"
-    url = "https://go.dev/dl/go1.20.3.linux-amd64.tar.gz"
+#["src/nerd-font"]
+#    type = "git-repo"
+#    url = "https://github.com/ryanoasis/nerd-fonts"
+#    refreshPeriod = "168h"
+#["src/dunst"]
+#    type = "git-repo"
+#    url = "https://github.com/dunst-project/dunst"
+#    refreshPeriod = "168h"
+#["src/Waybar"]
+#    type = "git-repo"
+#    url = "https://github.com/Alexays/Waybar"
+#    args = "-b 0.9.13"
+#    refreshPeriod = "168h"
+#["src/grim"]
+#    type = "git-repo"
+#    url = "https://github.com/emersion/grim.git"
+#    args = "--depth 1"
+#["src/slurp"]
+#    type = "git-repo"
+#    url = "https://github.com/emersion/slurp.git"
+#    args = "--depth 1"
+#[".oh-my-zsh"]
+#    type = "archive"
+#    url = "https://github.com/ohmyzsh/ohmyzsh/archive/master.tar.gz"
+#    exact = true
+#    stripComponents = 1
+#    refreshPeriod = "168h"
+#[".oh-my-zsh/custom/plugins/zsh-syntax-highlighting"]
+#    type = "archive"
+#    url = "https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz"
+#    exact = true
+#    stripComponents = 1
+#    refreshPeriod = "168h"
+#["debs/neovim.deb"]
+#    type = "file"
+#    url = "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.deb"
+#    refreshPeriod = "168h"
+#["debs/zoom.deb"]
+#    type = "file"
+#    url = "https://zoom.us/client/5.12.2.4816/zoom_amd64.deb"
+#    refreshPeriod = "168h"
+#["debs/git-delta.deb"]
+#    type = "file"
+#    url = "https://github.com/dandavison/delta/releases/download/0.14.0/git-delta_0.14.0_amd64.deb"
+#    refreshPeriod = "168h"
+#["debs/discord.deb"]
+#    type = "file"
+#    url = "https://dl.discordapp.net/apps/linux/0.0.21/discord-0.0.21.deb"
+#    refreshPeriod = "168h"
+#[".pyenv"]
+#    type = "git-repo"
+#    url = "https://github.com/pyenv/pyenv.git"
+#    refreshPeriod = "168h"
+#[".nodenv"]
+#    type = "git-repo"
+#    url = "https://github.com/nodenv/nodenv.git"
+#    refreshPeriod = "168h"
+#[".nodenv/plugins/node-build"]
+#    type = "git-repo"
+#    url = "https://github.com/nodenv/node-build.git"
+#    refreshPeriod = "168h"
+#["installers/golang.tar.gz"]
+#    type = "file"
+#    url = "https://go.dev/dl/go1.20.3.linux-amd64.tar.gz"
 

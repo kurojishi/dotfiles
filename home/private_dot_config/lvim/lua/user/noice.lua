@@ -1,13 +1,11 @@
 local M = {}
 
 M.config = function()
-    if lvim.builtin.noice.active then
-        vim.lsp.handlers["textDocument/signatureHelp"] = require("noice.util").protect(require("noice.lsp").signature)
-    end
     local status_ok, noice = pcall(require, "noice")
     if not status_ok then
         return
     end
+    local icons = require("user.icons").icons
     local spinners = require "noice.util.spinners"
     spinners.spinners["mine"] = {
         frames = {
@@ -46,42 +44,95 @@ M.config = function()
         format = {
             spinner = {
                 name = "mine",
-                hl = "Constant",
             },
+        },
+        presets = {
+            bottom_search = true,
+            inc_rename = true,
+            lsp_doc_border = true,
+            command_palette = false,
         },
         lsp = {
             progress = {
-                enabled = lvim.builtin.noice.lsp_progress,
+                enabled = true,
                 format = {
-                    { "{data.progress.percentage} ", hl_group = "Comment" },
-                    { "{spinner} ", hl_group = "NoiceLspProgressSpinner" },
-                    { "{data.progress.title} ", hl_group = "Comment" },
+                    { "{spinner}", hl_group = "NoiceLspProgressSpinner" },
+                    { "{data.progress.percentage} ", hl_group = "NoiceLspProgressClient" },
+                    { "{data.progress.title} ", hl_group = "NoiceLspProgressTitle" },
                 },
                 format_done = {},
             },
             hover = { enabled = true },
-            signature = { enabled = false, auto_open = false },
+            signature = { enabled = false, auto_open = { enabled = false } },
+            override = {
+                ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+                ["vim.lsp.util.stylize_markdown"] = false,
+                ["cmp.entry.get_documentation"] = true,
+            },
         },
         cmdline = {
-            -- view = "cmdline",
-            -- view_search = "cmdline",
+            view = "cmdline",
             format = {
-                filter = { pattern = "^:%s*!", icon = "", ft = "sh" },
-                IncRename = {
-                    pattern = "^:%s*IncRename%s+",
-                    icon = " ",
-                    conceal = true,
-                    opts = {
-                        relative = "cursor",
-                        size = { min_width = 20 },
-                        position = { row = -3, col = 0 },
-                        buf_options = { filetype = "text" },
+                cmdline = { pattern = "^:", icon = "", lang = "vim" },
+                search_down = { kind = "search", pattern = "^/", icon = "  ", lang = "regex" },
+                search_up = { kind = "search", pattern = "^%?", icon = "  ", lang = "regex" },
+                filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
+                lua = { pattern = "^:%s*lua%s+", icon = "", lang = "lua" },
+                help = { pattern = "^:%s*h%s+", icon = "" },
+                calculator = { pattern = "^=", icon = "", lang = "vimnormal" },
+                input = {},
+            },
+        },
+        messages = {
+            enabled = true,
+            view = "notify",
+            view_error = "notify",
+            view_warn = "notify",
+            view_history = "split",
+            view_search = false,
+        },
+        popupmenu = {
+            enabled = true,
+            backend = "nui",
+            kind_icons = {},
+        },
+        commands = {
+            history = {
+                view = "split",
+                opts = { enter = true, format = "details" },
+                filter = {
+                    any = {
+                        { event = "notify" },
+                        { error = true },
+                        { warning = true },
+                        { event = "msg_show", kind = { "" } },
+                        { event = "lsp", kind = "message" },
                     },
                 },
             },
+            last = {
+                view = "popup",
+                opts = { enter = true, format = "details" },
+                filter = {
+                    any = {
+                        { event = "notify" },
+                        { error = true },
+                        { warning = true },
+                        { event = "msg_show", kind = { "" } },
+                        { event = "lsp", kind = "message" },
+                    },
+                },
+                filter_opts = { count = 1 },
+            },
+            errors = {
+                view = "popup",
+                opts = { enter = true, format = "details" },
+                filter = { error = true },
+                filter_opts = { reverse = true },
+            },
         },
         views = {
-            cmdline_popup = {
+            cmdline = {
                 win_options = {
                     winblend = 5,
                     winhighlight = {
@@ -92,23 +143,24 @@ M.config = function()
                     },
                     cursorline = false,
                 },
-                position = {
-                    row = "93%",
-                    col = "50%",
-                },
             },
-        },
-        popupmenu = {
-            enabled = false,
         },
         routes = {
             {
-                filter = { event = "msg_show", kind = "search_count" },
-                opts = { skip = true },
+                filter = {
+                    event = "msg_show",
+                    find = "%d+L, %d+B",
+                },
+                view = "mini",
             },
             {
-                view = "split",
-                filter = { event = "msg_show", min_height = 30 },
+                view = "cmdline_output",
+                filter = { cmdline = "^:", min_height = 5 },
+                -- BUG: will be fixed after https://github.com/neovim/neovim/issues/21044 gets merged
+            },
+            {
+                filter = { event = "msg_show", kind = "search_count" },
+                opts = { skip = true },
             },
             {
                 filter = {
@@ -146,29 +198,29 @@ M.config = function()
                 opts = { skip = true },
             },
             {
+                filter = { find = "No information available" },
+                opts = { skip = true },
+            },
+            {
                 filter = { find = "No active Snippet" },
                 opts = { skip = true },
             },
-            -- Disabled filters.
-            -- {
-            --     view = "notify",
-            --     filter = { event = "msg_showmode" },
-            -- },
-            -- {
-            --     filter = { find = "more lines" },
-            --     opts = { skip = true },
-            -- },
-            -- {
-            --     filter = { find = "fewer lines" },
-            --     opts = { skip = true },
-            -- },
-            -- {
-            --     filter = {
-            --         event = "msg_show",
-            --         find = "E486:",
-            --     },
-            --     opts = { skip = true },
-            -- },
+            {
+                filter = { find = "waiting for cargo metadata" },
+                opts = { skip = true },
+            },
+            {
+                filter = { find = "E21: Cannot make changes, 'modifiable' is off" },
+                opts = { skip = true },
+            },
+            {
+                filter = { find = "E433: No tags file" },
+                opts = { skip = true },
+            },
+            {
+                filter = { find = "E426: Tag not found:" },
+                opts = { skip = true },
+            },
         },
     }
 end

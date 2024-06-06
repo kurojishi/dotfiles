@@ -20,12 +20,15 @@ M.start = function()
             "akka.stream.javadsl",
         },
         fallbackScalaVersion = "3.2.0-RC3",
-        serverVersion = "0.11.8",
+        serverVersion = "0.11.12",
     }
 
     metals_config.init_options.statusBarProvider = "on"
     metals_config.capabilities = require("lvim.lsp").common_capabilities()
     metals_config.on_attach = function(client, bufnr)
+        if client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable()
+        end
         require("lvim.lsp").common_on_attach(client, bufnr)
         metals.setup_dap()
     end

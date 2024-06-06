@@ -32,6 +32,7 @@ M.config = function()
         "hiddenoff",
         "algorithm:minimal",
     }
+    vim.g.toggle_theme_icon = "   "
     -- Set wrap
     vim.opt.wrap = true
     -- Enable term GUI
@@ -54,14 +55,13 @@ M.config = function()
     vim.opt.backupdir = { vim.fn.stdpath "cache" .. "/backups" }
     -- Undodir
     vim.opt.undodir = vim.fn.stdpath "cache" .. "/undo"
-    -- The font used in graphical neovim applications
-    vim.opt.guifont = "MonoLisa Nerd Font:h10"
     -- Display lines as one long line
     vim.opt.wrap = true
     -- We need to see things like -- INSERT --
     vim.opt.showmode = true
     -- What the title of the window will be set to
-    vim.opt.titlestring = "neovim %<%F%=%l/%L"
+    -- vim.opt.titlestring = "neovim %<%F%=%l/%L"
+    vim.opt.titlestring = "neovim"
     -- Ignore case in search
     vim.opt.ignorecase = true
     -- Space in the neovim command line for displaying messages
@@ -80,9 +80,8 @@ M.config = function()
     vim.opt.confirm = true
     -- Automatically :write before running commands and changing files
     vim.opt.autowriteall = true
-    -- Type of clipboard
-    vim.opt.clipboard = "unnamedplus"
 
+    vim.opt.shortmess:append { t = true }
     vim.opt.shortmess = {
         t = true, -- truncate file messages at start
         A = false, -- ignore annoying swap file messages
@@ -117,6 +116,9 @@ M.config = function()
         precedes = "‹", -- Alternatives: … «
         trail = "•", -- BULLET (U+2022, UTF-8: E2 80 A2)
     }
+    vim.opt.backupskip = "/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*,*/shm/*,/private/var/*,.vault.vim"
+    vim.opt.ttyfast = true
+
     -- Cursorline highlighting control
     --  Only have it on in the active buffer
     vim.opt.cursorline = true -- Highlight the current line
@@ -138,13 +140,13 @@ M.config = function()
 
     -- Better fillchars
     vim.opt.fillchars = {
-        fold = " ",
         eob = " ", -- suppress ~ at EndOfBuffer
         diff = "╱", -- alternatives = ⣿ ░ ─
         msgsep = "‾",
-        foldopen = "▾",
-        foldsep = "│",
-        foldclose = "▸",
+        fold = " ",
+        foldopen = "",
+        foldclose = "",
+        foldsep = " ",
         horiz = "━",
         horizup = "┻",
         horizdown = "┳",
@@ -177,19 +179,28 @@ M.config = function()
         "*.swp,.lock,.DS_Store,._*,tags.lock",
         -- version control
         ".git,.svn",
+        -- Rust
+        "Cargo.lock,Cargo.Bazel.lock",
     }
 
-    -- Disable perl provider.
+    -- Disable perl and ruby providers.
     vim.g.loaded_perl_provider = 0
+    vim.g.loaded_ruby_provider = 0
 
     -- Folding
-    vim.wo.foldmethod = "expr"
-    vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
-    vim.wo.foldlevel = 4
-    vim.wo.foldtext =
-    [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend)) . ' (' . (v:foldend - v:foldstart + 1) . ' lines)']]
-    vim.wo.foldnestmax = 3
-    vim.wo.foldminlines = 1
+    if lvim.builtin.statuscol.active then
+        vim.o.foldcolumn = "1" -- Show the fold column
+    else
+        vim.o.foldcolumn = "0" -- Show the fold column
+    end
+    vim.o.foldmethod = "expr"
+    vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+    vim.o.foldlevel = 4
+    vim.o.foldnestmax = 3
+    vim.o.foldminlines = 1
+
+    -- Conceal
+    -- vim.o.conceallevel = 2
 
     -- Setup clipboard
     vim.opt.clipboard = { "unnamedplus" }
@@ -198,14 +209,19 @@ M.config = function()
     vim.o.qftf = "{info -> v:lua._G.qftf(info)}"
 
     -- Session
-    vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal"
+    vim.o.sessionoptions = "buffers,curdir,folds,globals,help,tabpages,winpos,winsize,terminal"
 
     -- Splitkeep
     vim.o.splitkeep = "screen"
-    vim.o.spelllang = "en,it"
 
     -- Colorcolumn
     vim.cmd [[set colorcolumn=]]
+
+    -- Shell
+    -- vim.o.shell = "/bin/bash"
+
+    -- Editorconfig
+    vim.g.editorconfig = true
 
     -- Mouse handling
     vim.cmd [[
@@ -247,35 +263,28 @@ M.config = function()
         command! NoNuMode :call <SID>NoNuModeFunc()
     ]]
 
-    -- Disable syntax highlighting in big files
-    vim.cmd [[
-        function! DisableSyntaxTreesitter()
-            echo("Big file, disabling syntax, treesitter and folding")
-            if exists(':TSBufDisable')
-                exec 'TSBufDisable autotag'
-                exec 'TSBufDisable highlight'
-            endif
-            set foldmethod=manual
-            syntax clear
-            syntax off
-            filetype off
-            set noundofile
-            set noswapfile
-            set noloadplugins
-            set lazyredraw
-        endfunction
-
-        augroup BigFileDisable
-            autocmd!
-            autocmd BufReadPre,FileReadPre * if getfsize(expand("%")) > 1024 * 1024 | exec DisableSyntaxTreesitter() | endif
-        augroup END
-    ]]
-
     -- Clean search with <esc>
     vim.cmd [[
         nnoremap <silent><esc> :noh<CR>
         nnoremap <esc>[ <esc>[
     ]]
+end
+
+function M.maximize_current_split()
+    local cur_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_set_var("non_float_total", 0)
+    vim.cmd "windo if &buftype != 'nofile' | let g:non_float_total += 1 | endif"
+    vim.api.nvim_set_current_win(cur_win or 0)
+    if vim.api.nvim_get_var "non_float_total" == 1 then
+        if vim.fn.tabpagenr "$" == 1 then
+            return
+        end
+        vim.cmd "tabclose"
+    else
+        local last_cursor = vim.api.nvim_win_get_cursor(0)
+        vim.cmd "tabedit %:p"
+        vim.api.nvim_win_set_cursor(0, last_cursor)
+    end
 end
 
 function _G.qftf(info)

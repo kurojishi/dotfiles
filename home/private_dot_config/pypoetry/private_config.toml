@@ -1,0 +1,2 @@
+[repositories.proton-nexus]
+url = "https://nexus.protontech.ch/repository/network-team-python"

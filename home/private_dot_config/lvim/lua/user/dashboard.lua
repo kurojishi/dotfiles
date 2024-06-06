@@ -1,5 +1,9 @@
 local M = {}
 
+M.session_load_last = function()
+    require("persisted").load { last = true }
+end
+
 M.config = function()
     local kind = require("user.cmp").kind
     local icons = require("user.icons").icons
@@ -59,28 +63,38 @@ M.config = function()
     }
 
     local plugins = ""
-    local sessions = ""
-    local date = os.date "%a %d %b"
-    local version = " " .. vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch
-    local handle = io.popen 'fd -d 2 . $HOME"/.local/share/lunarvim/site/pack/packer" | grep pack | wc -l | tr -d "\n" '
+    local handle = io.popen 'fd -d 2 . $HOME"/.local/share/lunarvim/site/pack/lazy" | grep pack | wc -l | tr -d "\n" '
     if handle then
         plugins = handle:read "*a"
         handle:close()
         plugins = plugins:gsub("^%s*(.-)%s*$", "%1")
     end
+    local border_upper =
+        text "╭─────────────────────────────╮"
+    local date = text("│  " .. icons.calendar .. "Today is " .. os.date "%a %d %b" .. "      │")
+    local nvim_version = text(
+        "│  "
+            .. icons.vim
+            .. "Neovim version "
+            .. vim.version().major
+            .. "."
+            .. vim.version().minor
+            .. "."
+            .. vim.version().patch
+            .. "    │"
+    )
+    local lvim_version = text(
+        "│  "
+            .. icons.moon
+            .. " LunarVim "
+            .. require("lvim.utils.git").get_lvim_version():gsub("-dirty", "", 1)
+            .. " │"
+    )
+    local plugin_count = text("│  " .. kind.Module .. plugins .. " plugins in total     │")
+    local border_lower =
+        text "╰─────────────────────────────╯"
 
-    local handle = io.popen 'fd -d 1 . $HOME"/.local/share/nvim/sessions" | wc -l | tr -d "\n" '
-    if handle then
-        sessions = handle:read "*a"
-        handle:close()
-    end
-
-    local version = text(version, "Function")
-    date = text("┌─ " .. icons.calendar .. "Today is " .. date .. "  ─┐")
-    local plugin_count = text("❙  " .. kind.Module .. " " .. plugins .. " plugins in total ❙")
-    local session_count = text("└─ " .. icons.session .. " " .. sessions .. " neovim sessions  ─┘")
-
-    local fortune = require "alpha.fortune" ()
+    local fortune = require "alpha.fortune"()
     -- fortune = fortune:gsub("^%s+", ""):gsub("%s+$", "")
     local footer = {
         type = "text",
@@ -122,17 +136,17 @@ M.config = function()
 
     local buttons = {
         type = "group",
+        name = "some",
         val = {
-            button("r", " " .. icons.clock .. " Recent files", ":lua require('user.telescope').recent_files()<cr>"),
-            button("l", " " .. icons.magic .. " Last session", ":SessionLoadLast<cr>"),
-            button("S", " " .. icons.session .. " Sessions", ":lua require('user.telescope').persisted()<cr>"),
-            button("z", " " .. icons.folder .. "  Zoxide", ":lua require('user.telescope').zoxide()<cr>"),
-            button("f", " " .. kind.File .. " Find file", ":lua require('user.telescope').find_project_files()<cr>"),
-            button("s", " " .. icons.text .. "  Find word", ":lua require('user.telescope').find_string()<cr>"),
-            button("n", " " .. icons.stuka .. " New file", ":ene <BAR> startinsert <cr>"),
-            button("b", " " .. icons.files .. " File browswer", ":lua require('user.telescope').file_browser()<cr>"),
-            button("p", " " .. icons.project .. " Projects", ":lua require('user.telescope').projects()<cr>"),
-            button("q", " " .. icons.exit .. " Quit", ":confirm qall<cr>"),
+            button("r", icons.clock .. " Smart open", "<cmd>lua require('user.telescope').smart_open()<cr>"),
+            button("l", icons.magic .. " Last session", "<cmd>lua require('user.dashboard').session_load_last()<cr>"),
+            button("S", icons.session .. " Sessions", "<cmd>lua require('user.telescope').session()<cr>"),
+            button("z", icons.folder .. "  Zoxide", "<cmd>lua require('user.telescope').zoxide()<cr>"),
+            button("f", kind.File .. "  Find file", "<cmd>lua require('user.telescope').find_project_files()<cr>"),
+            button("s", icons.text .. "  Find word", "<cmd>lua require('user.telescope').find_string()<cr>"),
+            button("n", icons.stuka .. " New file", "<cmd>ene <BAR> startinsert <cr>"),
+            button("b", icons.files .. " File browser", "<cmd>lua require('user.telescope').file_browser()<cr>"),
+            button("q", icons.exit .. " Quit", "<cmd>quit<cr>"),
         },
         opts = {
             spacing = 1,
@@ -141,24 +155,27 @@ M.config = function()
 
     local section = {
         header = header,
-        version = version,
+        nvim_version = nvim_version,
         date = date,
+        lvim_version = lvim_version,
         plugin_count = plugin_count,
-        session_count = session_count,
         buttons = buttons,
         footer = footer,
+        border_upper = border_upper,
+        border_lower = border_lower,
     }
-
     local opts = {
         layout = {
             { type = "padding", val = 1 },
             section.header,
             { type = "padding", val = 2 },
-            section.version,
-            { type = "padding", val = 1 },
+            section.border_upper,
             section.date,
+            section.nvim_version,
+            section.lvim_version,
             section.plugin_count,
             section.session_count,
+            section.border_lower,
             -- section.top_bar,
             { type = "padding", val = 2 },
             section.buttons,

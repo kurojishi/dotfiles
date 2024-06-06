@@ -70,7 +70,7 @@ M.config = function()
 
         -- input and move cursor into pair
         M.input("${}", "n")
-        M.input("<Left>")
+        M.input "<Left>"
     end
 
     -- padding: 40px; ->
@@ -93,11 +93,11 @@ M.config = function()
                 goto continue
             end
             -- ignore comments
-            if line:find("%/%*") then
+            if line:find "%/%*" then
                 goto continue
             end
 
-            local indentation, name, val = line:match("(%s+)(.+):%s(.+)")
+            local indentation, name, val = line:match "(%s+)(.+):%s(.+)"
             -- skip non-matching lines
             if not (name and val) then
                 goto continue
@@ -111,7 +111,7 @@ M.config = function()
             local parsed_val = val:gsub(";", "")
             -- keep numbers, wrap others in quotes
             parsed_val = tonumber(parsed_val) or string.format('"%s"', parsed_val)
-            local parsed_line = table.concat({ indentation, parsed_name, ": ", parsed_val, "," })
+            local parsed_line = table.concat { indentation, parsed_name, ": ", parsed_val, "," }
 
             did_convert = true
             local row = start_line + i
@@ -121,13 +121,16 @@ M.config = function()
         end
 
         if not did_convert then
-            M.warn("css-to-js: nothing to convert")
+            M.warn "css-to-js: nothing to convert"
         end
     end
 
     _G.css_to_js = css_to_js
 
     local function on_attach(client, bufnr)
+        if client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable()
+        end
         require("lvim.lsp").common_on_attach(client, bufnr)
         api.nvim_buf_create_user_command(bufnr, "CssToJs", css_to_js, { range = true })
     end
@@ -147,10 +150,58 @@ M.config = function()
         disable_formatting = false, -- disable tsserver's formatting capabilities
         debug = false, -- enable debug logging for commands
         server = { -- pass options to lspconfig's setup method
+            settings = {
+                typescript = {
+                    inlayHints = {
+                        includeInlayParameterNameHints = "all",
+                        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                        includeInlayFunctionParameterTypeHints = true,
+                        includeInlayVariableTypeHints = true,
+                        includeInlayPropertyDeclarationTypeHints = true,
+                        includeInlayFunctionLikeReturnTypeHints = true,
+                        includeInlayEnumMemberValueHints = true,
+                    },
+                },
+                javascript = {
+                    inlayHints = {
+                        includeInlayParameterNameHints = "all",
+                        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                        includeInlayFunctionParameterTypeHints = true,
+                        includeInlayVariableTypeHints = true,
+                        includeInlayPropertyDeclarationTypeHints = true,
+                        includeInlayFunctionLikeReturnTypeHints = true,
+                        includeInlayEnumMemberValueHints = true,
+                    },
+                },
+            },
             on_attach = on_attach,
             capabilities = lvim_lsp.common_capabilities(),
         },
     }
+end
+
+M.build_tools = function()
+    local icons = require "user.icons"
+    local which_key = require "which-key"
+    local opts = {
+        mode = "n",
+        prefix = "f",
+        buffer = vim.fn.bufnr(),
+        silent = true,
+        noremap = true,
+        nowait = true,
+    }
+    local mappings = {
+        B = {
+            name = icons.languages.ts .. " Build helpers",
+            a = { "<cmd>TypescriptAddMissingImports<cr>", "Add missing imports" },
+            o = { "<cmd>TypescriptOrganizeImports<cr>", "Organize imports" },
+            f = { "<cmd>TypescriptFixAll<cr>", "Fix all" },
+            r = { "<cmd>TypescriptRenameFile<cr>", "Rename file" },
+            u = { "<cmd>TypescriptRemoveUnused<cr>", "Remove unused" },
+        },
+    }
+    which_key.register(mappings, opts)
 end
 
 return M

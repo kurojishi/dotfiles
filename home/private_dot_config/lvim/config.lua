@@ -1,18 +1,23 @@
--- General
+-- Profile
+-- require("plenary.profile").start("/tmp/nvim-profile.log")
 lvim.colorscheme = "tokyonight"
-lvim.builtin.theme.options.style = "storm"
-
--- Neovim
-require("user.neovim").config()
+lvim.builtin.theme.tokyonight.options.style = "storm"
 
 -- Builtin
 require("user.builtin").config()
 
--- Cmp
-require("user.cmp").config()
+-- Neovim
+require("user.neovim").config()
+require("user.neovide").config()
 
 -- Additional Plugins
 require("user.plugins").config()
+
+-- Autocommands
+require("user.autocmd").config()
+
+-- Cmp
+require("user.cmp").config()
 
 -- Treesitter
 require("user.treesitter").config()
@@ -32,11 +37,11 @@ require("user.terminal").config()
 -- Keys
 require("user.keys").config()
 
--- Autocommands
-require("user.autocmd").config()
-
 -- Lsp
 require("user.lsp").config()
 
 -- Debugging
 require("user.dap").config()
+
+-- End profile
+-- require("plenary.profile").stop()

@@ -78,21 +78,20 @@ local function get_file_icon_color()
 end
 
 M.numbers = {
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
+    "󰼏 ",
+    "󰼐 ",
+    "󰼑 ",
+    "󰼒 ",
+    "󰼓 ",
+    "󰼔 ",
+    "󰼕 ",
+    "󰼖 ",
+    "󰼗 ",
+    "󰿪 ",
 }
 
 M.config = function()
-    local theme = require "user.theme"
-    local colors = theme.colors.tokyonight_colors
+    local colors = require("user.theme").current_colors()
 
     -- Color table for highlights
     local mode_color = {
@@ -225,7 +224,7 @@ M.config = function()
     -- Branch
     ins_left {
         "b:gitsigns_head",
-        icon = " ",
+        icon = " " .. icons.git,
         cond = conditions.check_git_workspace,
         color = { fg = colors.blue, bg = colors.bg },
         padding = 0,
@@ -382,13 +381,32 @@ M.config = function()
             end
             for _, client in pairs(buf_clients) do
                 if client.name == "null-ls" then
-                    return " " .. icons.code_lens_action .. " "
+                    return " " .. icons.code_lens_action
                 end
             end
             return ""
         end,
         padding = 0,
         color = { fg = colors.blue, bg = colors.bg },
+        cond = conditions.hide_in_width,
+    }
+
+    -- Typos-ls icon
+    ins_right {
+        function()
+            local buf_clients = vim.lsp.get_active_clients { bufnr = vim.api.nvim_get_current_buf() }
+            if next(buf_clients) == nil then
+                return ""
+            end
+            for _, client in pairs(buf_clients) do
+                if client.name == "typos_lsp" then
+                    return icons.text
+                end
+            end
+            return ""
+        end,
+        padding = 0,
+        color = { fg = colors.yellow, bg = colors.bg },
         cond = conditions.hide_in_width,
     }
 
@@ -437,7 +455,14 @@ M.config = function()
             local trim = vim.fn.winwidth(0) < trim_width
 
             for _, client in pairs(buf_clients) do
-                if not (client.name == "copilot" or client.name == "null-ls") then
+                if
+                    not (
+                        client.name == "GitHub Copilot"
+                        or client.name == "null-ls"
+                        or client.name == "typos_lsp"
+                        or client.name == "ruff"
+                    )
+                then
                     local _added_client = client.name
                     if trim then
                         _added_client = string.sub(client.name, 1, 4)
@@ -470,7 +495,16 @@ M.config = function()
             end
             vim.list_extend(buf_client_names, supported_linters)
 
-            return icons.ls_active .. table.concat(buf_client_names, ", ")
+            local client_names = {}
+            if #buf_client_names > 4 then
+                for i = 1, 4 do
+                    client_names[i] = buf_client_names[i]
+                end
+                client_names[5] = icons.right
+            else
+                client_names = buf_client_names
+            end
+            return icons.ls_active .. table.concat(client_names, " ")
         end,
         color = { fg = colors.fg, bg = colors.bg },
         cond = conditions.hide_in_width,
